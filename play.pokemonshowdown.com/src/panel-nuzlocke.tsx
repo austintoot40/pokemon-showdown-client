@@ -637,6 +637,7 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockeStatePayload | nu
 	case 'dashboard':
 		screen = <NzScreen><p class="nz-notice">No active run. Return to the main menu to start one.</p></NzScreen>;
 		break;
+	case 'intro':
 	case 'starter':      screen = <StarterScreen game={gameState} />; break;
 	case 'encounters':   screen = <EncountersScreen game={gameState} />; break;
 	case 'teambuilding': screen = <TeambuildingScreen game={gameState} />; break;

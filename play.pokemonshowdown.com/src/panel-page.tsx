@@ -97,7 +97,10 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 
 	override componentDidMount() {
 		super.componentDidMount();
-		if (this.props.room.id === 'view-nuzlocke') PS.hideRightRoom();
+		if (this.props.room.id === 'view-nuzlocke') {
+			PS.hideRightRoom();
+			PS.send('/nuzlocke refresh');
+		}
 	}
 
 	/**
