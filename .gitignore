@@ -3,6 +3,9 @@ node_modules/
 Thumbs.db
 npm-debug.log
 /config/
+/play.pokemonshowdown.com/config/testclient-key.js
+/play.pokemonshowdown.com/js/nuzlocke-ui.js
+/play.pokemonshowdown.com/js/nuzlocke-ui.js.map
 /vendor/
 /caches/
 

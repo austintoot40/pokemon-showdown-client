@@ -23,6 +23,7 @@ class PageRoom extends PSRoom {
 
 	loading = true;
 	htmlData?: string;
+	nuzlockeState: any = null;
 
 	setHTMLData = (htmlData?: string) => {
 		this.loading = false;
@@ -91,6 +92,13 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	static readonly routes = ['view-*'];
 	static readonly Model = PageRoom;
 	static clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp /> };
+	/** Set by panel-nuzlocke.tsx after it loads. Renders the nuzlocke game panel. */
+	static nuzlockeRenderer: ((gameState: any) => any) | null = null;
+
+	override componentDidMount() {
+		super.componentDidMount();
+		if (this.props.room.id === 'view-nuzlocke') PS.hideRightRoom();
+	}
 
 	/**
 	 * @return true to prevent line from being sent to server
@@ -128,12 +136,18 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			room.setHTMLData(args[1]);
 			room.subtleNotify();
 			return true;
+		case 'nuzlockestate':
+			room.nuzlockeState = JSON.parse(args[1]);
+			room.update(null);
+			return true;
 		}
 	}
 	override render() {
 		const { room } = this.props;
 		let renderPage;
-		if (room.page !== undefined && PagePanel.clientRooms[room.page]) {
+		if (room.page === 'nuzlocke' && PagePanel.nuzlockeRenderer) {
+			renderPage = PagePanel.nuzlockeRenderer(room.nuzlockeState);
+		} else if (room.page !== undefined && PagePanel.clientRooms[room.page]) {
 			renderPage = PagePanel.clientRooms[room.page];
 		} else {
 			if (room.loading) {

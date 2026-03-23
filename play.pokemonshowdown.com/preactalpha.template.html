@@ -30,6 +30,10 @@ https://psim.us/dev
 	<link rel="stylesheet" href="/style/battle.css?" />
 	<link rel="stylesheet" href="/style/client2.css?" />
 	<link rel="stylesheet" href="/style/teambuilder.css?" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="/style/nuzlocke.css" />
 	<meta name="robots" content="noindex" />
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 	<!--[if lte IE 8]><script>
@@ -87,6 +91,7 @@ https://psim.us/dev
 
 	<script defer src="/js/lib/preact.min.js?"></script>
 	<script defer src="/js/panels.js?"></script>
+	<script defer src="/js/nuzlocke-ui.js?"></script>
 	<script defer src="/js/panel-mainmenu.js?"></script>
 	<script defer src="/js/panel-rooms.js?"></script>
 	<script defer src="/js/panel-topbar.js?"></script>
@@ -104,6 +109,7 @@ https://psim.us/dev
 
 	<script defer src="/js/panel-popups.js?"></script>
 	<script defer src="/js/panel-page.js?"></script>
+	<script defer src="/js/panel-nuzlocke.js?"></script>
 	<script defer src="/js/panel-ladder.js?"></script>
 	<script defer src="/js/panel-resources.js?"></script>
 
@@ -139,5 +145,6 @@ https://psim.us/dev
 	<script defer src="/data/commands.js?"></script>
 
 	<script defer src="/js/client-endload.js?"></script>
+	<script defer>PS.libsLoaded.then(function() { PS.hideRightRoom(); });</script>
 
 </body></html>

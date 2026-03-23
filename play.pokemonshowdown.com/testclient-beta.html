@@ -7,6 +7,10 @@
 	<link rel="stylesheet" href="style/battle.css" />
 	<link rel="stylesheet" href="style/client2.css" />
 	<link rel="stylesheet" href="style/utilichart.css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="style/nuzlocke.css" />
 	<meta name="robots" content="noindex" />
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 	<!--[if lte IE 8]><script>
@@ -111,6 +115,7 @@
 
 	<script src="js/lib/preact.min.js"></script>
 	<script src="js/panels.js"></script>
+	<script src="js/nuzlocke-ui.js"></script>
 	<script src="js/panel-mainmenu.js"></script>
 	<script src="js/panel-rooms.js"></script>
 	<script src="js/panel-topbar.js"></script>
@@ -128,6 +133,7 @@
 
 	<script src="js/panel-popups.js"></script>
 	<script src="js/panel-page.js?"></script>
+	<script src="js/panel-nuzlocke.js"></script>
 	<script src="js/panel-resources.js?" onload="console.log('loaded')"></script>
 	<script src="js/panel-ladder.js?"></script>
 
@@ -163,5 +169,6 @@
 	<script src="js/lib/color-thief.min.js"></script>
 
 	<script src="js/client-endload.js?"></script>
+	<script>PS.libsLoaded.then(function() { PS.hideRightRoom(); });</script>
 
 </body></html>

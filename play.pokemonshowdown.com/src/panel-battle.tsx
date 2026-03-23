@@ -367,17 +367,24 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		battle.subscribe(() => this.forceUpdate());
 	}
 	battleHeight = 360;
+	battleScale = 1;
 	updateLayout() {
 		if (!this.base) return;
 		const room = this.props.room;
 		const width = this.base.offsetWidth;
-		if (width && width < 640) {
-			const scale = (width / 640);
+		const height = this.base.offsetHeight;
+		const CONTROLS_HEIGHT = 130;
+		const heightScale = height / (360 + CONTROLS_HEIGHT);
+		const widthScale = width ? width / 640 : 1;
+		const scale = Math.min(heightScale, widthScale);
+		if (scale !== 1) {
 			room.battle?.scene.$frame!.css('transform', `scale(${scale})`);
 			this.battleHeight = Math.round(360 * scale);
+			this.battleScale = scale;
 		} else {
 			room.battle?.scene.$frame!.css('transform', 'none');
 			this.battleHeight = 360;
+			this.battleScale = 1;
 		}
 	}
 	override receiveLine(args: Args) {
@@ -993,71 +1000,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 
 	renderAfterBattleControls() {
-		const room = this.props.room;
-		const isNotTiny = room.width > 700;
 		return <div class="controls">
 			<p>
-				<span style="float: right">
-					<a
-						onClick={this.handleDownloadReplay}
-						href={`//${Config.routes.replays}/download`}
-						class="button replayDownloadButton"
-					>
-						<i class="fa fa-download" aria-hidden></i> Download replay</a>
-					<br />
-					<br />
-					<button class="button" data-cmd="/savereplay">
-						<i class="fa fa-upload" aria-hidden></i> Upload and share replay
-					</button>
-				</span>
-
-				<button class="button" data-cmd="/play" style="min-width:4.5em">
-					<i class="fa fa-undo" aria-hidden></i><br />Replay
-				</button> {}
-				{isNotTiny && !room.battle.hardcoreMode && <>
-					<button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
-						<i class="fa fa-undo" aria-hidden></i><br />First turn
-					</button>
-					<button class="button button-first" data-cmd="/ffto -1">
-						<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
-					</button>
-				</>}
+				<button class="button" data-cmd="/closeand /join view-nuzlocke">
+					<strong>Continue</strong>
+				</button>
 			</p>
-			{room.side ? (
-				<p>
-					<button class="button" data-cmd="/close">
-						<strong>Main menu</strong><br /><small>(closes this battle)</small>
-					</button> {}
-					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
-						<strong>Rematch</strong><br /><small>(closes this battle)</small>
-					</button>
-				</p>
-			) : (
-				<p>
-					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button> {}
-					{!room.battle.hardcoreMode && <button class="button" data-cmd="/ffto">
-						<i class="fa fa-random" aria-hidden></i> Go to turn
-					</button>}
-				</p>
-			)}
 		</div>;
 	}
-
-	handleDownloadReplay = (e: MouseEvent) => {
-		let room = this.props.room;
-		const target = e.currentTarget as HTMLAnchorElement;
-		// download replay
-		let filename = (room.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
-		let date = new Date();
-		filename += `-${date.getFullYear()}`;
-		filename += `-${date.getMonth() >= 9 ? '' : '0'}${date.getMonth() + 1}`;
-		filename += `-${date.getDate() >= 10 ? '' : '0'}${date.getDate()}`;
-		filename += '-' + toID(room.battle.p1.name);
-		filename += '-' + toID(room.battle.p2.name);
-		target.href = window.BattleLog.createReplayFileHref(room);
-		target.download = filename + '.html';
-		e.stopPropagation();
-	};
 
 	override render() {
 		const room = this.props.room;
@@ -1092,16 +1042,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</PSPanelWrapper>;
 		}
 
+		const battleLeft = Math.round(640 * this.battleScale);
 		return <PSPanelWrapper room={room} focusClick scrollable="hidden">
 			{hardcoreStyle}
 			<BattleDiv room={room} />
 			<ChatLog
-				class="battle-log hasuserlist" room={room} left={640} noSubscription
+				class="battle-log hasuserlist" room={room} left={battleLeft} noSubscription
 			>
 				{}
 			</ChatLog>
-			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={640} />
-			<ChatUserList room={room} left={640} minimized />
+			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={battleLeft} />
+			<ChatUserList room={room} left={battleLeft} minimized />
 			<button
 				data-href="battleoptions" class="button"
 				style={{ position: 'absolute', right: '15px' }}
@@ -1109,7 +1060,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				Battle options
 			</button>
 			<div class="battle-controls-container">
-				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
+				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style={`top: ${this.battleHeight + 10}px;`}>
 					{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
 						<TimerButton room={room} />}
 					{this.renderControls()}

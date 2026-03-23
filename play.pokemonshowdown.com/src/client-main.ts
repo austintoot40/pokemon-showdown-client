@@ -669,7 +669,9 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			return;
 		}
 
-		if (userid === this.userid) {
+		if (userid === this.userid || !PS.server.registered) {
+			// Local/unregistered servers use --no-security; skip the login server
+			// (which would be blocked by CORS from localhost anyway) and send /trn directly.
 			PS.send(`/trn ${name}`);
 			this.update({ success: true });
 			return;
@@ -2024,13 +2026,13 @@ export const PS = new class extends PSModel {
 			return {
 				minWidth: 320,
 				width: 956,
-				maxWidth: 1180,
+				maxWidth: 9999,
 			};
 		}
 		return {
 			minWidth: 640,
 			width: 640,
-			maxWidth: 640,
+			maxWidth: 9999,
 		};
 	}
 	/** @returns changed */
@@ -2171,6 +2173,9 @@ export const PS = new class extends PSModel {
 			} case 'nametaken': {
 				PS.join('login' as RoomID, { args: { error: `Someone is already using the name ${args[1]}.` } });
 				break;
+			} case 'customgroups': {
+				// Server sends custom rank definitions on connect; not used by this client.
+				continue;
 			}
 
 			}
@@ -2213,15 +2218,16 @@ export const PS = new class extends PSModel {
 		const left = this.getWidthFor(this.leftPanel);
 		const right = this.getWidthFor(this.rightPanel);
 
+		const maxLeft = available - right.minWidth;
 		let excess = available - (left.width + right.width);
 		if (excess >= 0) {
 			// both fit in full size
 			const leftStretch = left.maxWidth - left.width;
 			if (!leftStretch) return left.width;
 			const rightStretch = right.maxWidth - right.width;
-			if (leftStretch + rightStretch >= excess) return left.maxWidth;
+			if (leftStretch + rightStretch >= excess) return Math.min(left.maxWidth, maxLeft);
 			// evenly distribute the excess
-			return left.width + Math.floor(excess * leftStretch / (leftStretch + rightStretch));
+			return Math.min(left.width + Math.floor(excess * leftStretch / (leftStretch + rightStretch)), maxLeft);
 		}
 
 		if (left.isMainMenu) {
