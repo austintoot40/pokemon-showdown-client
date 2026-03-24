@@ -1523,3 +1523,600 @@ body {
   border-color: var(--nz-accent);
   color: var(--nz-accent);
 }
+
+/* =============================================
+   TEAMBUILDING SCREEN — TWO-COLUMN LAYOUT
+   ============================================= */
+
+.nz-tb-layout {
+  display: grid;
+  grid-template-columns: minmax(400px, 1fr) auto;
+  gap: 0 16px;
+  align-items: start;
+  width: 100%;
+}
+
+/* Party + opponent + box share one grid so rows size together */
+.nz-tb-columns {
+  display: grid;
+  grid-template-columns: 220px 220px 246px;
+  gap: 3px 16px;
+  align-items: stretch;
+}
+
+.nz-section-title-danger::before {
+  background: var(--nz-danger);
+}
+
+/* Up to 3 box cards filling a row cell */
+.nz-box-row-cell {
+  display: flex;
+  gap: 3px;
+}
+
+/* Left column: detail panel */
+.nz-tb-detail {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  border-left: 3px solid var(--nz-accent);
+  clip-path: var(--nz-clip);
+  padding: 18px 20px;
+  position: sticky;
+  top: 0;
+  min-height: 660px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.nz-tb-detail-empty {
+  height: 100%;
+  min-height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nz-tb-detail-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nz-border-subtle);
+}
+
+.nz-tb-detail-sprite {
+  flex-shrink: 0;
+}
+
+.nz-tb-detail-info {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nz-tb-detail-info .nz-card-types {
+  justify-content: flex-start;
+}
+
+.nz-tb-detail-sprite img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-accent) 40%, transparent));
+}
+
+.nz-tb-detail-sprite img.shiny {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-warning) 50%, transparent));
+}
+
+.nz-tb-detail-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--nz-border-subtle);
+}
+
+/* Styled select for the detail panel (wider than old card selects) */
+.nz-tb-select {
+  display: block;
+  width: 100%;
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: var(--nz-radius);
+  outline: none;
+  cursor: pointer;
+  margin-bottom: 4px;
+  box-sizing: border-box;
+}
+
+.nz-tb-select:focus {
+  border-color: var(--nz-accent);
+}
+
+/* Right columns: party and opponent */
+.nz-tb-party-col,
+.nz-tb-opponent-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* =============================================
+   PARTY LIST
+   ============================================= */
+
+.nz-party-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.nz-party-slot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-left: 2px solid transparent;
+  clip-path: var(--nz-clip-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.nz-party-slot:hover {
+  background: color-mix(in srgb, var(--nz-accent) 5%, var(--nz-elevated));
+  border-color: var(--nz-accent);
+}
+
+.nz-party-slot-selected {
+  border-left-color: var(--nz-accent);
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 8%, var(--nz-elevated));
+}
+
+.nz-party-slot-error {
+  border-left-color: var(--nz-danger) !important;
+}
+
+.nz-party-slot-empty {
+  border-style: dashed;
+  background: transparent;
+  cursor: default;
+  opacity: 0.25;
+  justify-content: center;
+  min-height: 52px;
+  font-size: 10px;
+  font-family: var(--nz-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nz-text-dim);
+}
+
+.nz-party-slot-empty:hover {
+  background: transparent;
+  border-color: var(--nz-border);
+}
+
+/* Opponent slot — mirror of party slot but danger-accented */
+.nz-opponent-slot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-left: 2px solid transparent;
+  clip-path: var(--nz-clip-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.nz-opponent-slot:hover {
+  background: color-mix(in srgb, var(--nz-danger) 5%, var(--nz-elevated));
+  border-color: var(--nz-danger);
+}
+
+.nz-opponent-slot-selected {
+  border-left-color: var(--nz-danger);
+  border-color: var(--nz-danger);
+  background: color-mix(in srgb, var(--nz-danger) 8%, var(--nz-elevated));
+}
+
+.nz-opponent-slot img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.nz-party-slot img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.nz-party-slot-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nz-party-slot-name {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nz-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nz-party-slot-sub {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-muted);
+  margin-top: 1px;
+}
+
+.nz-party-slot-types {
+  display: flex;
+  gap: 3px;
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.nz-party-slot-arrows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.nz-party-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 20px;
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text-muted);
+  font-size: 9px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.nz-party-arrow:hover:not(:disabled) {
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+}
+
+.nz-party-arrow:disabled {
+  opacity: 0.18;
+  cursor: not-allowed;
+}
+
+/* =============================================
+   BOX (fourth column)
+   ============================================= */
+
+.nz-tb-box-col {
+  min-width: 0;
+}
+
+.nz-tb-box-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  padding: 4px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-left: 2px solid transparent;
+  clip-path: var(--nz-clip-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.nz-tb-box-card:hover {
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 5%, var(--nz-elevated));
+}
+
+.nz-tb-box-card-selected {
+  border-left-color: var(--nz-accent);
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 10%, var(--nz-elevated));
+}
+
+.nz-tb-box-card img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.nz-tb-box-card-name {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--nz-text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
+
+/* =============================================
+   BATTLE AREA (bottom of sidebar)
+   ============================================= */
+
+/* Battle button footer — below the 3-column layout */
+.nz-tb-battle-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--nz-border-subtle);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Opponent detail panel — danger accent instead of blue */
+.nz-tb-detail-opponent {
+  border-left-color: var(--nz-danger);
+}
+
+/* Static move name display (opponent detail — no dropdown) */
+.nz-tb-move-name {
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nz-text);
+  padding: 5px 0;
+  background: none;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =============================================
+   MOVES GRID (shared grid across all 4 move rows)
+   ============================================= */
+
+/* All 4 move rows share one grid — columns are sized to the widest
+   content across all rows, so type/category/power/accuracy all align. */
+.nz-moves-grid {
+  display: grid;
+  grid-template-columns: 190px auto auto auto auto minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  column-gap: 8px;
+  row-gap: 6px;
+  margin-bottom: 14px;
+}
+
+/* Select and move-name fill their column */
+.nz-moves-grid .nz-tb-select,
+.nz-moves-grid .nz-tb-move-name {
+  margin-bottom: 0;
+  width: 100%;
+  min-width: 0;
+  justify-self: stretch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Column header labels */
+.nz-moves-col-header {
+  font-family: var(--nz-font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nz-text-dim);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--nz-border);
+  justify-self: stretch;
+}
+
+/* Description column: inline, wraps within its 1fr cell */
+.nz-move-grid-desc {
+  font-style: italic;
+  font-size: 11px;
+  color: var(--nz-text-muted);
+  overflow-wrap: break-word;
+  min-width: 0;
+  justify-self: stretch;
+  line-height: 1.4;
+}
+
+/* =============================================
+   MOVE SLOT (item select — keeps the 2-col layout)
+   ============================================= */
+
+.nz-move-slot {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  align-items: start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.nz-move-slot:last-child {
+  margin-bottom: 0;
+}
+
+/* Cancel the bottom margin the select uses for vertical stacking */
+.nz-move-slot .nz-tb-select {
+  margin-bottom: 0;
+}
+
+/* =============================================
+   STAT BARS (detail panel)
+   ============================================= */
+
+.nz-stat-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nz-border-subtle);
+}
+
+.nz-stat-split .nz-stat-bars {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.nz-stat-no-ivs {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--nz-text-dim);
+  padding-top: 4px;
+}
+
+.nz-stat-bars {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nz-border-subtle);
+}
+
+.nz-stat-row {
+  display: grid;
+  grid-template-columns: 30px 1fr 28px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.nz-stat-row:last-child {
+  margin-bottom: 0;
+}
+
+.nz-stat-label {
+  font-family: var(--nz-font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-text-dim);
+  text-align: right;
+}
+
+.nz-stat-bar-track {
+  height: 6px;
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.nz-stat-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.nz-stat-high { background: var(--nz-success); box-shadow: 0 0 4px rgba(68, 204, 136, 0.4); }
+.nz-stat-mid  { background: var(--nz-accent);  box-shadow: 0 0 4px rgba(74, 158, 255, 0.4); }
+.nz-stat-low  { background: var(--nz-warning); box-shadow: 0 0 4px rgba(255, 200, 68, 0.3); }
+.nz-stat-poor { background: var(--nz-danger);  box-shadow: 0 0 4px rgba(255, 68, 68, 0.3);  }
+
+.nz-stat-value {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--nz-text-muted);
+  text-align: right;
+}
+
+/* =============================================
+   MOVE INFO STRIP (below each move dropdown)
+   ============================================= */
+
+.nz-move-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 2px 6px;
+  min-height: 20px;
+}
+
+.nz-move-cat {
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--nz-radius);
+  border: 1px solid transparent;
+}
+
+.nz-move-cat-physical {
+  background: rgba(255, 128, 0, 0.12);
+  color: #e07020;
+  border-color: rgba(255, 128, 0, 0.25);
+}
+
+.nz-move-cat-special {
+  background: rgba(80, 96, 225, 0.12);
+  color: #8090e0;
+  border-color: rgba(80, 96, 225, 0.25);
+}
+
+.nz-move-cat-status {
+  background: rgba(120, 120, 120, 0.12);
+  color: var(--nz-text-dim);
+  border-color: rgba(120, 120, 120, 0.2);
+}
+
+.nz-move-stat {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-muted);
+}
+
+/* =============================================
+   ITEM DESCRIPTION (below item dropdown)
+   ============================================= */
+
+.nz-item-desc {
+  font-size: 10px;
+  color: var(--nz-text-muted);
+  font-style: italic;
+  padding: 3px 2px 0;
+  line-height: 1.4;
+}
