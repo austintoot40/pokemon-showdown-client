@@ -1,0 +1,456 @@
+/*
+ * Nuzlocke — Main Menu / Dashboard
+ *
+ * PS layout overrides, dashboard grid, active run panel, scenario cards,
+ * team grid, run widget, past run entries, difficulty selector.
+ */
+
+/* =============================================
+   PS LAYOUT OVERRIDES
+   ============================================= */
+
+/* Full-screen dashboard — override PS's narrow mainmenu-left column */
+.mainmenu {
+  min-height: 100%;
+}
+.mainmenu-left {
+  width: auto !important;
+  padding: 0 !important;
+  min-height: 100%;
+}
+
+/* =============================================
+   DASHBOARD GRID
+   ============================================= */
+
+/* Dashboard grid layout — no active run */
+.nz-dashboard {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "scenarios"
+    "history";
+  gap: 0;
+  padding: 36px 48px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* With active run: run panel left (primary), scenarios right (secondary) */
+.nz-dashboard-has-run {
+  grid-template-columns: 3fr 2fr;
+  grid-template-areas:
+    "run       scenarios"
+    "history   scenarios";
+  gap: 32px 32px;
+}
+
+.nz-dashboard-run       { grid-area: run; display: flex; flex-direction: column; }
+.nz-dashboard-scenarios { grid-area: scenarios; }
+.nz-dashboard-history   { grid-area: history; }
+
+/* =============================================
+   ACTIVE RUN PANEL
+   ============================================= */
+
+.nz-active-run-panel {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  border-left: 3px solid var(--nz-accent);
+  clip-path: var(--nz-clip);
+  padding: 24px 28px;
+  box-shadow: var(--nz-shadow);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nz-active-run-panel .nz-btn-group {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.nz-active-run-panel-empty {
+  border-left-color: var(--nz-border);
+  opacity: 0.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.nz-active-run-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.nz-active-run-title {
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-text);
+  margin-bottom: 4px;
+}
+
+.nz-active-run-segment {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-text-muted);
+}
+
+/* Segment progress bar */
+.nz-active-run-progress {
+  margin-bottom: 20px;
+}
+
+.nz-segment-bar {
+  display: flex;
+  gap: 4px;
+  height: 6px;
+}
+
+.nz-segment-pip {
+  flex: 1;
+  height: 6px;
+  background: var(--nz-elevated);
+  border-radius: 1px;
+}
+
+.nz-segment-pip.done {
+  background: var(--nz-accent-dim);
+  border: 1px solid var(--nz-accent);
+}
+
+.nz-segment-pip.current {
+  background: var(--nz-accent);
+  box-shadow: 0 0 6px rgba(74, 158, 255, 0.5);
+}
+
+/* Team grid — 2 columns of Pokemon slots */
+.nz-team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.nz-team-slot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border-subtle);
+  clip-path: var(--nz-clip-sm);
+  padding: 8px 12px;
+  min-height: 56px;
+}
+
+.nz-team-slot-empty {
+  opacity: 0.2;
+  border-style: dashed;
+  background: transparent;
+}
+
+.nz-team-slot img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.nz-team-slot-name {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nz-text);
+  margin-bottom: 4px;
+}
+
+.nz-team-slot-types {
+  display: flex;
+  gap: 4px;
+}
+
+/* =============================================
+   SCENARIO CARDS
+   ============================================= */
+
+.nz-scenarios-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.nz-scenarios-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.nz-scenarios-difficulty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nz-scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-content: start;
+  gap: 12px;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding-right: 4px;
+}
+
+/* Scenario card — larger than run widget */
+.nz-scenario-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg,
+      var(--nz-surface) 55%,
+      color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 22%, var(--nz-surface)) 100%
+    );
+  border: 1px solid var(--nz-border);
+  border-left: 3px solid var(--scenario-color, var(--nz-accent));
+  clip-path: var(--nz-clip);
+  box-shadow: var(--nz-shadow);
+  transition: box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.nz-scenario-card:hover {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 60%, transparent));
+}
+
+.nz-scenario-card-selected {
+  border-left: 3px solid var(--scenario-color, var(--nz-accent));
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 35%, var(--nz-surface)) 0%,
+      color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 55%, var(--nz-surface)) 100%
+    );
+}
+
+.nz-scenario-card-selected .nz-scenario-card-sprite {
+  opacity: 0.3;
+  filter: none;
+}
+
+.nz-scenario-card-selected .nz-scenario-card-title {
+  color: color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 60%, var(--nz-text));
+}
+
+/* Large faded sprite in the card background */
+.nz-scenario-card-sprite {
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: 0.13;
+  pointer-events: none;
+  filter: saturate(0.5);
+}
+
+.nz-scenario-card-content {
+  position: relative;
+  padding: 20px 22px;
+  z-index: 1;
+}
+
+.nz-scenario-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-text);
+  margin-bottom: 4px;
+}
+
+.nz-scenario-card-meta {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-text-muted);
+  margin-bottom: 16px;
+}
+
+.nz-scenario-card-divider {
+  border: none;
+  border-top: 1px solid var(--nz-border-subtle);
+  margin: 14px 0;
+}
+
+/* =============================================
+   RUN WIDGET (in-progress run summary)
+   ============================================= */
+
+.nz-run-widget {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  border-left: 3px solid var(--nz-accent);
+  clip-path: var(--nz-clip);
+  padding: 16px 18px;
+  box-shadow: var(--nz-shadow);
+  max-width: 400px;
+}
+
+.nz-run-widget-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.nz-run-widget-name {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--nz-text);
+}
+
+.nz-run-widget-meta {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-text-muted);
+  margin-top: 3px;
+}
+
+.nz-run-widget-party {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.nz-run-widget-party img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.nz-run-widget-deaths {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-danger);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+/* =============================================
+   PAST RUN ENTRIES
+   ============================================= */
+
+.nz-run-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nz-run-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  clip-path: var(--nz-clip-sm);
+  overflow: hidden;
+}
+
+.nz-run-entry-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nz-text);
+}
+
+.nz-run-entry-meta {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-dim);
+}
+
+.nz-run-entry-sprites {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.nz-run-grave-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.nz-run-grave-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--nz-text-muted);
+}
+
+.nz-run-grave-chip img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: grayscale(0.7);
+}
+
+.nz-run-grave-chip em {
+  font-style: normal;
+  color: var(--nz-danger);
+  font-weight: 700;
+}
+
+/* =============================================
+   DIFFICULTY SELECTOR
+   ============================================= */
+
+.nz-difficulty-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--nz-border);
+  background: transparent;
+  color: var(--nz-text-muted);
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.nz-difficulty-btn:hover {
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+}
+
+.nz-difficulty-btn.active {
+  background: var(--nz-accent-dim);
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+}

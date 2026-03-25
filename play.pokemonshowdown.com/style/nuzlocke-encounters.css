@@ -1,0 +1,43 @@
+/*
+ * Nuzlocke — Encounters Screen
+ *
+ * Layout for the encounters grid, bottom section, and the items list
+ * (segment items received after a battle).
+ */
+
+/* =============================================
+   ENCOUNTERS SCREEN LAYOUT
+   ============================================= */
+
+.nz-encounters-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.nz-encounters-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* =============================================
+   ITEMS LIST (segment items received)
+   ============================================= */
+
+.nz-items-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nz-item-chip {
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--nz-warning);
+  padding: 2px 10px;
+}

@@ -1,0 +1,437 @@
+/*
+ * Nuzlocke — Pokémon & Route Cards
+ *
+ * All card variants: full pokemon card, compact box card, graveyard card,
+ * opponent scouting card, route encounter cards, starter selection cards.
+ */
+
+/* =============================================
+   POKEMON CARDS
+   ============================================= */
+
+.nz-card {
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-left: 2px solid var(--nz-accent);
+  clip-path: var(--nz-clip-sm);
+  box-shadow: var(--nz-shadow);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+  width: 152px;
+  transition: box-shadow 0.15s, transform 0.15s;
+  position: relative;
+}
+
+.nz-card:hover {
+  box-shadow: var(--nz-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.nz-card-sprite {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.nz-card-nickname {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--nz-text);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nz-card-species {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-muted);
+}
+
+.nz-card-level {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-accent);
+  font-weight: 600;
+}
+
+.nz-card-types {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 2px 0;
+}
+
+.nz-card-nature {
+  font-size: 10px;
+  color: var(--nz-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Moves section inside a card (teambuilding) */
+.nz-card-moves {
+  width: 100%;
+  border-top: 1px solid var(--nz-border-subtle);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nz-card-moves select {
+  width: 100%;
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: var(--nz-radius);
+  outline: none;
+}
+
+.nz-card-moves select:focus {
+  border-color: var(--nz-accent);
+}
+
+.nz-card-item {
+  width: 100%;
+  margin-top: 4px;
+  border-top: 1px solid var(--nz-border-subtle);
+  padding-top: 6px;
+}
+
+.nz-card-item select {
+  width: 100%;
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: var(--nz-radius);
+  outline: none;
+}
+
+.nz-card-item select:focus {
+  border-color: var(--nz-accent);
+}
+
+.nz-card-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  width: 100%;
+}
+
+.nz-card-error {
+  font-size: 10px;
+  color: var(--nz-danger);
+  font-weight: 700;
+  text-align: left;
+  width: 100%;
+  border-top: 1px solid var(--nz-danger);
+  padding-top: 4px;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Card validation error state */
+.nz-card-invalid {
+  border-left-color: var(--nz-danger);
+}
+
+/* =============================================
+   COMPACT BOX CARD
+   ============================================= */
+
+.nz-card-compact {
+  width: 116px;
+  padding: 8px 10px;
+}
+
+.nz-card-compact .nz-card-sprite {
+  width: 48px;
+  height: 48px;
+}
+
+.nz-card-compact .nz-card-nickname {
+  font-size: 12px;
+}
+
+/* =============================================
+   GRAVEYARD CARD
+   ============================================= */
+
+.nz-card-dead {
+  border-left-color: var(--nz-danger);
+  filter: grayscale(0.75) brightness(0.65);
+  position: relative;
+  overflow: hidden;
+}
+
+.nz-card-dead::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(255, 68, 68, 0.08) 100%);
+  pointer-events: none;
+}
+
+.nz-card-dead .nz-card-killed-by {
+  font-size: 10px;
+  color: var(--nz-danger);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  filter: none;
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.nz-card-dead .nz-card-died-in {
+  font-family: var(--nz-font-mono);
+  font-size: 9px;
+  color: var(--nz-text-dim);
+  filter: none;
+}
+
+/* =============================================
+   OPPONENT CARD (scouting)
+   ============================================= */
+
+.nz-card-opponent {
+  border-left-color: var(--nz-danger);
+  background: var(--nz-surface);
+}
+
+.nz-card-opponent .nz-card-level {
+  color: var(--nz-danger);
+}
+
+.nz-card-opponent .nz-card-ability {
+  font-size: 10px;
+  color: var(--nz-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nz-card-opponent .nz-card-item {
+  margin-top: 2px;
+  border-top: none;
+  padding-top: 0;
+}
+
+.nz-card-opponent .nz-card-item-label {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-warning);
+}
+
+.nz-card-opponent .nz-card-move-list {
+  font-size: 9px;
+  color: var(--nz-text-muted);
+  text-align: left;
+  width: 100%;
+  border-top: 1px solid var(--nz-border-subtle);
+  padding-top: 4px;
+  margin-top: 4px;
+  line-height: 1.6;
+}
+
+/* =============================================
+   ROUTE CARDS
+   ============================================= */
+
+.nz-route-card {
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-left: 2px solid transparent;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% + 2px), 0 calc(100% + 2px));
+  padding: 8px 10px;
+  text-align: center;
+  box-shadow: var(--nz-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 180px;
+}
+
+.nz-route-card-clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.nz-route-card-clickable:hover {
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 8%, var(--nz-elevated));
+  box-shadow: 0 0 0 1px var(--nz-accent), var(--nz-shadow);
+}
+
+.nz-route-card-clickable:active {
+  background: color-mix(in srgb, var(--nz-accent) 18%, var(--nz-elevated));
+}
+
+.nz-route-card-resolved {
+  border-color: var(--nz-success);
+  border-left: 2px solid var(--nz-success);
+}
+
+.nz-route-card-dupe {
+  opacity: 0.45;
+}
+
+.nz-route-name {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-text);
+  margin-bottom: 2px;
+}
+
+.nz-route-card-resolved .nz-route-name {
+  color: var(--nz-success);
+}
+
+.nz-route-levels {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-dim);
+  margin-bottom: 6px;
+}
+
+.nz-route-pool {
+  display: grid;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+.nz-route-pool img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.nz-route-caught-aura img {
+  display: block;
+  filter:
+    drop-shadow(0 0 4px color-mix(in srgb, var(--nz-success) 70%, transparent))
+    drop-shadow(0 0 10px color-mix(in srgb, var(--nz-success) 30%, transparent));
+}
+
+.nz-route-caught {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--nz-success);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  line-height: 1.4;
+  display: block;
+  border-bottom: 1px solid transparent;
+}
+
+.nz-route-caught-editable {
+  cursor: text;
+  border-bottom: 1px dashed color-mix(in srgb, var(--nz-success) 40%, transparent);
+  transition: border-color 0.15s;
+}
+
+.nz-route-caught-editable:hover {
+  border-bottom-color: var(--nz-success);
+}
+
+.nz-route-caught-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--nz-success);
+  outline: none;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 1.4;
+  height: auto;
+}
+
+/* =============================================
+   STARTER CARDS
+   ============================================= */
+
+.nz-starter-card {
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-left: 2px solid transparent;
+  clip-path: var(--nz-clip);
+  padding: 16px 14px;
+  width: 172px;
+  text-align: center;
+  box-shadow: var(--nz-shadow);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.nz-starter-card:hover {
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 6%, var(--nz-elevated));
+  box-shadow: 0 0 0 1px var(--nz-accent), var(--nz-shadow);
+}
+
+.nz-starter-card.nz-starter-card-selected,
+.nz-starter-card.nz-starter-card-selected:hover {
+  border-color: var(--nz-accent);
+  border-left-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 12%, var(--nz-elevated));
+  box-shadow: 0 0 0 1px var(--nz-accent), var(--nz-shadow);
+}
+
+.nz-starter-sprite {
+  display: flex;
+  justify-content: center;
+}
+
+.nz-starter-sprite img {
+  display: block;
+  filter:
+    drop-shadow(0 0 4px color-mix(in srgb, var(--nz-accent) 70%, transparent))
+    drop-shadow(0 0 10px color-mix(in srgb, var(--nz-accent) 30%, transparent));
+}
+
+.nz-starter-stats {
+  width: 100%;
+  border-top: 1px solid var(--nz-border-subtle);
+  padding-top: 8px;
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  text-align: center;
+}
+
+.nz-starter-stat {
+  font-family: var(--nz-font-mono);
+  font-size: 9px;
+  color: var(--nz-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nz-starter-stat span {
+  display: block;
+  font-size: 12px;
+  color: var(--nz-text);
+  font-weight: 600;
+}

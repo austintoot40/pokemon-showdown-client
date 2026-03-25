@@ -1,0 +1,72 @@
+/*
+ * Nuzlocke — Design Tokens
+ *
+ * All CSS custom properties (var(--nz-*)) are defined here.
+ * Change colors, fonts, and geometry in this file only.
+ * Google Fonts (Rajdhani, Share Tech Mono) are loaded via <link> in the HTML.
+ */
+
+:root {
+  /* Backgrounds */
+  --nz-bg:           #0f1624;
+  --nz-surface:      #172035;
+  --nz-elevated:     #1e2d47;
+  --nz-overlay:      #253652;
+
+  /* Borders */
+  --nz-border:       #2e4268;
+  --nz-border-subtle: rgba(74, 158, 255, 0.1);
+
+  /* Accent palette */
+  --nz-accent:       #4a9eff;
+  --nz-accent-dim:   rgba(74, 158, 255, 0.12);
+  --nz-danger:       #ff4444;
+  --nz-danger-dim:   rgba(255, 68, 68, 0.12);
+  --nz-success:      #44cc88;
+  --nz-success-dim:  rgba(68, 204, 136, 0.12);
+  --nz-warning:      #ffc844;
+  --nz-warning-dim:  rgba(255, 200, 68, 0.12);
+
+  /* Text */
+  --nz-text:         #dce8ff;
+  --nz-text-muted:   #7a90b8;
+  --nz-text-dim:     #4a6080;
+
+  /* Typography */
+  --nz-font-ui:      'Rajdhani', 'Exo 2', system-ui, sans-serif;
+  --nz-font-mono:    'Share Tech Mono', 'Courier New', monospace;
+
+  /* Geometry */
+  --nz-clip:         polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  --nz-clip-sm:      polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  --nz-radius:       2px;
+
+  /* Shadows */
+  --nz-shadow:       0 4px 16px rgba(0, 0, 0, 0.5);
+  --nz-shadow-hover: 0 6px 24px rgba(74, 158, 255, 0.15);
+
+  /* HP bar colors */
+  --nz-hp-high:      #44cc88;
+  --nz-hp-mid:       #ffc844;
+  --nz-hp-low:       #ff4444;
+
+  /* Type colors */
+  --type-normal:   #9FA19F;
+  --type-fire:     #E62829;
+  --type-water:    #2980EF;
+  --type-electric: #FAC000;
+  --type-grass:    #3FA129;
+  --type-ice:      #3DCEF3;
+  --type-fighting: #FF8000;
+  --type-poison:   #9141CB;
+  --type-ground:   #915121;
+  --type-flying:   #81B9EF;
+  --type-psychic:  #EF4179;
+  --type-bug:      #91A119;
+  --type-rock:     #AFA981;
+  --type-ghost:    #704170;
+  --type-dragon:   #5060E1;
+  --type-dark:     #624D4E;
+  --type-steel:    #60A1B8;
+  --type-fairy:    #EF70EF;
+}

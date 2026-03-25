@@ -10,7 +10,13 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="style/nuzlocke.css" />
+	<link rel="stylesheet" href="style/nuzlocke-tokens.css" />
+	<link rel="stylesheet" href="style/nuzlocke-base.css" />
+	<link rel="stylesheet" href="style/nuzlocke-cards.css" />
+	<link rel="stylesheet" href="style/nuzlocke-encounters.css" />
+	<link rel="stylesheet" href="style/nuzlocke-teambuilding.css" />
+	<link rel="stylesheet" href="style/nuzlocke-results.css" />
+	<link rel="stylesheet" href="style/nuzlocke-mainmenu.css" />
 	<meta name="robots" content="noindex" />
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 	<!--[if lte IE 8]><script>
@@ -115,7 +121,13 @@
 
 	<script src="js/lib/preact.min.js"></script>
 	<script src="js/panels.js"></script>
-	<script src="js/nuzlocke-ui.js"></script>
+	<script src="js/nuzlocke/types.js"></script>
+	<script src="js/nuzlocke/components/layout.js"></script>
+	<script src="js/nuzlocke/components/primitives.js"></script>
+	<script src="js/nuzlocke/components/pokemon-cards.js"></script>
+	<script src="js/nuzlocke/components/route-cards.js"></script>
+	<script src="js/nuzlocke/components/teambuilding.js"></script>
+	<script src="js/nuzlocke/components/run-history.js"></script>
 	<script src="js/panel-mainmenu.js"></script>
 	<script src="js/panel-rooms.js"></script>
 	<script src="js/panel-topbar.js"></script>
@@ -133,6 +145,12 @@
 
 	<script src="js/panel-popups.js"></script>
 	<script src="js/panel-page.js?"></script>
+	<script src="js/nuzlocke/screens/starter.js"></script>
+	<script src="js/nuzlocke/screens/encounters.js"></script>
+	<script src="js/nuzlocke/screens/teambuilding.js"></script>
+	<script src="js/nuzlocke/screens/battle.js"></script>
+	<script src="js/nuzlocke/screens/results.js"></script>
+	<script src="js/nuzlocke/screens/summary.js"></script>
 	<script src="js/panel-nuzlocke.js"></script>
 	<script src="js/panel-resources.js?" onload="console.log('loaded')"></script>
 	<script src="js/panel-ladder.js?"></script>

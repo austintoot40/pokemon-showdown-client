@@ -1,0 +1,414 @@
+/*
+ * Nuzlocke — Base & Shared Primitives
+ *
+ * Global scope overrides, layout containers, panels, section/screen headers,
+ * labels, buttons, badges, type badges, HP bar, input, notice states.
+ * All components across every screen pull from these styles.
+ */
+
+/* =============================================
+   ROOT & GLOBAL OVERRIDES
+   ============================================= */
+
+.nz-root {
+  font-family: var(--nz-font-ui);
+  font-size: 15px;
+  color: var(--nz-text);
+}
+
+/* Override PS background image with solid theme color */
+body {
+  background: var(--nz-bg) !important;
+}
+
+/* Override PS's room-light background so it doesn't show below short screens */
+#room-view-nuzlocke {
+  background: var(--nz-bg) !important;
+}
+
+/* =============================================
+   LAYOUT
+   ============================================= */
+
+.nz-screen {
+  background: var(--nz-bg);
+  padding: 16px 20px;
+  min-height: 100%;
+}
+
+.nz-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.nz-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* =============================================
+   PANELS
+   ============================================= */
+
+.nz-panel {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  border-left: 3px solid var(--nz-accent);
+  clip-path: var(--nz-clip);
+  padding: 14px 16px;
+  box-shadow: var(--nz-shadow);
+}
+
+.nz-panel-flat {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  clip-path: var(--nz-clip);
+  padding: 14px 16px;
+  box-shadow: var(--nz-shadow);
+}
+
+.nz-panel-inset {
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border-subtle);
+  clip-path: var(--nz-clip-sm);
+  padding: 10px 14px;
+}
+
+/* =============================================
+   SECTION HEADERS
+   ============================================= */
+
+.nz-section {
+  margin-bottom: 20px;
+}
+
+.nz-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--nz-text-muted);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--nz-border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nz-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  background: var(--nz-accent);
+  flex-shrink: 0;
+}
+
+/* =============================================
+   SCREEN HEADER (segment name, level cap, etc.)
+   ============================================= */
+
+.nz-screen-header {
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--nz-border);
+}
+
+.nz-screen-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--nz-text);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nz-screen-meta {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  color: var(--nz-text-muted);
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.nz-screen-meta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nz-screen-meta span::before {
+  content: '▸';
+  color: var(--nz-accent);
+  font-size: 10px;
+}
+
+/* =============================================
+   LABELS (inline metadata)
+   ============================================= */
+
+.nz-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--nz-text-dim);
+}
+
+.nz-label-accent { color: var(--nz-accent); }
+.nz-label-danger { color: var(--nz-danger); }
+.nz-label-success { color: var(--nz-success); }
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+
+.nz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--nz-radius);
+  clip-path: var(--nz-clip-sm);
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: filter 0.15s, box-shadow 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.nz-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.nz-btn:not(:disabled):hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.nz-btn:not(:disabled):active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+.nz-btn-primary {
+  background: var(--nz-accent);
+  border-color: var(--nz-accent);
+  color: #0f1624;
+}
+
+.nz-btn-primary:not(:disabled):hover {
+  box-shadow: 0 4px 16px rgba(74, 158, 255, 0.35);
+}
+
+.nz-btn-secondary {
+  background: transparent;
+  border-color: var(--nz-border);
+  color: var(--nz-text-muted);
+}
+
+.nz-btn-secondary:not(:disabled):hover {
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+}
+
+.nz-btn-danger {
+  background: var(--nz-danger-dim);
+  border-color: var(--nz-danger);
+  color: var(--nz-danger);
+}
+
+.nz-btn-danger:not(:disabled):hover {
+  background: var(--nz-danger);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255, 68, 68, 0.3);
+}
+
+.nz-btn-evolve {
+  background: transparent;
+  border-color: var(--nz-warning);
+  color: var(--nz-warning);
+  animation: nz-evolve-glow 1.6s ease-in-out infinite;
+}
+
+.nz-btn-evolve:not(:disabled):hover {
+  background: rgba(255, 200, 68, 0.15);
+  border-color: var(--nz-warning);
+  color: #fff;
+}
+
+@keyframes nz-evolve-glow {
+  0%, 100% {
+    color: rgba(255, 200, 68, 0.7);
+    border-color: rgba(255, 200, 68, 0.55);
+    text-shadow: none;
+  }
+  50% {
+    color: #ffc844;
+    border-color: #ffc844;
+    text-shadow: 0 0 6px rgba(255, 200, 68, 0.5);
+  }
+}
+
+.nz-btn-sm {
+  padding: 4px 11px;
+  font-size: 11px;
+}
+
+.nz-btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* =============================================
+   STATUS BADGES
+   ============================================= */
+
+.nz-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid transparent;
+  border-radius: var(--nz-radius);
+}
+
+.nz-badge-active  { background: var(--nz-success-dim); border-color: var(--nz-success); color: var(--nz-success); }
+.nz-badge-danger  { background: var(--nz-danger-dim);  border-color: var(--nz-danger);  color: var(--nz-danger); }
+.nz-badge-accent  { background: var(--nz-accent-dim);  border-color: var(--nz-accent);  color: var(--nz-accent); }
+.nz-badge-warning { background: var(--nz-warning-dim); border-color: var(--nz-warning); color: var(--nz-warning); }
+.nz-badge-muted   { background: transparent;            border-color: var(--nz-border);  color: var(--nz-text-muted); }
+
+/* =============================================
+   TYPE BADGES
+   ============================================= */
+
+.nz-type {
+  display: inline-block;
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--nz-radius);
+  color: #fff;
+}
+
+.nz-type-normal   { background: var(--type-normal);   }
+.nz-type-fire     { background: var(--type-fire);     }
+.nz-type-water    { background: var(--type-water);    }
+.nz-type-electric { background: var(--type-electric); color: #111; }
+.nz-type-grass    { background: var(--type-grass);    }
+.nz-type-ice      { background: var(--type-ice);      color: #111; }
+.nz-type-fighting { background: var(--type-fighting); }
+.nz-type-poison   { background: var(--type-poison);   }
+.nz-type-ground   { background: var(--type-ground);   }
+.nz-type-flying   { background: var(--type-flying);   color: #111; }
+.nz-type-psychic  { background: var(--type-psychic);  }
+.nz-type-bug      { background: var(--type-bug);      }
+.nz-type-rock     { background: var(--type-rock);     color: #111; }
+.nz-type-ghost    { background: var(--type-ghost);    }
+.nz-type-dragon   { background: var(--type-dragon);   }
+.nz-type-dark     { background: var(--type-dark);     }
+.nz-type-steel    { background: var(--type-steel);    }
+.nz-type-fairy    { background: var(--type-fairy);    }
+
+/* =============================================
+   HP BAR
+   ============================================= */
+
+.nz-hp-bar {
+  width: 100%;
+}
+
+.nz-hp-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-muted);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nz-hp-bar-track {
+  height: 6px;
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+}
+
+.nz-hp-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease, background 0.3s ease;
+  position: relative;
+}
+
+.nz-hp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 2px; height: 100%;
+  background: rgba(255,255,255,0.4);
+}
+
+.nz-hp-high .nz-hp-bar-fill { background: var(--nz-hp-high); box-shadow: 0 0 6px rgba(68,204,136,0.5); }
+.nz-hp-mid  .nz-hp-bar-fill { background: var(--nz-hp-mid);  box-shadow: 0 0 6px rgba(255,200,68,0.5); }
+.nz-hp-low  .nz-hp-bar-fill { background: var(--nz-hp-low);  box-shadow: 0 0 8px rgba(255,68,68,0.6); }
+
+/* =============================================
+   NICKNAME INPUT
+   ============================================= */
+
+.nz-input {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: var(--nz-radius);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.nz-input:focus {
+  border-color: var(--nz-accent);
+  box-shadow: 0 0 0 2px var(--nz-accent-dim);
+}
+
+/* =============================================
+   NOTICE / EMPTY STATE
+   ============================================= */
+
+.nz-notice {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  color: var(--nz-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 12px 0;
+}
+
+.nz-error {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-danger);
+  padding: 8px 0;
+}
