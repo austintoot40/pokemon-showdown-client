@@ -10,7 +10,8 @@
   /* Backgrounds */
   --nz-bg:           #0f1624;
   --nz-surface:      #172035;
-  --nz-elevated:     #1e2d47;
+  --nz-elevated:       #1e2d47;
+  --nz-elevated-alpha: rgba(30, 45, 71, 0.55);
   --nz-overlay:      #253652;
 
   /* Borders */

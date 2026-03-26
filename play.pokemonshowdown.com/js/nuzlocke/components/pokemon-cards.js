@@ -92,7 +92,6 @@ function NzStarterCard(_ref5)
 
 {var species=_ref5.species,selected=_ref5.selected,onSelect=_ref5.onSelect;
 var sp=Dex.species.get(species);
-var s=sp.baseStats;
 return preact.h("div",{
 "class":"nz-starter-card"+(selected?' nz-starter-card-selected':''),
 onClick:onSelect},
@@ -103,14 +102,6 @@ preact.h(NzSprite,{species:species,size:96})
 preact.h("div",{"class":"nz-card-nickname",style:"margin-top:8px;"},sp.name),
 preact.h("div",{"class":"nz-card-types",style:"justify-content:center;margin:4px 0;"},
 preact.h(NzTypeBadges,{species:species})
-),
-preact.h("div",{"class":"nz-starter-stats"},
-preact.h("div",{"class":"nz-starter-stat"},"HP",preact.h("span",null,s.hp)),
-preact.h("div",{"class":"nz-starter-stat"},"Atk",preact.h("span",null,s.atk)),
-preact.h("div",{"class":"nz-starter-stat"},"Def",preact.h("span",null,s.def)),
-preact.h("div",{"class":"nz-starter-stat"},"SpA",preact.h("span",null,s.spa)),
-preact.h("div",{"class":"nz-starter-stat"},"SpD",preact.h("span",null,s.spd)),
-preact.h("div",{"class":"nz-starter-stat"},"Spe",preact.h("span",null,s.spe))
 )
 );
 }

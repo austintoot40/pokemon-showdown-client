@@ -92,7 +92,6 @@ export function NzStarterCard({
 	onSelect: () => void;
 }) {
 	const sp = Dex.species.get(species);
-	const s = sp.baseStats;
 	return <div
 		class={`nz-starter-card${selected ? ' nz-starter-card-selected' : ''}`}
 		onClick={onSelect}
@@ -103,14 +102,6 @@ export function NzStarterCard({
 		<div class="nz-card-nickname" style="margin-top:8px;">{sp.name}</div>
 		<div class="nz-card-types" style="justify-content:center;margin:4px 0;">
 			<NzTypeBadges species={species} />
-		</div>
-		<div class="nz-starter-stats">
-			<div class="nz-starter-stat">HP<span>{s.hp}</span></div>
-			<div class="nz-starter-stat">Atk<span>{s.atk}</span></div>
-			<div class="nz-starter-stat">Def<span>{s.def}</span></div>
-			<div class="nz-starter-stat">SpA<span>{s.spa}</span></div>
-			<div class="nz-starter-stat">SpD<span>{s.spd}</span></div>
-			<div class="nz-starter-stat">Spe<span>{s.spe}</span></div>
 		</div>
 	</div>;
 }

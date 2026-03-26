@@ -38,6 +38,17 @@ interface NuzlockePastRun {
     ai: string;
 }
 
+interface NuzlockeScenarioCard {
+    id: string;
+    name: string;
+    generation: number;
+    description: string;
+    segmentCount: number;
+    battleCount: number;
+    encounterCount: number;
+    starters: string[];
+}
+
 interface NuzlockeStatusPayload {
     activeRun: {
         scenarioId: string;
@@ -52,6 +63,7 @@ interface NuzlockeStatusPayload {
     } | null;
     pastRuns: NuzlockePastRun[];
     selectedAi: string;
+    scenarios: NuzlockeScenarioCard[];
 }
 
 const AI_DIFFICULTIES = [
@@ -71,7 +83,7 @@ const SCENARIOS: { id: string; name: string; meta: string; color: string; pokemo
     { id: 'ruby',             name: 'Ruby',                  meta: 'Gen 3 · Coming Soon', color: '#B71C1C', pokemon: 'groudon',    backingId: 'firered' },
     { id: 'sapphire',         name: 'Sapphire',              meta: 'Gen 3 · Coming Soon', color: '#0D47A1', pokemon: 'kyogre',     backingId: 'firered' },
     { id: 'emerald',          name: 'Emerald',               meta: 'Gen 3 · Coming Soon', color: '#2E7D32', pokemon: 'rayquaza',   backingId: 'firered' },
-    { id: 'firered',          name: 'FireRed',               meta: '10 segments · Gen 3', color: '#C62828', pokemon: 'charizard' },
+    { id: 'firered',          name: 'FireRed',               meta: 'Gen 3',               color: '#C62828', pokemon: 'charizard' },
     { id: 'leafgreen',        name: 'LeafGreen',             meta: 'Gen 3 · Coming Soon', color: '#388E3C', pokemon: 'venusaur',   backingId: 'firered' },
     { id: 'diamond',          name: 'Diamond',               meta: 'Gen 4 · Coming Soon', color: '#4A148C', pokemon: 'dialga',     backingId: 'firered' },
     { id: 'pearl',            name: 'Pearl',                 meta: 'Gen 4 · Coming Soon', color: '#AD1457', pokemon: 'palkia',     backingId: 'firered' },
@@ -607,6 +619,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     static readonly Model = MainMenuRoom;
     static readonly icon = <i class="fa fa-home" aria-hidden></i>;
     selectedScenario: string | null = null;
+    selectedStarter: number | null = null;
     selectedDifficulty: string = 'random';
     confirmAbandon: boolean = false;
 
@@ -626,10 +639,19 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         const scenario = SCENARIOS.find(s => s.id === this.selectedScenario);
         const scenarioId = scenario?.backingId ?? scenario?.id ?? this.selectedScenario;
         const difficulty = this.props.room.nuzlockeStatus?.selectedAi ?? this.selectedDifficulty;
-        PS.send(`/nuzlocke start ${scenarioId} ${difficulty}`);
+        if (this.selectedStarter !== null) {
+            PS.send(`/nuzlocke start ${scenarioId} ${difficulty} ${this.selectedStarter}`);
+        } else {
+            PS.send(`/nuzlocke start ${scenarioId} ${difficulty}`);
+        }
     };
     selectScenario = (id: string) => {
         this.selectedScenario = id;
+        this.selectedStarter = null;
+        this.forceUpdate();
+    };
+    selectStarter = (index: number) => {
+        this.selectedStarter = index;
         this.forceUpdate();
     };
     setDifficulty = (difficulty: string) => {
@@ -644,6 +666,26 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         const pastRuns = status?.pastRuns ?? [];
         const currentDifficulty = status?.selectedAi ?? this.selectedDifficulty;
 
+        const serverScenarios = status?.scenarios ?? [];
+        const selectedScenarioData = this.selectedScenario
+            ? SCENARIOS.find(s => s.id === this.selectedScenario) ?? null
+            : null;
+        const scenarioBackingId = selectedScenarioData
+            ? (selectedScenarioData.backingId ?? selectedScenarioData.id)
+            : null;
+        // Data computed from the server-pushed scenario list
+        const serverScenarioCard = scenarioBackingId
+            ? serverScenarios.find(s => s.id === scenarioBackingId) ?? null
+            : null;
+        const scenarioRuns = selectedScenarioData
+            ? pastRuns.filter(r => r.scenarioId === scenarioBackingId)
+            : [];
+        const lastRun = scenarioRuns.length > 0 ? scenarioRuns[scenarioRuns.length - 1] : null;
+        const scenarioVictories = scenarioRuns.filter(r => r.outcome === 'victory').length;
+        const scenarioWipes = scenarioRuns.filter(r => r.outcome === 'wipe').length;
+        const lastWipe = [...scenarioRuns].reverse().find(r => r.outcome === 'wipe') ?? null;
+        const lastWipeTeam = lastWipe?.finalParty ?? null;
+
         return <PSPanelWrapper room={this.props.room}>
             <div class="mainmenu">
                 <div class="mainmenu-left">
@@ -652,17 +694,134 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
                             <div class="nz-dashboard-run">
                                 {!activeRun ? (
-                                    <div class="nz-active-run-panel nz-active-run-panel-empty">
-                                        <div class="nz-active-run-title">No Active Run</div>
-                                        <div class="nz-active-run-segment" style="margin-bottom:16px;">Select a scenario to begin.</div>
-                                        <button
-                                            class="nz-btn nz-btn-primary"
-                                            onClick={this.clickStartRun}
-                                            disabled={!this.selectedScenario}
-                                        >Start Run</button>
-                                    </div>
+                                    selectedScenarioData ? (
+                                        <div class="nz-active-run-panel" style={`--scenario-color:${selectedScenarioData.color};`}>
+                                            <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(selectedScenarioData.pokemon)}.png`} alt="" aria-hidden="true" />
+                                            <div class="nz-panel-sections">
+
+                                                {/* Left column: Scenario + Configuration */}
+                                                <div class="nz-panel-col-main">
+
+                                                    <div class="nz-panel-section">
+                                                        {serverScenarioCard ? (
+                                                            <>
+                                                                <div class="nz-active-run-title" style="font-size:18px;margin-bottom:6px;">{selectedScenarioData.name}</div>
+                                                                <div class="nz-scenario-stats">
+                                                                    <span>Gen {serverScenarioCard.generation}</span>
+                                                                    <span class="nz-scenario-stats-sep">·</span>
+                                                                    <span>{serverScenarioCard.battleCount} fights</span>
+                                                                    <span class="nz-scenario-stats-sep">·</span>
+                                                                    <span>{serverScenarioCard.encounterCount} encounters</span>
+                                                                </div>
+                                                                <div class="nz-scenario-description">{serverScenarioCard.description}</div>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div class="nz-active-run-title" style="font-size:18px;">{selectedScenarioData.name}</div>
+                                                                <div class="nz-scenario-description" style="-webkit-line-clamp:unset;">Coming soon</div>
+                                                            </>
+                                                        )}
+                                                    </div>
+
+                                                    <div class="nz-panel-section nz-panel-section-config">
+                                                        {serverScenarioCard && serverScenarioCard.starters.length > 0 && (
+                                                            <>
+                                                                <div class="nz-label" style="margin-bottom:6px;">Starter</div>
+                                                                <div class="nz-starter-picker">
+                                                                    {serverScenarioCard.starters.map((species, i) => {
+                                                                        const types = Dex.species.get(species)?.types ?? [];
+                                                                        return <div
+                                                                            key={i}
+                                                                            class={`nz-starter-pick${this.selectedStarter === i ? ' nz-starter-pick-selected' : ''}`}
+                                                                            onClick={() => this.selectStarter(i)}
+                                                                        >
+                                                                            <img
+                                                                                src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(species)}.png`}
+                                                                                alt={species}
+                                                                            />
+                                                                            <div class="nz-starter-pick-name">{species}</div>
+                                                                            <div class="nz-starter-pick-types">
+                                                                                {types.map((t: string) => (
+                                                                                    <span key={t} class={`nz-type nz-type-${t.toLowerCase()}`}>{t}</span>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>;
+                                                                    })}
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                        <div class="nz-label" style="margin-bottom:6px;margin-top:12px;">AI Difficulty</div>
+                                                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                                            {AI_DIFFICULTIES.map(d => (
+                                                                <button
+                                                                    key={d.id}
+                                                                    class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
+                                                                    onClick={() => this.setDifficulty(d.id)}
+                                                                >{d.label}</button>
+                                                            ))}
+                                                        </div>
+                                                        <div class="nz-btn-group">
+                                                            <button
+                                                                class="nz-btn nz-btn-primary"
+                                                                onClick={this.clickStartRun}
+                                                                disabled={!!(serverScenarioCard?.starters.length && this.selectedStarter === null)}
+                                                            >Start Run</button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                {/* Right column: Stats */}
+                                                <div class="nz-panel-col-side">
+                                                    <div class="nz-label" style="margin-bottom:10px;">Your Stats</div>
+                                                    {scenarioRuns.length > 0 ? (
+                                                        <>
+                                                            <div class="nz-stat-chips">
+                                                                <div class="nz-stat-chip">
+                                                                    <div class="nz-stat-chip-value wins">{scenarioVictories}</div>
+                                                                    <div class="nz-stat-chip-label">Wins</div>
+                                                                </div>
+                                                                <div class="nz-stat-chip">
+                                                                    <div class="nz-stat-chip-value losses">{scenarioWipes}</div>
+                                                                    <div class="nz-stat-chip-label">Losses</div>
+                                                                </div>
+                                                            </div>
+                                                            {lastWipeTeam && lastWipeTeam.length > 0 && (
+                                                                <div class="nz-stat-last-run">
+                                                                    <div class="nz-label" style="margin-bottom:8px;">Last Loss</div>
+                                                                    <div class="nz-active-run-segment" style="margin-bottom:8px;">
+                                                                        {lastWipe!.finalBattle || `Segment ${lastWipe!.segmentIndex + 1}`}
+                                                                        {' · '}{lastWipe!.deathCount} death{lastWipe!.deathCount !== 1 ? 's' : ''}
+                                                                    </div>
+                                                                    <div class="nz-stat-last-team">
+                                                                        {lastWipeTeam.map((p, i) => (
+                                                                            <img
+                                                                                key={i}
+                                                                                src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(p.species)}.png`}
+                                                                                alt={p.species}
+                                                                                style={p.alive ? '' : 'opacity:0.3;filter:grayscale(1)'}
+                                                                            />
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <div class="nz-active-run-segment">No previous attempts</div>
+                                                    )}
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div class="nz-active-run-panel nz-active-run-panel-empty">
+                                            <div class="nz-active-run-title">No Active Run</div>
+                                            <div class="nz-active-run-segment">Select a scenario to begin.</div>
+                                        </div>
+                                    )
                                 ) : (
-                                    <div class="nz-active-run-panel">
+                                    <div class="nz-active-run-panel" style={`--scenario-color:${SCENARIOS.find(s => s.id === activeRun.scenarioId || s.backingId === activeRun.scenarioId)?.color ?? ''};`}>
+                                        <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(SCENARIOS.find(s => s.id === activeRun.scenarioId || s.backingId === activeRun.scenarioId)?.pokemon ?? '')}.png`} alt="" aria-hidden="true" />
                                         <div class="nz-active-run-header">
                                             <div>
                                                 <div class="nz-active-run-title">{activeRun.scenarioName}</div>
@@ -734,19 +893,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             <div class="nz-dashboard-scenarios">
                                 <div class="nz-scenarios-header">
                                     <div class="nz-section-title" style="margin-bottom:0;">Scenarios</div>
-                                    <div class="nz-scenarios-controls">
-                                        <div class="nz-scenarios-difficulty">
-                                            <span class="nz-label" style="margin-right:8px;">AI Difficulty</span>
-                                            {AI_DIFFICULTIES.map(d => (
-                                                <button
-                                                    key={d.id}
-                                                    class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
-                                                    onClick={() => this.setDifficulty(d.id)}
-                                                >{d.label}</button>
-                                            ))}
-                                        </div>
-
-                                    </div>
                                 </div>
                                 <div class="nz-scenario-grid">
                                     {SCENARIOS.map(scenario => {

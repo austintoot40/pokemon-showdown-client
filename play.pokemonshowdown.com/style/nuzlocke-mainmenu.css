@@ -42,32 +42,55 @@
   grid-template-areas:
     "run       scenarios"
     "history   scenarios";
+  grid-template-rows: 3fr 2fr;
   gap: 32px 32px;
+  height: calc(100vh - 72px); /* 72px = 36px top + 36px bottom padding */
 }
 
-.nz-dashboard-run       { grid-area: run; display: flex; flex-direction: column; }
-.nz-dashboard-scenarios { grid-area: scenarios; }
-.nz-dashboard-history   { grid-area: history; }
+.nz-dashboard-run       { grid-area: run; display: flex; flex-direction: column; min-height: 0; }
+.nz-dashboard-scenarios { grid-area: scenarios; min-height: 0; }
+.nz-dashboard-history   { grid-area: history; min-height: 0; overflow: hidden; }
 
 /* =============================================
    ACTIVE RUN PANEL
    ============================================= */
 
 .nz-active-run-panel {
-  background: var(--nz-surface);
-  border: 1px solid var(--nz-border);
-  border-left: 3px solid var(--nz-accent);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg,
+      var(--nz-surface) 68%,
+      color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 18%, var(--nz-surface)) 100%
+    );
+  border: 1px solid color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 30%, var(--nz-border));
+  border-left: 3px solid var(--scenario-color, var(--nz-accent));
   clip-path: var(--nz-clip);
   padding: 24px 28px;
   box-shadow: var(--nz-shadow);
   flex: 1;
   display: flex;
   flex-direction: column;
+  transition: border-color 0.25s, background 0.25s;
 }
 
 .nz-active-run-panel .nz-btn-group {
   margin-top: auto;
   padding-top: 16px;
+}
+
+/* Large faded sprite anchored to the upper-right of the panel */
+.nz-panel-sprite {
+  position: absolute;
+  right: -35%;
+  top: -15%;
+  width: 112%;
+  height: 159%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: 0.05;
+  pointer-events: none;
+  filter: saturate(0.3);
 }
 
 .nz-active-run-panel-empty {
@@ -96,6 +119,13 @@
   margin-bottom: 4px;
 }
 
+.nz-active-run-panel .nz-active-run-title {
+  color: color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 85%, var(--nz-text));
+  text-shadow:
+    0 0 20px color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 50%, transparent),
+    0 0 6px  color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 25%, transparent);
+}
+
 .nz-active-run-segment {
   font-family: var(--nz-font-mono);
   font-size: 11px;
@@ -121,13 +151,13 @@
 }
 
 .nz-segment-pip.done {
-  background: var(--nz-accent-dim);
-  border: 1px solid var(--nz-accent);
+  background: color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 50%, transparent);
 }
 
 .nz-segment-pip.current {
-  background: var(--nz-accent);
-  box-shadow: 0 0 6px rgba(74, 158, 255, 0.5);
+  background: var(--scenario-color, var(--nz-accent));
+  box-shadow: 0 0 6px color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 50%, transparent);
 }
 
 /* Team grid — 2 columns of Pokemon slots */
@@ -175,6 +205,197 @@
 .nz-team-slot-types {
   display: flex;
   gap: 4px;
+}
+
+/* =============================================
+   TWO-COLUMN PANEL LAYOUT
+   ============================================= */
+
+/* Outer grid: left column (scenario + config) wider, right column (stats) narrower */
+.nz-panel-sections {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Left column — stacks scenario and config sections vertically */
+.nz-panel-col-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-right: 20px;
+  overflow: hidden;
+}
+
+/* Right column — stats, separated by a subtle vertical rule */
+.nz-panel-col-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border-left: 1px solid var(--nz-border-subtle);
+  padding-left: 20px;
+}
+
+/* Sections within the left column */
+.nz-panel-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px 0;
+}
+
+.nz-panel-section + .nz-panel-section {
+  border-top: 1px solid var(--nz-border-subtle);
+}
+
+.nz-panel-section-config {
+  flex: 2;
+}
+
+/* Win/Loss stat chips */
+.nz-stat-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.nz-stat-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--nz-elevated-alpha);
+  border: 1px solid var(--nz-border-subtle);
+  clip-path: var(--nz-clip-sm);
+  padding: 8px;
+  text-align: center;
+}
+
+.nz-stat-chip-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--nz-text);
+}
+
+.nz-stat-chip-value.wins { color: var(--nz-success); }
+.nz-stat-chip-value.losses { color: var(--nz-danger); }
+
+.nz-stat-last-run {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--nz-border-subtle);
+}
+
+.nz-stat-last-team {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.nz-stat-last-team img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.nz-stat-chip-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--nz-text-dim);
+  margin-top: 3px;
+}
+
+/* Scenario description — 2-line clamp */
+.nz-scenario-description {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+/* Compact starter picker (in the no-active-run scenario preview panel) */
+.nz-starter-picker {
+  display: flex;
+  gap: 8px;
+  height: 120px;
+}
+
+.nz-starter-pick {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(30, 45, 71, 0.55);
+  border: 1px solid var(--nz-border-subtle);
+  clip-path: var(--nz-clip-sm);
+  padding: 8px 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+  overflow: hidden;
+}
+
+.nz-starter-pick:hover {
+  border-color: var(--nz-accent);
+}
+
+.nz-starter-pick-selected {
+  background: var(--nz-accent-dim);
+  border-color: var(--nz-accent);
+}
+
+.nz-starter-pick img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex: 1;
+  min-height: 0;
+  transform: scale(1.4);
+}
+
+.nz-starter-pick-name {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nz-text);
+  margin: 6px 0 4px;
+}
+
+.nz-starter-pick-types {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+/* Scenario preview stats row (no active run, scenario selected) */
+.nz-scenario-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-text-muted);
+  margin-bottom: 20px;
+}
+
+.nz-scenario-stats-sep {
+  opacity: 0.4;
 }
 
 /* =============================================
