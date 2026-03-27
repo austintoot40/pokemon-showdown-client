@@ -67,7 +67,6 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockeStatePayl
 		)
 		const canContinue = pendingRoutes.length === 0;
 
-		const starter = game.box.find(p => p.caughtRoute === 'Starter');
 		const wildRoutes = segment.encounters.filter(r => r.type !== 'gift');
 		const giftPokemon = game.box.filter(p =>
 			segment.encounters.some(r => r.type === 'gift' && r.route === p.caughtRoute)
@@ -84,16 +83,6 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockeStatePayl
 					{ label: 'Routes Remaining', value: String(pendingRoutes.length) },
 				]}
 			/>
-
-			{starter && <NzSection title="Starter">
-				<div class="nz-encounters-grid">
-					<NzRouteCardCaught
-						pokemon={starter}
-						nickname={nicknames[starter.uid] ?? starter.nickname}
-						onNickChange={this.setNick}
-					/>
-				</div>
-			</NzSection>}
 
 			{wildRoutes.length > 0 && <NzSection title="Routes">
 				<div class="nz-encounters-grid">
@@ -132,12 +121,6 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockeStatePayl
 			</NzSection>}
 
 			{hasBottom && <div class="nz-encounters-bottom">
-				{segment.items.length > 0 && <NzSection title="Items Received">
-					<div class="nz-items-list">
-						{segment.items.map(item => <span key={item} class="nz-item-chip">{item}</span>)}
-					</div>
-				</NzSection>}
-
 				{giftPokemon.length > 0 && <NzSection title="Gift Pokémon">
 					<div class="nz-encounters-grid">
 						{giftPokemon.map(p =>
@@ -148,6 +131,12 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockeStatePayl
 								onNickChange={this.setNick}
 							/>
 						)}
+					</div>
+				</NzSection>}
+
+				{segment.items.length > 0 && <NzSection title="Items Received">
+					<div class="nz-items-list">
+						{segment.items.map(item => <span key={item} class="nz-item-chip">{item}</span>)}
 					</div>
 				</NzSection>}
 			</div>}

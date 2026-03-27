@@ -43,7 +43,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePa
 				}
 			}
 			if (!(uid in heldItems)) {
-				heldItems[uid] = p.item;
+				heldItems[uid] = toID(p.item);
 				changed = true;
 			}
 		});
@@ -263,7 +263,11 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePa
 							>
 								<option value="">(empty)</option>
 								{legalMoves.map(m =>
-									<option key={m.name} value={toID(m.name)}>
+									<option 
+										key={m.name} 
+										value={toID(m.name)}
+										disabled={selectedMoves.includes(toID(m.name))}
+									>
 										{m.fromTM ? `${m.name} (TM)` : m.name}
 									</option>
 								)}
@@ -288,7 +292,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePa
 							<option value="">(none)</option>
 							{game.items.map(item => {
 								const id = toID(item);
-								return <option key={id} value={id} disabled={takenItems(selectedPokemon.uid).has(item)}>
+								return <option key={id} value={id} disabled={takenItems(selectedPokemon.uid).has(id)}>
 									{item}
 								</option>;
 							})}

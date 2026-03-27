@@ -52,7 +52,7 @@ join(' ');
 PS.send("/nuzlocke setnicks "+parts);
 };return _this;}_inheritsLoose(EncountersScreen,_preact$Component);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var updated=Object.assign({},state.nicknames);var changed=false;props.game.box.forEach(function(p){if(!(p.uid in updated)){updated[p.uid]=p.nickname;changed=true;}});return changed?{nicknames:updated}:null;};var _proto=EncountersScreen.prototype;_proto.
 
-render=function render(){var _segment$battles$0$tr,_segment$battles$,_nicknames$starter$ui,_this2=this;
+render=function render(){var _segment$battles$0$tr,_segment$battles$,_this2=this;
 var game=this.props.game;
 var nicknames=this.state.nicknames;
 var segment=game.segment;
@@ -65,10 +65,8 @@ game.graveyard.map(function(p){return getEvoRoot(p.species);}))
 var pendingRoutes=segment.encounters.filter(function(r){return(
 r.type!=='gift'&&!game.resolvedRoutes.includes(r.route)&&!r.pokemon.every(function(s){return ownedRoots.has(getEvoRoot(s));}));}
 );
-console.log(pendingRoutes);
 var canContinue=pendingRoutes.length===0;
 
-var starter=game.box.find(function(p){return p.caughtRoute==='Starter';});
 var wildRoutes=segment.encounters.filter(function(r){return r.type!=='gift';});
 var giftPokemon=game.box.filter(function(p){return(
 segment.encounters.some(function(r){return r.type==='gift'&&r.route===p.caughtRoute;}));}
@@ -84,16 +82,6 @@ meta:[
 {label:'Next Battle',value:(_segment$battles$0$tr=(_segment$battles$=segment.battles[0])==null?void 0:_segment$battles$.trainer)!=null?_segment$battles$0$tr:'?'},
 {label:'Routes Remaining',value:String(pendingRoutes.length)}]}
 
-),
-
-starter&&preact.h(NzSection,{title:"Starter"},
-preact.h("div",{"class":"nz-encounters-grid"},
-preact.h(NzRouteCardCaught,{
-pokemon:starter,
-nickname:(_nicknames$starter$ui=nicknames[starter.uid])!=null?_nicknames$starter$ui:starter.nickname,
-onNickChange:this.setNick}
-)
-)
 ),
 
 wildRoutes.length>0&&preact.h(NzSection,{title:"Routes"},
@@ -133,12 +121,6 @@ onExplore:function(){return PS.send("/nuzlocke encounter "+i);}}
 ),
 
 hasBottom&&preact.h("div",{"class":"nz-encounters-bottom"},
-segment.items.length>0&&preact.h(NzSection,{title:"Items Received"},
-preact.h("div",{"class":"nz-items-list"},
-segment.items.map(function(item){return preact.h("span",{key:item,"class":"nz-item-chip"},item);})
-)
-),
-
 giftPokemon.length>0&&preact.h(NzSection,{title:"Gift Pok\xE9mon"},
 preact.h("div",{"class":"nz-encounters-grid"},
 giftPokemon.map(function(p){var _nicknames$p$uid;return(
@@ -149,6 +131,12 @@ nickname:(_nicknames$p$uid=nicknames[p.uid])!=null?_nicknames$p$uid:p.nickname,
 onNickChange:_this2.setNick}
 ));}
 )
+)
+),
+
+segment.items.length>0&&preact.h(NzSection,{title:"Items Received"},
+preact.h("div",{"class":"nz-items-list"},
+segment.items.map(function(item){return preact.h("span",{key:item,"class":"nz-item-chip"},item);})
 )
 )
 ),
