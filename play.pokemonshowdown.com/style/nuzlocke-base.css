@@ -14,6 +14,7 @@
   font-family: var(--nz-font-ui);
   font-size: 15px;
   color: var(--nz-text);
+  padding: 16px 20px;
 }
 
 /* Override PS background image with solid theme color */
@@ -32,8 +33,9 @@ body {
 
 .nz-screen {
   background: var(--nz-bg);
-  padding: 16px 20px;
   min-height: 100%;
+  width: 100%;
+  max-width: 1920px;
 }
 
 .nz-row {

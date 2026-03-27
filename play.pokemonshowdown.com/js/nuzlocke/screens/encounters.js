@@ -1,4 +1,4 @@
-"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}var
+"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}
 
 
 
@@ -9,6 +9,14 @@
 
 
 
+
+function getEvoRoot(speciesName){
+var species=Dex.species.get(speciesName);
+while(species.prevo){
+species=Dex.species.get(species.prevo);
+}
+return species.id;
+}var
 
 
 
@@ -49,9 +57,15 @@ var game=this.props.game;
 var nicknames=this.state.nicknames;
 var segment=game.segment;
 
-var pendingRoutes=segment.encounters.filter(function(r){return(
-r.type!=='gift'&&!game.resolvedRoutes.includes(r.route));}
+var ownedRoots=new Set([].concat(
+game.box.map(function(p){return getEvoRoot(p.species);}),
+game.graveyard.map(function(p){return getEvoRoot(p.species);}))
 );
+
+var pendingRoutes=segment.encounters.filter(function(r){return(
+r.type!=='gift'&&!game.resolvedRoutes.includes(r.route)&&!r.pokemon.every(function(s){return ownedRoots.has(getEvoRoot(s));}));}
+);
+console.log(pendingRoutes);
 var canContinue=pendingRoutes.length===0;
 
 var starter=game.box.find(function(p){return p.caughtRoute==='Starter';});
@@ -97,12 +111,14 @@ onNickChange:_this2.setNick}
 );
 }
 
-var ownedSpecies=new Set([].concat(
-game.box.map(function(p){return toID(p.species);}),
-game.box.map(function(p){return toID(p.baseSpecies);}),
-game.graveyard.map(function(p){return toID(p.species);}))
+var ownedRoots=new Set([].concat(
+game.box.map(function(p){return getEvoRoot(p.species);}),
+game.graveyard.map(function(p){return getEvoRoot(p.species);}))
 );
-var allDupes=route.pokemon.every(function(s){return ownedSpecies.has(toID(s));});
+var ownedSpecies=new Set(
+route.pokemon.filter(function(s){return ownedRoots.has(getEvoRoot(s));}).map(toID)
+);
+var allDupes=route.pokemon.every(function(s){return ownedRoots.has(getEvoRoot(s));});
 
 return preact.h(NzRouteCard,{
 key:route.route,

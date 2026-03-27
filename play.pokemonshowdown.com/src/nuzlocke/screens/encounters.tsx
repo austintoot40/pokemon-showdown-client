@@ -4,11 +4,19 @@
 
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
-import { toID } from "../../battle-dex";
+import { toID, Dex } from "../../battle-dex";
 import { NzScreen, NzScreenHeader, NzSection } from "../components/layout";
 import { NzBtn } from "../components/primitives";
 import { NzRouteCard, NzRouteCardCaught } from "../components/route-cards";
 import type { NuzlockeStatePayload } from "../types";
+
+function getEvoRoot(speciesName: string): string {
+	let species = Dex.species.get(speciesName);
+	while (species.prevo) {
+		species = Dex.species.get(species.prevo);
+	}
+	return species.id;
+}
 
 interface EncountersState {
 	nicknames: Record<string, string>;
@@ -49,9 +57,14 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockeStatePayl
 		const { nicknames } = this.state;
 		const segment = game.segment!;
 
+		const ownedRoots = new Set([
+			...game.box.map(p => getEvoRoot(p.species)),
+			...game.graveyard.map(p => getEvoRoot(p.species)),
+		]);
+
 		const pendingRoutes = segment.encounters.filter(r =>
-			r.type !== 'gift' && !game.resolvedRoutes.includes(r.route)
-		);
+			r.type !== 'gift' && !game.resolvedRoutes.includes(r.route) && !r.pokemon.every(s => ownedRoots.has(getEvoRoot(s)))
+		)
 		const canContinue = pendingRoutes.length === 0;
 
 		const starter = game.box.find(p => p.caughtRoute === 'Starter');
@@ -97,12 +110,14 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockeStatePayl
 							/>;
 						}
 
-						const ownedSpecies = new Set([
-							...game.box.map(p => toID(p.species)),
-							...game.box.map(p => toID(p.baseSpecies)),
-							...game.graveyard.map(p => toID(p.species)),
+						const ownedRoots = new Set([
+							...game.box.map(p => getEvoRoot(p.species)),
+							...game.graveyard.map(p => getEvoRoot(p.species)),
 						]);
-						const allDupes = route.pokemon.every(s => ownedSpecies.has(toID(s)));
+						const ownedSpecies = new Set(
+							route.pokemon.filter(s => ownedRoots.has(getEvoRoot(s))).map(toID)
+						);
+						const allDupes = route.pokemon.every(s => ownedRoots.has(getEvoRoot(s)));
 
 						return <NzRouteCard
 							key={route.route}

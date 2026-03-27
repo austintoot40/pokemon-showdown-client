@@ -67,7 +67,6 @@ interface NuzlockeStatusPayload {
 }
 
 const AI_DIFFICULTIES = [
-    { id: 'random', label: 'Random' },
     { id: 'game-accurate', label: 'Game' },
     { id: 'smart', label: 'Smart' },
     { id: 'competitive', label: 'Competitive' },
@@ -613,6 +612,27 @@ class NewsPanel extends PSRoomPanel {
     }
 }
 
+function NuzlockeLoadingPanel() {
+    return (
+        <div class="nz-active-run-panel nz-active-run-panel-loading" aria-busy="true" aria-label="Loading run data">
+            <div class="nz-loading-skel nz-loading-skel-title" />
+            <div class="nz-loading-skel nz-loading-skel-meta" />
+            <div class="nz-loading-skel nz-loading-skel-bar" style="margin-top:16px;margin-bottom:0;" />
+            <div class="nz-team-grid">
+                {[0,1,2,3,4,5].map(i => (
+                    <div key={i} class="nz-team-slot nz-team-slot-loading">
+                        <div class="nz-loading-skel nz-loading-skel-sprite" />
+                        <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                            <div class="nz-loading-skel nz-loading-skel-name" />
+                            <div class="nz-loading-skel nz-loading-skel-type" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     static readonly id = 'mainmenu';
     static readonly routes = [''];
@@ -620,7 +640,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     static readonly icon = <i class="fa fa-home" aria-hidden></i>;
     selectedScenario: string | null = null;
     selectedStarter: number | null = null;
-    selectedDifficulty: string = 'random';
+    selectedDifficulty: string = 'game-accurate';
     confirmAbandon: boolean = false;
 
     clickAbandon = () => {
@@ -629,6 +649,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     };
     clickConfirmAbandon = () => {
         this.confirmAbandon = false;
+        this.selectedStarter = null;
         PS.send('/nuzlocke abandon');
     };
     clickCancelAbandon = () => {
@@ -693,7 +714,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                         <div class="nz-dashboard nz-dashboard-has-run">
 
                             <div class="nz-dashboard-run">
-                                {!activeRun ? (
+                                {status === null ? (
+                                    <NuzlockeLoadingPanel />
+                                ) : !activeRun ? (
                                     selectedScenarioData ? (
                                         <div class="nz-active-run-panel" style={`--scenario-color:${selectedScenarioData.color};`}>
                                             <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(selectedScenarioData.pokemon)}.png`} alt="" aria-hidden="true" />
@@ -918,8 +941,21 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                 </div>
                             </div>
 
-                            {pastRuns.length > 0 && <div class="nz-dashboard-history">
-                                <div class="nz-section-title" style="margin-bottom:12px;">Past Runs ({pastRuns.length})</div>
+                            {(status === null || pastRuns.length > 0) && <div class="nz-dashboard-history">
+                                <div class="nz-section-title" style="margin-bottom:12px;">
+                                    {status === null ? 'Past Runs' : `Past Runs (${pastRuns.length})`}
+                                </div>
+                                {status === null ? (
+                                    <div class="nz-run-list nz-run-list-loading" aria-busy="true">
+                                        {[0,1,2].map(i => (
+                                            <div key={i} class="nz-run-entry">
+                                                <div class="nz-loading-skel" style="width:52px;height:20px;border-radius:2px;flex-shrink:0;" />
+                                                <div class="nz-loading-skel nz-loading-skel-run-name" />
+                                                <div class="nz-loading-skel nz-loading-skel-run-meta" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
                                 <div class="nz-run-list">
                                     {[...pastRuns].reverse().map(run => {
                                         const date = new Date(run.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -941,6 +977,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                         </div>;
                                     })}
                                 </div>
+                                )}
                             </div>}
 
                         </div>

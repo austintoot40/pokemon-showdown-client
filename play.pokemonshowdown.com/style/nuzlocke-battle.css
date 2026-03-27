@@ -1,0 +1,309 @@
+/*
+ * nuzlocke-battle.css
+ *
+ * Applies the Nuzlocke "Tactical RPG" design system to the
+ * Pokemon Showdown battle screen UI.
+ *
+ * Scope: Everything except the .battle animation window.
+ * All colors/fonts reference --nz-* tokens from nuzlocke-tokens.css.
+ */
+
+/* ─── Overall room background ─────────────────────────────── */
+/* .ps-room.ps-room-light has specificity (0,2,0); match it exactly here */
+
+[id^="room-battle-"] {
+  background: var(--nz-bg) !important;
+  color: var(--nz-text) !important;
+  font-family: var(--nz-font-ui);
+}
+
+/* ─── Battle container ─────────────────────────────── */
+
+.ps-room > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ps-room .battle {
+  transform-origin: top;
+  position: unset;
+}
+
+/* ─── Controls container ──────────────────────────────────── */
+
+.battle-controls-container {
+  background: var(--nz-bg);
+}
+
+.battle-controls {
+  background: var(--nz-bg);
+  font-family: var(--nz-font-ui);
+  color: var(--nz-text);
+  padding-top: 30px;
+  left: auto;
+  width: auto;
+  min-width: 746px;
+}
+
+.battle-controls .controls {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0px 20px;
+}
+
+/* ─── "What will X do?" message ──────────────────────────── */
+
+.battle-controls .whatdo {
+  background: var(--nz-surface);
+  border-left: 3px solid var(--nz-accent);
+  color: var(--nz-text);
+  padding: 6px 10px;
+  clip-path: var(--nz-clip-sm);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.battle-controls .whatdo strong {
+  color: var(--nz-accent);
+}
+
+/* ─── Section headers (Attack / Switch) ──────────────────── */
+
+.battle-controls h3.moveselect,
+.battle-controls h3.switchselect,
+.battle-controls h3.shiftselect {
+  font-family: var(--nz-font-ui);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nz-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--nz-border);
+  margin: 4px 0 6px;
+  padding: 0 0 4px;
+}
+
+/* ─── Move buttons ────────────────────────────────────────── */
+
+.battle-controls .movebutton {
+  font-family: var(--nz-font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  clip-path: var(--nz-clip-sm);
+  transition: filter 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+}
+
+.battle-controls .movebutton small {
+  color: var(--nz-text-muted);
+}
+
+.battle-controls .movebutton:not(.disabled):not(:disabled):hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+  border-color: var(--nz-accent);
+  background: var(--nz-elevated);
+}
+
+.battle-controls .movebutton.disabled,
+.battle-controls .movebutton:disabled {
+  opacity: 0.4 !important;
+  cursor: default !important;
+  background: var(--nz-elevated) !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+.battle-controls .movemenu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0px 20px;
+}
+
+/* Type-colored move buttons — override sim-types.css */
+.battle-controls .movemenu button.type-Normal   { background: var(--type-normal);   color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Fire     { background: var(--type-fire);     color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Water    { background: var(--type-water);    color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Electric { background: var(--type-electric); color: #1a1a1a; border-color: transparent; }
+.battle-controls .movemenu button.type-Grass    { background: var(--type-grass);    color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Ice      { background: var(--type-ice);      color: #1a1a1a; border-color: transparent; }
+.battle-controls .movemenu button.type-Fighting { background: var(--type-fighting); color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Poison   { background: var(--type-poison);   color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Ground   { background: var(--type-ground);   color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Flying   { background: var(--type-flying);   color: #1a1a1a; border-color: transparent; }
+.battle-controls .movemenu button.type-Psychic  { background: var(--type-psychic);  color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Bug      { background: var(--type-bug);      color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Rock     { background: var(--type-rock);     color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Ghost    { background: var(--type-ghost);    color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Dragon   { background: var(--type-dragon);   color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Dark     { background: var(--type-dark);     color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Steel    { background: var(--type-steel);    color: #fff; border-color: transparent; }
+.battle-controls .movemenu button.type-Fairy    { background: var(--type-fairy);    color: #fff; border-color: transparent; }
+
+/* Type button secondary text */
+.battle-controls .movemenu button[class*="type-"] small { color: rgba(255, 255, 255, 0.8); }
+.battle-controls .movemenu button.type-Electric small,
+.battle-controls .movemenu button.type-Ice small,
+.battle-controls .movemenu button.type-Flying small  { color: rgba(0, 0, 0, 0.55); }
+
+/* Type button hover — filter only, keep the type background */
+.battle-controls .movemenu button[class*="type-"]:not(.disabled):not(:disabled):hover {
+  filter: brightness(1.18);
+  transform: translateY(-1px);
+  border-color: transparent;
+}
+
+/* ─── Switch menu (Pokemon buttons) ──────────────────────── */
+
+.battle-controls .switchmenu {
+  padding: 0px 20px;
+}
+
+.battle-controls .switchmenu button {
+  font-family: var(--nz-font-ui);
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  clip-path: var(--nz-clip-sm);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.battle-controls .switchmenu button:not(.disabled):not(:disabled):hover {
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 12%, var(--nz-elevated));
+  transform: none;
+  filter: none;
+}
+
+.battle-controls .switchmenu button.disabled,
+.battle-controls .switchmenu button:disabled {
+  opacity: 0.4 !important;
+  background: var(--nz-elevated) !important;
+  cursor: default;
+}
+
+/* HP bars inside switch buttons */
+.battle-controls .switchmenu button .hpbar {
+  border-color: var(--nz-border);
+  background: var(--nz-bg);
+}
+
+.battle-controls .switchmenu button .hpbar span {
+  background: var(--nz-hp-high);
+  border-top-color: #6ddd9e; /* lightened --nz-hp-high */
+}
+
+.battle-controls .switchmenu button .hpbar-yellow span {
+  background: var(--nz-hp-mid);
+  border-top-color: #ffd470; /* lightened --nz-hp-mid */
+}
+
+.battle-controls .switchmenu button .hpbar-red span {
+  background: var(--nz-hp-low);
+  border-top-color: #ff6e6e; /* lightened --nz-hp-low */
+}
+
+/* ─── Mega / Z-Move / Tera box ────────────────────────────── */
+
+.battle-controls .megaevo {
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+  color: var(--nz-text-muted);
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--nz-radius);
+  cursor: pointer;
+}
+
+.battle-controls .megaevo:hover {
+  color: var(--nz-text);
+  background: var(--nz-elevated);
+}
+
+.battle-controls .megaevo.cur {
+  color: var(--nz-warning);
+  border-color: var(--nz-warning);
+  background: rgba(255, 200, 68, 0.10);
+}
+
+/* ─── General control buttons (Play / Pause / Skip / Cancel) */
+
+.battle-controls .controls {
+  width: 100%;
+}
+
+.battle-controls .controls .button,
+.battle-controls .controls p > .button {
+  font-family: var(--nz-font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  clip-path: var(--nz-clip-sm);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.battle-controls .controls .button:not(.disabled):hover {
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 8%, var(--nz-elevated));
+}
+
+.battle-controls .controls .button.disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ─── Move warning / error text ──────────────────────────── */
+
+.battle-controls .movewarning {
+  color: var(--nz-warning);
+  font-family: var(--nz-font-ui);
+  font-style: normal;
+}
+
+.battle-controls .message-error {
+  color: var(--nz-danger);
+  font-family: var(--nz-font-ui);
+}
+
+/* ─── "Try Fight button" inline button in move warning ─────── */
+
+.battle-controls .movewarning .button {
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-warning);
+  color: var(--nz-warning);
+}
+
+/* ─── Battle options button (top-right overlay) ───────────── */
+
+button[data-href="battleoptions"] {
+  font-family: var(--nz-font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text-muted);
+  clip-path: var(--nz-clip-sm);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+button[data-href="battleoptions"]:hover {
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+}

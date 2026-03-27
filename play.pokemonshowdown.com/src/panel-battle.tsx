@@ -182,65 +182,6 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 	}
 }
 
-class TimerButton extends preact.Component<{ room: BattleRoom }> {
-	timerInterval: number | null = null;
-	override componentWillUnmount() {
-		if (this.timerInterval) {
-			clearInterval(this.timerInterval);
-			this.timerInterval = null;
-		}
-	}
-	secondsToTime(seconds: number | true) {
-		if (seconds === true) return '-:--';
-		const minutes = Math.floor(seconds / 60);
-		seconds -= minutes * 60;
-		return `${minutes}:${(seconds < 10 ? '0' : '')}${seconds}`;
-	}
-	render() {
-		let time = 'Timer';
-		const room = this.props.room;
-		if (!this.timerInterval && room.battle.kickingInactive) {
-			this.timerInterval = setInterval(() => {
-				if (room.choices?.isDone()) return;
-				if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
-					room.battle.kickingInactive--;
-					if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
-					else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft--;
-				}
-				this.forceUpdate();
-			}, 1000);
-		} else if (this.timerInterval && !room.battle.kickingInactive) {
-			clearInterval(this.timerInterval);
-			this.timerInterval = null;
-		}
-
-		let timerTicking = (room.battle.kickingInactive &&
-			room.request && room.request.requestType !== "wait" && (room.choices && !room.choices.isDone())) ?
-			' timerbutton-on' : '';
-
-		if (room.battle.kickingInactive) {
-			const secondsLeft = room.battle.kickingInactive;
-			time = this.secondsToTime(secondsLeft);
-			if (secondsLeft !== true) {
-				if (secondsLeft <= 10 && timerTicking) {
-					timerTicking = ' timerbutton-critical';
-				}
-
-				if (room.battle.totalTimeLeft) {
-					const totalTime = this.secondsToTime(room.battle.totalTimeLeft);
-					time += ` |  ${totalTime} total`;
-				}
-			}
-		}
-
-		return <button
-			style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={`button${timerTicking}`} role="timer"
-		>
-			<i class="fa fa-hourglass-start" aria-hidden></i> {time}
-		</button>;
-	}
-};
-
 class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*', 'game-*'];
@@ -373,7 +314,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const room = this.props.room;
 		const width = this.base.offsetWidth;
 		const height = this.base.offsetHeight;
-		const CONTROLS_HEIGHT = 130;
+		const CONTROLS_HEIGHT = 252;
 		const heightScale = height / (360 + CONTROLS_HEIGHT);
 		const widthScale = width ? width / 640 : 1;
 		const scale = Math.min(heightScale, widthScale);
@@ -1021,48 +962,21 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <PSPanelWrapper room={room} focusClick scrollable="hidden">
 				{hardcoreStyle}
 				<BattleDiv room={room} />
-				<ChatLog
-					class="battle-log hasuserlist" room={room} top={this.battleHeight} noSubscription
-				>
-					<div class="battle-controls" role="complementary" aria-label="Battle Controls">
+				<div class="battle-log" style="display:none" />
+				<div class="battle-controls-container">
+					<div class="battle-controls" role="complementary" aria-label="Battle Controls" style={`top: ${this.battleHeight + 10}px;`}>
 						{this.renderControls()}
 					</div>
-				</ChatLog>
-				<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={0} />
-				<ChatUserList room={room} top={this.battleHeight} minimized />
-				<button
-					data-href="battleoptions" class="button"
-					style={{ position: 'absolute', right: '75px', top: this.battleHeight }}
-				>
-					Battle options
-				</button>
-				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
-					<TimerButton room={room} />}
-				<div class="battle-controls-container"></div>
+				</div>
 			</PSPanelWrapper>;
 		}
 
-		const battleLeft = Math.round(640 * this.battleScale);
 		return <PSPanelWrapper room={room} focusClick scrollable="hidden">
 			{hardcoreStyle}
 			<BattleDiv room={room} />
-			<ChatLog
-				class="battle-log hasuserlist" room={room} left={battleLeft} noSubscription
-			>
-				{}
-			</ChatLog>
-			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={battleLeft} />
-			<ChatUserList room={room} left={battleLeft} minimized />
-			<button
-				data-href="battleoptions" class="button"
-				style={{ position: 'absolute', right: '15px' }}
-			>
-				Battle options
-			</button>
+			<div class="battle-log" style="display:none" />
 			<div class="battle-controls-container">
 				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style={`top: ${this.battleHeight + 10}px;`}>
-					{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
-						<TimerButton room={room} />}
 					{this.renderControls()}
 				</div>
 			</div>

@@ -98,7 +98,7 @@ export function NzRunEntry({
 			<NzBadge variant={won ? 'active' : 'danger'}>{won ? 'Victory' : 'Wipe'}</NzBadge>
 			<span class="nz-run-entry-name">{run.scenarioName}</span>
 			<span class="nz-run-entry-meta">
-				{date} · {run.deathCount} death{run.deathCount !== 1 ? 's' : ''} · {run.ai ?? 'random'}
+				{date} · {run.deathCount} death{run.deathCount !== 1 ? 's' : ''} · {run.ai ?? 'game-accurate'}
 				{run.finalBattle ? ` · ${run.finalBattle}` : ''}
 			</span>
 			<span class="nz-run-entry-chevron">{expanded ? '▲' : '▼'}</span>

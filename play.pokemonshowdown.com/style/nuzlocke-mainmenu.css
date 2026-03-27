@@ -14,7 +14,8 @@
   min-height: 100%;
 }
 .mainmenu-left {
-  width: auto !important;
+  width: 100% !important;
+  max-width: 1920px;
   padding: 0 !important;
   min-height: 100%;
 }
@@ -674,4 +675,54 @@
   background: var(--nz-accent-dim);
   border-color: var(--nz-accent);
   color: var(--nz-accent);
+}
+
+/* =============================================
+   LOADING STATE
+   ============================================= */
+
+@keyframes nz-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* Skeleton base — animated shimmer stripe */
+.nz-loading-skel {
+  background: linear-gradient(
+    90deg,
+    var(--nz-elevated)       0%,
+    var(--nz-overlay)       40%,
+    var(--nz-elevated)      80%
+  );
+  background-size: 200% 100%;
+  animation: nz-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--nz-radius);
+}
+
+.nz-loading-skel-title    { height: 22px; width: 55%; margin-bottom: 10px; }
+.nz-loading-skel-meta     { height: 12px; width: 38%; margin-bottom: 4px; }
+.nz-loading-skel-bar      { height: 6px;  width: 100%; border-radius: 1px; margin-bottom: 20px; }
+.nz-loading-skel-sprite   { width: 48px;  height: 48px; flex-shrink: 0; border-radius: var(--nz-radius); }
+.nz-loading-skel-name     { height: 12px; width: 70%; }
+.nz-loading-skel-type     { height: 10px; width: 44%; }
+.nz-loading-skel-run-name { height: 13px; flex: 1; }
+.nz-loading-skel-run-meta { height: 11px; width: 140px; flex-shrink: 0; }
+
+/* Loading panel — same structure as active-run-panel but muted */
+.nz-active-run-panel-loading {
+  border-left-color: var(--nz-border);
+  background: var(--nz-surface);
+}
+
+/* Team grid expands to fill remaining height, matching the real panel's content fill */
+.nz-active-run-panel-loading .nz-team-grid {
+  flex: 1;
+  align-content: start;
+  min-height: 0;
+  margin-top: 16px;
+}
+
+/* Team grid inside loading panel reuses the standard grid */
+.nz-team-slot-loading {
+  pointer-events: none;
 }
