@@ -49,7 +49,9 @@ interface NuzlockeScenarioCard {
     starters: string[];
 }
 
-interface NuzlockeStatusPayload {
+// Lightweight run summary delivered globally (|updatenuzlocke| message).
+// Drives the main menu widget: active run banner, scenario picker, past runs.
+interface NuzlockeMenuPayload {
     activeRun: {
         scenarioId: string;
         scenarioName: string;
@@ -63,6 +65,7 @@ interface NuzlockeStatusPayload {
     } | null;
     pastRuns: NuzlockePastRun[];
     selectedAi: string;
+    generation: number;
     scenarios: NuzlockeScenarioCard[];
 }
 
@@ -97,17 +100,6 @@ const SCENARIOS: { id: string; name: string; meta: string; color: string; pokemo
     { id: 'y',                name: 'Y',                     meta: 'Gen 6 · Coming Soon', color: '#B71C1C', pokemon: 'yveltal',    backingId: 'firered' },
     { id: 'omegaruby',        name: 'Omega Ruby',            meta: 'Gen 6 · Coming Soon', color: '#B71C1C', pokemon: 'groudon',    backingId: 'firered' },
     { id: 'alphasapphire',    name: 'Alpha Sapphire',        meta: 'Gen 6 · Coming Soon', color: '#0D47A1', pokemon: 'kyogre',     backingId: 'firered' },
-    { id: 'sun',              name: 'Sun',                   meta: 'Gen 7 · Coming Soon', color: '#F57F17', pokemon: 'solgaleo',   backingId: 'firered' },
-    { id: 'moon',             name: 'Moon',                  meta: 'Gen 7 · Coming Soon', color: '#4A148C', pokemon: 'lunala',     backingId: 'firered' },
-    { id: 'ultrasun',         name: 'Ultra Sun',             meta: 'Gen 7 · Coming Soon', color: '#BF360C', pokemon: 'necrozma',   backingId: 'firered' },
-    { id: 'ultramoon',        name: 'Ultra Moon',            meta: 'Gen 7 · Coming Soon', color: '#311B92', pokemon: 'necrozma',   backingId: 'firered' },
-    { id: 'sword',            name: 'Sword',                 meta: 'Gen 8 · Coming Soon', color: '#1565C0', pokemon: 'zacian',     backingId: 'firered' },
-    { id: 'shield',           name: 'Shield',                meta: 'Gen 8 · Coming Soon', color: '#880E4F', pokemon: 'zamazenta',  backingId: 'firered' },
-    { id: 'brilliantdiamond', name: 'Brilliant Diamond',     meta: 'Gen 8 · Coming Soon', color: '#4A148C', pokemon: 'dialga',     backingId: 'firered' },
-    { id: 'shiningpearl',     name: 'Shining Pearl',         meta: 'Gen 8 · Coming Soon', color: '#AD1457', pokemon: 'palkia',     backingId: 'firered' },
-    { id: 'legendsarceus',    name: 'Legends: Arceus',       meta: 'Gen 8 · Coming Soon', color: '#33691E', pokemon: 'arceus',     backingId: 'firered' },
-    { id: 'scarlet',          name: 'Scarlet',               meta: 'Gen 9 · Coming Soon', color: '#B71C1C', pokemon: 'koraidon',   backingId: 'firered' },
-    { id: 'violet',           name: 'Violet',                meta: 'Gen 9 · Coming Soon', color: '#6A1B9A', pokemon: 'miraidon',   backingId: 'firered' },
 ];
 
 export class MainMenuRoom extends PSRoom {
@@ -136,7 +128,7 @@ export class MainMenuRoom extends PSRoom {
     search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
     disallowSpectators: boolean | null = PS.prefs.disallowspectators;
     lastChallenged: number | null = null;
-    nuzlockeStatus: NuzlockeStatusPayload | null = null;
+    nuzlockeMenuPayload: NuzlockeMenuPayload | null = null;
     constructor(options: RoomOptions) {
         super(options);
         if (this.backlog) {
@@ -270,7 +262,7 @@ export class MainMenuRoom extends PSRoom {
             return;
         } case 'updatenuzlocke': {
             const [, payload] = args;
-            this.nuzlockeStatus = JSON.parse(payload);
+            this.nuzlockeMenuPayload = JSON.parse(payload);
             this.update(null);
             return;
         }
@@ -659,12 +651,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     clickStartRun = () => {
         const scenario = SCENARIOS.find(s => s.id === this.selectedScenario);
         const scenarioId = scenario?.backingId ?? scenario?.id ?? this.selectedScenario;
-        const difficulty = this.props.room.nuzlockeStatus?.selectedAi ?? this.selectedDifficulty;
-        if (this.selectedStarter !== null) {
-            PS.send(`/nuzlocke start ${scenarioId} ${difficulty} ${this.selectedStarter}`);
-        } else {
-            PS.send(`/nuzlocke start ${scenarioId} ${difficulty}`);
-        }
+        const difficulty = this.props.room.nuzlockeMenuPayload?.selectedAi ?? this.selectedDifficulty;
+        PS.send(`/nuzlocke start ${scenarioId} ${difficulty} ${this.selectedStarter}`);
     };
     selectScenario = (id: string) => {
         this.selectedScenario = id;
@@ -682,7 +670,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         this.forceUpdate();
     };
     override render() {
-        const status = this.props.room.nuzlockeStatus;
+        const status = this.props.room.nuzlockeMenuPayload;
         const activeRun = status?.activeRun ?? null;
         const pastRuns = status?.pastRuns ?? [];
         const currentDifficulty = status?.selectedAi ?? this.selectedDifficulty;
@@ -701,7 +689,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         const scenarioRuns = selectedScenarioData
             ? pastRuns.filter(r => r.scenarioId === scenarioBackingId)
             : [];
-        const lastRun = scenarioRuns.length > 0 ? scenarioRuns[scenarioRuns.length - 1] : null;
         const scenarioVictories = scenarioRuns.filter(r => r.outcome === 'victory').length;
         const scenarioWipes = scenarioRuns.filter(r => r.outcome === 'wipe').length;
         const lastWipe = [...scenarioRuns].reverse().find(r => r.outcome === 'wipe') ?? null;

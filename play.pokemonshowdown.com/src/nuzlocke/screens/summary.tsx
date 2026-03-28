@@ -8,9 +8,9 @@ import { NzScreen, NzSection } from "../components/layout";
 import { NzBtn } from "../components/primitives";
 import { NzBoxCard, NzGraveyardCard } from "../components/pokemon-cards";
 import { NzProgress } from "../components/run-history";
-import type { NuzlockeStatePayload } from "../types";
+import type { NuzlockePanelPayload } from "../types";
 
-export function SummaryScreen({ game }: { game: NuzlockeStatePayload }) {
+export function SummaryScreen({ game }: { game: NuzlockePanelPayload }) {
 	const alive = game.box.filter(p => p.alive);
 	const isVictory = game.currentSegmentIndex >= game.totalSegments;
 	const segmentList = Object.values(game.segmentNames);

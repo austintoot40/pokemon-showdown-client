@@ -245,6 +245,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		PS.leave(this.props.room.id);
 	}
 	componentDidCatch(err: Error) {
+		console.error('[Panel Error]', err);
 		this.props.room.caughtError = err.stack || err.message;
 		this.setState({});
 	}

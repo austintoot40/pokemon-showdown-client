@@ -1,24 +1,225 @@
 /*
  * Nuzlocke — Encounters Screen
  *
- * Layout for the encounters grid, bottom section, and the items list
- * (segment items received after a battle).
+ * Split-panel layout: left route list + right sticky detail panel.
  */
 
 /* =============================================
-   ENCOUNTERS SCREEN LAYOUT
+   SPLIT-PANEL LAYOUT
    ============================================= */
 
-.nz-encounters-grid {
+.nz-encounters-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* =============================================
+   LEFT: ROUTE LIST
+   ============================================= */
+
+.nz-route-list {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  min-height: 660px;
+  overflow-y: auto;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.nz-route-list-section-label {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nz-text-dim);
+  padding: 10px 10px 4px;
+}
+
+.nz-route-list-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s, border-color 0.1s;
+  font-size: 12px;
+  color: var(--nz-text);
+  user-select: none;
+}
+
+.nz-route-list-row:hover {
+  background: var(--nz-elevated);
+}
+
+.nz-route-list-row.selected {
+  border-left-color: var(--nz-accent);
+  background: var(--nz-elevated);
+}
+
+.nz-route-list-row.resolved {
+  color: var(--nz-text-muted);
+}
+
+.nz-route-list-status {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  color: var(--nz-success);
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.nz-route-list-row.resolved .nz-route-list-status {
+  color: var(--nz-success);
+}
+
+.nz-route-list-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nz-method-pill {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.nz-route-list-divider {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nz-text-dim);
+  padding: 10px 10px 4px;
+  border-top: 1px solid var(--nz-border);
+  margin-top: 4px;
+}
+
+/* =============================================
+   RIGHT: DETAIL PANEL
+   ============================================= */
+
+.nz-encounter-detail {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  min-height: 660px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.nz-encounters-bottom {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.nz-detail-choose-hint {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nz-warning);
+  margin-bottom: 4px;
+}
+
+.nz-detail-empty {
+  color: var(--nz-text-dim);
+  font-size: 13px;
+  margin: auto;
+  text-align: center;
+}
+
+/* =============================================
+   METHOD POOL CARDS
+   ============================================= */
+
+.nz-method-pools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.nz-method-pool-card {
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+.nz-method-pool-card-dupe {
+  opacity: 0.5;
+}
+
+.nz-method-pool-card-selectable {
+  cursor: pointer;
+  transition: border-color 0.1s, background 0.1s;
+}
+
+.nz-method-pool-card-selectable:hover {
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-elevated) 85%, var(--nz-accent) 15%);
+}
+
+.nz-method-pool-label {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nz-accent);
+}
+
+/* =============================================
+   ENCOUNTER SLOT — sprite + rate bar + label
+   (shared with method pool cards)
+   ============================================= */
+
+.nz-encounter-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.nz-encounter-slot-dupe img {
+  opacity: 0.25;
+}
+
+.nz-encounter-rate-bar {
+  width: 64px;
+  height: 4px;
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.nz-encounter-rate-fill {
+  height: 100%;
+  background: var(--nz-accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.nz-encounter-slot-dupe .nz-encounter-rate-fill {
+  background: var(--nz-text-dim);
+}
+
+.nz-encounter-rate-label {
+  font-family: var(--nz-font-mono);
+  font-size: 9px;
+  color: var(--nz-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.nz-encounter-slot-dupe .nz-encounter-rate-label {
+  color: var(--nz-text-dim);
 }
 
 /* =============================================

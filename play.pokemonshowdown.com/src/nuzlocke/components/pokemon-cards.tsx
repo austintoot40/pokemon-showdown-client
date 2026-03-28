@@ -1,7 +1,7 @@
 /**
  * Nuzlocke UI — Pokémon Cards
  *
- * Full, compact, graveyard, opponent, and starter card components.
+ * Full, compact, graveyard, and opponent card components.
  */
 
 import preact from "../../../js/lib/preact";
@@ -82,26 +82,3 @@ export function NzOpponentCard({ pokemon }: { pokemon: TrainerPokemon }) {
 	</div>;
 }
 
-export function NzStarterCard({
-	species,
-	selected,
-	onSelect,
-}: {
-	species: string;
-	selected: boolean;
-	onSelect: () => void;
-}) {
-	const sp = Dex.species.get(species);
-	return <div
-		class={`nz-starter-card${selected ? ' nz-starter-card-selected' : ''}`}
-		onClick={onSelect}
-	>
-		<div class="nz-starter-sprite">
-			<NzSprite species={species} size={96} />
-		</div>
-		<div class="nz-card-nickname" style="margin-top:8px;">{sp.name}</div>
-		<div class="nz-card-types" style="justify-content:center;margin:4px 0;">
-			<NzTypeBadges species={species} />
-		</div>
-	</div>;
-}

@@ -7,9 +7,9 @@ import { PS } from "../../client-main";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn } from "../components/primitives";
 import { NzBattleBanner } from "../components/run-history";
-import type { NuzlockeStatePayload } from "../types";
+import type { NuzlockePanelPayload } from "../types";
 
-export function ResultsScreen({ game }: { game: NuzlockeStatePayload }) {
+export function ResultsScreen({ game }: { game: NuzlockePanelPayload }) {
 	const result = game.lastBattleResult;
 	const continueLabel = game.nextScreen === 'summary' ? 'View Summary' : 'Continue';
 

@@ -81,28 +81,4 @@ preact.h("span",{"class":"nz-card-item-label"},pokemon.item)
 preact.h("div",{"class":"nz-card-opponent nz-card-move-list"},pokemon.moves.join(' · '))
 );
 }
-
-function NzStarterCard(_ref5)
-
-
-
-
-
-
-
-{var species=_ref5.species,selected=_ref5.selected,onSelect=_ref5.onSelect;
-var sp=Dex.species.get(species);
-return preact.h("div",{
-"class":"nz-starter-card"+(selected?' nz-starter-card-selected':''),
-onClick:onSelect},
-
-preact.h("div",{"class":"nz-starter-sprite"},
-preact.h(NzSprite,{species:species,size:96})
-),
-preact.h("div",{"class":"nz-card-nickname",style:"margin-top:8px;"},sp.name),
-preact.h("div",{"class":"nz-card-types",style:"justify-content:center;margin:4px 0;"},
-preact.h(NzTypeBadges,{species:species})
-)
-);
-}
 //# sourceMappingURL=pokemon-cards.js.map

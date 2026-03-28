@@ -68,12 +68,16 @@ export interface TrainerPokemon {
 // ---------------------------------------------------------------------------
 
 export type NuzlockeScreen =
-	'dashboard' | 'intro' | 'starter' | 'encounters' | 'teambuilding' | 'battle' | 'results' | 'summary';
+	'dashboard' | 'encounters' | 'teambuilding' | 'battle' | 'results' | 'summary';
+
+export interface EncounterEntry {
+	species: string;
+	rate: number;   // encounter weight; values in a route sum to 100
+}
 
 export interface RouteEncounter {
 	route: string;
-	type?: 'gift';
-	pokemon: string[];
+	pokemon: EncounterEntry[];
 	levels: [number, number];
 }
 
@@ -91,12 +95,14 @@ export interface NuzlockeScenarioCard {
 	segmentCount: number;
 }
 
-export interface NuzlockeStatePayload {
+// Full game state delivered to the view-nuzlocke room (|nuzlockestate| message).
+// Drives all game screens in the Preact panel.
+export interface NuzlockePanelPayload {
 	curScreen: NuzlockeScreen;
 	scenarioId: string | null;
 	scenarioName: string | null;
 	scenarioDescription: string | null;
-	starters: { species: string; level: number }[] | null;
+	generation: number;
 	currentSegmentIndex: number;
 	totalSegments: number;
 	currentBattleIndex: number;
@@ -105,7 +111,8 @@ export interface NuzlockeStatePayload {
 		name: string;
 		levelCap: number;
 		items: string[];
-		encounters: RouteEncounter[];
+		encounters: Record<string, RouteEncounter[]>;
+		gifts: RouteEncounter[];
 		battles: TrainerBattle[];
 	} | null;
 	box: OwnedPokemon[];

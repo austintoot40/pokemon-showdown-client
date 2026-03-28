@@ -8,7 +8,7 @@ import { Dex, toID } from "../../battle-dex";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
 import { NzStatBars, NzIvBars, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
-import type { NuzlockeStatePayload } from "../types";
+import type { NuzlockePanelPayload } from "../types";
 
 interface TeambuildingState {
 	moves: Record<string, string[]>;
@@ -18,11 +18,11 @@ interface TeambuildingState {
 	selectedOpponentIndex: number | null;
 }
 
-export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePayload }, TeambuildingState> {
+export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
 	state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponentIndex: null };
 
 	static getDerivedStateFromProps(
-		props: { game: NuzlockeStatePayload },
+		props: { game: NuzlockePanelPayload },
 		state: TeambuildingState
 	): Partial<TeambuildingState> | null {
 		const moves = { ...state.moves };
@@ -169,7 +169,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePa
 					<span class="nz-moves-col-header">Acc</span>
 					<span class="nz-moves-col-header">Effect</span>
 					{opp.moves.map((moveId, i) => {
-						const move = moveId ? Dex.moves.get(moveId) : null;
+						const move = moveId ? Dex.forGen(this.props.game.generation).moves.get(moveId) : null;
 						const ex = !!(move?.exists);
 						const cat = ex ? (move!.category === 'Physical' ? 'Phys' : move!.category === 'Special' ? 'Spec' : 'Status') : '';
 						const power = ex && move!.basePower > 0 ? `${move!.basePower}` : ex ? '—' : '';
@@ -186,7 +186,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePa
 				</div>
 
 				{opp.item && (() => {
-					const item = Dex.items.get(opp.item);
+					const item = Dex.forGen(this.props.game.generation).items.get(opp.item);
 					return <>
 						<div class="nz-label" style="margin-top:12px;margin-bottom:5px;">Held Item</div>
 						<div class="nz-move-slot">
@@ -250,7 +250,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePa
 					<span class="nz-moves-col-header">Effect</span>
 					{[0, 1, 2, 3].map(slot => {
 						const moveId = selectedMoves[slot] ?? '';
-						const move = moveId ? Dex.moves.get(moveId) : null;
+						const move = moveId ? Dex.forGen(this.props.game.generation).moves.get(moveId) : null;
 						const ex = !!(move?.exists);
 						const cat = ex ? (move!.category === 'Physical' ? 'Phys' : move!.category === 'Special' ? 'Spec' : 'Status') : '';
 						const power = ex && move!.basePower > 0 ? `${move!.basePower}` : ex ? '—' : '';
@@ -299,7 +299,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockeStatePa
 						</select>
 						{(() => {
 							const itemId = heldItems[selectedPokemon.uid] ?? '';
-							const item = itemId ? Dex.items.get(itemId) : null;
+							const item = itemId ? Dex.forGen(this.props.game.generation).items.get(itemId) : null;
 							const desc = item?.exists ? item.shortDesc : '';
 							return desc ? <div class="nz-item-desc">{desc}</div> : null;
 						})()}

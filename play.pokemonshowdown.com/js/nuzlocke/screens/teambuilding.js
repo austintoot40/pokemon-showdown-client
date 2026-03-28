@@ -169,7 +169,7 @@ preact.h("span",{"class":"nz-moves-col-header"},"BP"),
 preact.h("span",{"class":"nz-moves-col-header"},"Acc"),
 preact.h("span",{"class":"nz-moves-col-header"},"Effect"),
 opp.moves.map(function(moveId,i){var _shortDesc;
-var move=moveId?Dex.moves.get(moveId):null;
+var move=moveId?Dex.forGen(_this2.props.game.generation).moves.get(moveId):null;
 var ex=!!(move!=null&&move.exists);
 var cat=ex?move.category==='Physical'?'Phys':move.category==='Special'?'Spec':'Status':'';
 var power=ex&&move.basePower>0?""+move.basePower:ex?'—':'';
@@ -186,7 +186,7 @@ preact.h("span",{"class":"nz-move-grid-desc"},ex?(_shortDesc=move.shortDesc)!=nu
 ),
 
 opp.item&&function(){
-var item=Dex.items.get(opp.item);
+var item=Dex.forGen(_this2.props.game.generation).items.get(opp.item);
 return preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-label",style:"margin-top:12px;margin-bottom:5px;"},"Held Item"),
 preact.h("div",{"class":"nz-move-slot"},
@@ -250,7 +250,7 @@ preact.h("span",{"class":"nz-moves-col-header"},"Acc"),
 preact.h("span",{"class":"nz-moves-col-header"},"Effect"),
 [0,1,2,3].map(function(slot){var _selectedMoves$slot,_shortDesc2;
 var moveId=(_selectedMoves$slot=selectedMoves[slot])!=null?_selectedMoves$slot:'';
-var move=moveId?Dex.moves.get(moveId):null;
+var move=moveId?Dex.forGen(_this2.props.game.generation).moves.get(moveId):null;
 var ex=!!(move!=null&&move.exists);
 var cat=ex?move.category==='Physical'?'Phys':move.category==='Special'?'Spec':'Status':'';
 var power=ex&&move.basePower>0?""+move.basePower:ex?'—':'';
@@ -299,7 +299,7 @@ item
 ),
 function(_heldItems$selectedPo2){
 var itemId=(_heldItems$selectedPo2=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo2:'';
-var item=itemId?Dex.items.get(itemId):null;
+var item=itemId?Dex.forGen(_this2.props.game.generation).items.get(itemId):null;
 var desc=item!=null&&item.exists?item.shortDesc:'';
 return desc?preact.h("div",{"class":"nz-item-desc"},desc):null;
 }()

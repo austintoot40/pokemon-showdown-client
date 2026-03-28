@@ -23,16 +23,26 @@ function NzRouteCard(_ref)
 
 {var routeName=_ref.routeName,pool=_ref.pool,dupeSpecies=_ref.dupeSpecies,allDupes=_ref.allDupes,onExplore=_ref.onExplore;
 var cols=Math.max(1,Math.ceil(pool.length/2));
+var activeTotal=pool.
+filter(function(e){return!dupeSpecies.has(toID(e.species));}).
+reduce(function(sum,e){return sum+e.rate;},0);
 return preact.h("div",{
 "class":"nz-route-card"+(allDupes?' nz-route-card-dupe':' nz-route-card-clickable'),
 onClick:allDupes?undefined:onExplore},
 
 preact.h("div",{"class":"nz-route-name"},routeName),
 preact.h("div",{"class":"nz-route-pool",style:"grid-template-columns: repeat("+cols+", 80px)"},
-pool.map(function(s){
-var src="https://play.pokemonshowdown.com/sprites/gen5/"+toID(s)+".png";
-var dupe=dupeSpecies.has(toID(s));
-return preact.h("img",{key:s,src:src,alt:s,style:dupe?'opacity:0.25':''});
+pool.map(function(e){
+var src="https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png";
+var dupe=dupeSpecies.has(toID(e.species));
+var pct=dupe||activeTotal===0?0:Math.round(e.rate/activeTotal*100);
+return preact.h("div",{key:e.species,"class":"nz-encounter-slot"+(dupe?' nz-encounter-slot-dupe':'')},
+preact.h("img",{src:src,alt:e.species}),
+preact.h("div",{"class":"nz-encounter-rate-bar"},
+preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
+),
+preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
+);
 })
 ),
 allDupes?
@@ -60,11 +70,11 @@ return preact.h("div",{"class":"nz-route-card nz-route-card-resolved"},
 preact.h("div",{"class":"nz-route-name"},pokemon.caughtRoute),
 preact.h("div",{"class":"nz-route-pool",style:"grid-template-columns: repeat("+cols+", 80px)"},
 pool?
-pool.map(function(s){return toID(s)===toID(pokemon.species)?
-preact.h("div",{key:s,"class":"nz-route-caught-aura"},
+pool.map(function(e){return toID(e.species)===toID(pokemon.species)?
+preact.h("div",{key:e.species,"class":"nz-route-caught-aura"},
 preact.h(NzSprite,{species:pokemon.species,shiny:pokemon.shiny,size:80})
 ):
-preact.h("img",{key:s,src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(s)+".png",alt:s,style:"opacity:0.25"});}
+preact.h("img",{key:e.species,src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species,style:"opacity:0.25"});}
 ):
 preact.h("div",{"class":"nz-route-caught-aura"},
 preact.h(NzSprite,{species:pokemon.species,shiny:pokemon.shiny,size:80})

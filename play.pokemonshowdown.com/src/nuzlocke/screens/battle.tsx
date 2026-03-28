@@ -4,9 +4,9 @@
 
 import preact from "../../../js/lib/preact";
 import { NzScreen, NzScreenHeader, NzPanelFlat } from "../components/layout";
-import type { NuzlockeStatePayload } from "../types";
+import type { NuzlockePanelPayload } from "../types";
 
-export function BattleScreen({ game }: { game: NuzlockeStatePayload }) {
+export function BattleScreen({ game }: { game: NuzlockePanelPayload }) {
 	const battle = game.segment?.battles[game.currentBattleIndex];
 	return <NzScreen>
 		<NzScreenHeader

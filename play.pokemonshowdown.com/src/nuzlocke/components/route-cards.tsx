@@ -7,7 +7,7 @@
 import preact from "../../../js/lib/preact";
 import { toID } from "../../battle-dex";
 import { NzSprite } from "./primitives";
-import type { OwnedPokemon } from "../types";
+import type { EncounterEntry, OwnedPokemon } from "../types";
 
 export function NzRouteCard({
 	routeName,
@@ -17,22 +17,32 @@ export function NzRouteCard({
 	onExplore,
 }: {
 	routeName: string;
-	pool: string[];
+	pool: EncounterEntry[];
 	dupeSpecies: Set<string>;
 	allDupes: boolean;
 	onExplore: () => void;
 }) {
 	const cols = Math.max(1, Math.ceil(pool.length / 2));
+	const activeTotal = pool
+		.filter(e => !dupeSpecies.has(toID(e.species)))
+		.reduce((sum, e) => sum + e.rate, 0);
 	return <div
 		class={`nz-route-card${allDupes ? ' nz-route-card-dupe' : ' nz-route-card-clickable'}`}
 		onClick={allDupes ? undefined : onExplore}
 	>
 		<div class="nz-route-name">{routeName}</div>
 		<div class="nz-route-pool" style={`grid-template-columns: repeat(${cols}, 80px)`}>
-			{pool.map(s => {
-				const src = `https://play.pokemonshowdown.com/sprites/gen5/${toID(s)}.png`;
-				const dupe = dupeSpecies.has(toID(s));
-				return <img key={s} src={src} alt={s} style={dupe ? 'opacity:0.25' : ''} />;
+			{pool.map(e => {
+				const src = `https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`;
+				const dupe = dupeSpecies.has(toID(e.species));
+				const pct = dupe || activeTotal === 0 ? 0 : Math.round(e.rate / activeTotal * 100);
+				return <div key={e.species} class={`nz-encounter-slot${dupe ? ' nz-encounter-slot-dupe' : ''}`}>
+					<img src={src} alt={e.species} />
+					<div class="nz-encounter-rate-bar">
+						<div class="nz-encounter-rate-fill" style={`width:${pct}%`} />
+					</div>
+					<div class="nz-encounter-rate-label">{dupe ? 'dupe' : `${pct}%`}</div>
+				</div>;
 			})}
 		</div>
 		{allDupes
@@ -44,7 +54,7 @@ export function NzRouteCard({
 
 export class NzRouteCardCaught extends preact.Component<{
 	pokemon: OwnedPokemon;
-	pool?: string[];
+	pool?: EncounterEntry[];
 	nickname?: string;
 	onNickChange?: (uid: string, value: string) => void;
 }, { editing: boolean }> {
@@ -60,11 +70,11 @@ export class NzRouteCardCaught extends preact.Component<{
 			<div class="nz-route-name">{pokemon.caughtRoute}</div>
 			<div class="nz-route-pool" style={`grid-template-columns: repeat(${cols}, 80px)`}>
 				{pool
-					? pool.map(s => toID(s) === toID(pokemon.species)
-						? <div key={s} class="nz-route-caught-aura">
+					? pool.map(e => toID(e.species) === toID(pokemon.species)
+						? <div key={e.species} class="nz-route-caught-aura">
 							<NzSprite species={pokemon.species} shiny={pokemon.shiny} size={80} />
 						</div>
-						: <img key={s} src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(s)}.png`} alt={s} style="opacity:0.25" />
+						: <img key={e.species} src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} style="opacity:0.25" />
 					)
 					: <div class="nz-route-caught-aura">
 						<NzSprite species={pokemon.species} shiny={pokemon.shiny} size={80} />

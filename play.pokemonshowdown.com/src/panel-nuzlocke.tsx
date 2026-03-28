@@ -9,15 +9,14 @@
 import preact from "../js/lib/preact";
 import { PS } from "./client-main";
 import { NzRoot, NzScreen } from "./nuzlocke/components/layout";
-import { StarterScreen } from "./nuzlocke/screens/starter";
 import { EncountersScreen } from "./nuzlocke/screens/encounters";
 import { TeambuildingScreen } from "./nuzlocke/screens/teambuilding";
 import { BattleScreen } from "./nuzlocke/screens/battle";
 import { ResultsScreen } from "./nuzlocke/screens/results";
 import { SummaryScreen } from "./nuzlocke/screens/summary";
-import type { NuzlockeStatePayload } from "./nuzlocke/types";
+import type { NuzlockePanelPayload } from "./nuzlocke/types";
 
-function NuzlockeGamePanel({ gameState }: { gameState: NuzlockeStatePayload | null }) {
+function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | null }) {
 	if (!gameState) return <NzRoot><NzScreen><p class="nz-notice">Loading...</p></NzScreen></NzRoot>;
 
 	let screen: preact.VNode;
@@ -25,8 +24,6 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockeStatePayload | nu
 	case 'dashboard':
 		screen = <NzScreen><p class="nz-notice">No active run. Return to the main menu to start one.</p></NzScreen>;
 		break;
-	case 'intro':
-	case 'starter':      screen = <StarterScreen game={gameState} />; break;
 	case 'encounters':   screen = <EncountersScreen game={gameState} />; break;
 	case 'teambuilding': screen = <TeambuildingScreen game={gameState} />; break;
 	case 'battle':       screen = <BattleScreen game={gameState} />; break;
@@ -41,6 +38,6 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockeStatePayload | nu
 
 const PagePanel = (PS.roomTypes['html'] as any);
 if (PagePanel) {
-	PagePanel.nuzlockeRenderer = (gameState: NuzlockeStatePayload | null) =>
+	PagePanel.nuzlockeRenderer = (gameState: NuzlockePanelPayload | null) =>
 		<NuzlockeGamePanel gameState={gameState} />;
 }
