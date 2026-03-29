@@ -6,13 +6,17 @@
 
 import preact from "../../../js/lib/preact";
 import { Dex, toID } from "../../battle-dex";
+import { BattleNatures } from "../../battle-dex-data";
 import { NzTypeBadges } from "./primitives";
 import type { OwnedPokemon, TrainerPokemon, StatsTable } from "../types";
 
-export function NzStatBars({ species }: { species: string }) {
+export function NzStatBars({ species, nature }: { species: string; nature?: string }) {
 	const sp = Dex.species.get(species);
 	const s = sp.baseStats;
 	const MAX = 255;
+	const nat = nature ? (BattleNatures[nature as keyof typeof BattleNatures] ?? {}) : {};
+	const boosted = (nat as any).plus as string | undefined;
+	const reduced = (nat as any).minus as string | undefined;
 	const stats: Array<{ label: string; key: keyof typeof s }> = [
 		{ label: 'HP',  key: 'hp'  },
 		{ label: 'Atk', key: 'atk' },
@@ -26,12 +30,13 @@ export function NzStatBars({ species }: { species: string }) {
 			const val = s[key];
 			const pct = Math.round((val / MAX) * 100);
 			const tier = val >= 100 ? 'high' : val >= 70 ? 'mid' : val >= 50 ? 'low' : 'poor';
+			const mod = key === boosted ? ' nz-stat-nature-up' : key === reduced ? ' nz-stat-nature-down' : '';
 			return <div key={key} class="nz-stat-row">
-				<div class="nz-stat-label">{label}</div>
+				<div class={`nz-stat-label${mod}`}>{label}</div>
 				<div class="nz-stat-bar-track">
 					<div class={`nz-stat-bar-fill nz-stat-${tier}`} style={`width:${pct}%`} />
 				</div>
-				<div class="nz-stat-value">{val}</div>
+				<div class={`nz-stat-value${mod}`}>{val}</div>
 			</div>;
 		})}
 	</div>;

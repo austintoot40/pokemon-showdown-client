@@ -9,10 +9,14 @@
 
 
 
-function NzStatBars(_ref){var species=_ref.species;
+
+function NzStatBars(_ref){var _BattleNatures;var species=_ref.species,nature=_ref.nature;
 var sp=Dex.species.get(species);
 var s=sp.baseStats;
 var MAX=255;
+var nat=nature?(_BattleNatures=BattleNatures[nature])!=null?_BattleNatures:{}:{};
+var boosted=nat.plus;
+var reduced=nat.minus;
 var stats=[
 {label:'HP',key:'hp'},
 {label:'Atk',key:'atk'},
@@ -26,12 +30,13 @@ stats.map(function(_ref2){var label=_ref2.label,key=_ref2.key;
 var val=s[key];
 var pct=Math.round(val/MAX*100);
 var tier=val>=100?'high':val>=70?'mid':val>=50?'low':'poor';
+var mod=key===boosted?' nz-stat-nature-up':key===reduced?' nz-stat-nature-down':'';
 return preact.h("div",{key:key,"class":"nz-stat-row"},
-preact.h("div",{"class":"nz-stat-label"},label),
+preact.h("div",{"class":"nz-stat-label"+mod},label),
 preact.h("div",{"class":"nz-stat-bar-track"},
 preact.h("div",{"class":"nz-stat-bar-fill nz-stat-"+tier,style:"width:"+pct+"%"})
 ),
-preact.h("div",{"class":"nz-stat-value"},val)
+preact.h("div",{"class":"nz-stat-value"+mod},val)
 );
 })
 );

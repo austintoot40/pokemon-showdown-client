@@ -111,6 +111,7 @@ export interface NuzlockePanelPayload {
 		name: string;
 		levelCap: number;
 		items: string[];
+		tmMoves: string[];
 		encounters: Record<string, RouteEncounter[]>;
 		gifts: RouteEncounter[];
 		battles: TrainerBattle[];

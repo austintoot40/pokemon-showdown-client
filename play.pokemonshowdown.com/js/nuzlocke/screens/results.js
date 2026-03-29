@@ -11,7 +11,9 @@
 
 function ResultsScreen(_ref){var game=_ref.game;
 var result=game.lastBattleResult;
-var continueLabel=game.nextScreen==='summary'?'View Summary':'Continue';
+var continueLabel=game.nextScreen==='summary'?'View Summary':
+game.nextScreen==='battle'?'Next Battle':
+'Continue';
 
 if(!result){
 return preact.h(NzScreen,null,
@@ -28,8 +30,9 @@ perfect:result.perfect,
 trainerName:result.trainerName,
 deaths:result.deaths}
 ),
-preact.h("div",{style:"margin-top:16px;"},
-preact.h(NzBtn,{onClick:function(){return PS.send('/nuzlocke continue');}},continueLabel)
+preact.h("div",{style:"margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;"},
+preact.h(NzBtn,{onClick:function(){return PS.send('/nuzlocke continue');}},continueLabel),
+!result.won&&preact.h(NzBtn,{variant:"danger",onClick:function(){return PS.send('/nuzlocke giveup');}},"Give Up")
 )
 );
 }

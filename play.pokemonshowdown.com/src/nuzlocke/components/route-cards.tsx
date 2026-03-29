@@ -22,7 +22,6 @@ export function NzRouteCard({
 	allDupes: boolean;
 	onExplore: () => void;
 }) {
-	const cols = Math.max(1, Math.ceil(pool.length / 2));
 	const activeTotal = pool
 		.filter(e => !dupeSpecies.has(toID(e.species)))
 		.reduce((sum, e) => sum + e.rate, 0);
@@ -31,7 +30,7 @@ export function NzRouteCard({
 		onClick={allDupes ? undefined : onExplore}
 	>
 		<div class="nz-route-name">{routeName}</div>
-		<div class="nz-route-pool" style={`grid-template-columns: repeat(${cols}, 80px)`}>
+		<div class="nz-route-pool">
 			{pool.map(e => {
 				const src = `https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`;
 				const dupe = dupeSpecies.has(toID(e.species));
@@ -65,10 +64,9 @@ export class NzRouteCardCaught extends preact.Component<{
 		const { pokemon, pool, nickname, onNickChange } = this.props;
 		const { editing } = this.state;
 		const displayName = nickname ?? pokemon.nickname;
-		const cols = pool ? Math.max(1, Math.ceil(pool.length / 2)) : 1;
 		return <div class="nz-route-card nz-route-card-resolved">
 			<div class="nz-route-name">{pokemon.caughtRoute}</div>
-			<div class="nz-route-pool" style={`grid-template-columns: repeat(${cols}, 80px)`}>
+			<div class="nz-route-pool">
 				{pool
 					? pool.map(e => toID(e.species) === toID(pokemon.species)
 						? <div key={e.species} class="nz-route-caught-aura">

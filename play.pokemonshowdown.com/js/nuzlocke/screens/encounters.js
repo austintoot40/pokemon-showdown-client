@@ -17,6 +17,8 @@
 
 
 
+
+
 var METHOD_ORDER=['walk','surf','oldRod','goodRod','superRod','rockSmash'];
 
 var METHOD_LABELS={
@@ -41,11 +43,10 @@ rockSmash:'⛏'
 
 
 function getEvoRoot(speciesName,generation){
-var species=generation?
-Dex.forGen(generation).species.get(speciesName):
-Dex.species.get(speciesName);
+var dex=generation?Dex.forGen(generation):Dex;
+var species=dex.species.get(speciesName);
 while(species.prevo){
-species=Dex.species.get(species.prevo);
+species=dex.species.get(species.prevo);
 }
 return species.id;
 }
@@ -99,8 +100,11 @@ function MethodPoolCard(_ref3)
 
 
 
-{var _METHOD_LABELS$method,_METHOD_LABELS$method2;var method=_ref3.method,encounter=_ref3.encounter,ownedRoots=_ref3.ownedRoots,onScout=_ref3.onScout;
-var allDupes=encounter.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});
+
+
+{var _METHOD_LABELS$method;var method=_ref3.method,encounter=_ref3.encounter,ownedRoots=_ref3.ownedRoots,onScout=_ref3.onScout,caughtSpecies=_ref3.caughtSpecies;
+var resolved=caughtSpecies!==undefined;
+var allDupes=!resolved&&encounter.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});
 var dupeSet=new Set(
 encounter.pokemon.filter(function(e){return ownedRoots.has(getEvoRoot(e.species));}).map(function(e){return toID(e.species);})
 );
@@ -108,13 +112,25 @@ var activeTotal=encounter.pokemon.
 filter(function(e){return!dupeSet.has(toID(e.species));}).
 reduce(function(sum,e){return sum+e.rate;},0);
 
-return preact.h("div",{"class":"nz-method-pool-card"+(allDupes?' nz-method-pool-card-dupe':'')},
+var clickable=!resolved&&!allDupes;
+
+return preact.h("div",{
+"class":"nz-method-pool-card"+(allDupes?' nz-method-pool-card-dupe':'')+(clickable?' nz-method-pool-card-selectable':''),
+onClick:clickable?onScout:undefined},
+
 preact.h("div",{"class":"nz-method-pool-label"},(_METHOD_LABELS$method=METHOD_LABELS[method])!=null?_METHOD_LABELS$method:method),
-preact.h("div",{"class":"nz-route-pool",style:"grid-template-columns: repeat("+Math.max(1,Math.ceil(encounter.pokemon.length/2))+", 80px)"},
+preact.h("div",{"class":"nz-route-pool"},
 encounter.pokemon.map(function(e){
-var dupe=dupeSet.has(toID(e.species));
+var dupe=!resolved&&dupeSet.has(toID(e.species));
+var isCaught=resolved&&toID(e.species)===toID(caughtSpecies);
 var pct=dupe||activeTotal===0?0:Math.round(e.rate/activeTotal*100);
-return preact.h("div",{key:e.species,"class":"nz-encounter-slot"+(dupe?' nz-encounter-slot-dupe':'')},
+var slotClass=[
+'nz-encounter-slot',
+dupe?'nz-encounter-slot-dupe':'',
+resolved&&!isCaught?'nz-encounter-slot-dimmed':'',
+isCaught?'nz-encounter-slot-caught':''].
+filter(Boolean).join(' ');
+return preact.h("div",{key:e.species,"class":slotClass},
 preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species}),
 preact.h("div",{"class":"nz-encounter-rate-bar"},
 preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
@@ -123,14 +139,127 @@ preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
 );
 })
 ),
-allDupes?
-preact.h("div",{"class":"nz-label"},"Duplicate clause"):
-preact.h(NzBtn,{onClick:onScout},"Scout ",(_METHOD_LABELS$method2=
-METHOD_LABELS[method])!=null?_METHOD_LABELS$method2:method
+allDupes&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+);
+}
+
+
+
+
+
+var STAT_KEYS=[
+{label:'HP',key:'hp'},
+{label:'Atk',key:'atk'},
+{label:'Def',key:'def'},
+{label:'SpA',key:'spa'},
+{label:'SpD',key:'spd'},
+{label:'Spe',key:'spe'}];var
+
+
+EncounterPokemonStats=function(_preact$Component){function EncounterPokemonStats(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
+
+
+
+
+
+state={editing:false};_this.
+startEdit=function(){return _this.setState({editing:true});};_this.
+stopEdit=function(){return _this.setState({editing:false});};return _this;}_inheritsLoose(EncounterPokemonStats,_preact$Component);var _proto=EncounterPokemonStats.prototype;_proto.
+
+render=function render(){var _BattleNatures;
+var _this$props=this.props,pokemon=_this$props.pokemon,generation=_this$props.generation,nickname=_this$props.nickname,onNickChange=_this$props.onNickChange;
+var editing=this.state.editing;
+var dex=Dex.forGen(generation);
+
+if(!pokemon){
+return preact.h("div",{"class":"nz-encounter-stats"},
+preact.h("div",{"class":"nz-detail-empty",style:"margin:auto"},"No pokemon caught yet")
+);
+}
+
+var sp=dex.species.get(pokemon.species);
+var nature=(_BattleNatures=BattleNatures[pokemon.nature])!=null?_BattleNatures:{};
+var boostedStat=nature.plus;
+var reducedStat=nature.minus;
+
+return preact.h("div",{"class":"nz-encounter-stats"},
+
+preact.h("div",{"class":"nz-encounter-stats-header"},
+preact.h("img",{
+"class":"nz-encounter-stats-sprite",
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(pokemon.species)+".png",
+alt:pokemon.species}
+),
+preact.h("div",{"class":"nz-encounter-stats-identity"},
+editing?
+preact.h("input",{
+"class":"nz-encounter-stats-nick-input",
+type:"text",
+value:nickname,
+maxlength:12,
+autoFocus:true,
+onInput:function(e){return onNickChange(pokemon.uid,e.target.value);},
+onBlur:this.stopEdit}
+):
+preact.h("div",{"class":"nz-encounter-stats-nick nz-encounter-stats-nick-editable",onClick:this.startEdit},
+nickname,
+pokemon.shiny&&preact.h("span",{"class":"nz-shiny-star"},"\u2605")
+),
+
+nickname!==pokemon.species&&
+preact.h("div",{"class":"nz-encounter-stats-species"},pokemon.species),
+
+preact.h("div",{"class":"nz-encounter-stats-types"},preact.h(NzTypeBadges,{species:pokemon.species})),
+preact.h("div",{"class":"nz-encounter-stats-meta"},"Lv.",
+pokemon.level," \xB7 ",pokemon.caughtRoute
+)
+)
+),
+
+
+preact.h("div",{"class":"nz-encounter-stats-attrs"},
+preact.h("div",{"class":"nz-encounter-stats-attr"},
+preact.h("span",{"class":"nz-encounter-stats-attr-label"},"Nature"),
+preact.h("span",{"class":"nz-encounter-stats-attr-value"},pokemon.nature),
+boostedStat&&reducedStat&&
+preact.h("span",{"class":"nz-encounter-stats-attr-desc"},"+",
+boostedStat.toUpperCase()," \u2212",reducedStat.toUpperCase()
 )
 
+),
+preact.h("div",{"class":"nz-encounter-stats-attr"},
+preact.h("span",{"class":"nz-encounter-stats-attr-label"},"Ability"),
+preact.h("span",{"class":"nz-encounter-stats-attr-value"},pokemon.ability),
+function(){
+var desc=dex.abilities.get(pokemon.ability).shortDesc;
+return desc?preact.h("span",{"class":"nz-encounter-stats-attr-desc"},desc):null;
+}()
+)
+),
+
+
+preact.h("div",{"class":"nz-encounter-stats-section-label"},"Base Stats"),
+preact.h("div",{"class":"nz-stat-bars",style:"margin-bottom:8px"},
+STAT_KEYS.map(function(_ref4){var label=_ref4.label,key=_ref4.key;
+var val=sp.baseStats[key];
+var pct=Math.round(val/255*100);
+var tier=val>=100?'high':val>=70?'mid':val>=50?'low':'poor';
+var mod=key===boostedStat?' nz-stat-nature-up':key===reducedStat?' nz-stat-nature-down':'';
+return preact.h("div",{key:key,"class":"nz-stat-row"},
+preact.h("div",{"class":"nz-stat-label"+mod},label),
+preact.h("div",{"class":"nz-stat-bar-track"},
+preact.h("div",{"class":"nz-stat-bar-fill nz-stat-"+tier,style:"width:"+pct+"%"})
+),
+preact.h("div",{"class":"nz-stat-value"+mod},val)
 );
-}var
+})
+),
+
+
+preact.h("div",{"class":"nz-encounter-stats-section-label"},"IVs"),
+preact.h(NzIvBars,{ivs:pokemon.ivs})
+);
+};return EncounterPokemonStats;}(preact.Component);var
 
 
 
@@ -141,8 +270,9 @@ METHOD_LABELS[method])!=null?_METHOD_LABELS$method2:method
 
 
 
-EncountersScreen=function(_preact$Component){function EncountersScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
-state={selectedRoute:null,nicknames:{}};_this.
+
+EncountersScreen=function(_preact$Component2){function EncountersScreen(){var _this2;for(var _len2=arguments.length,args=new Array(_len2),_key2=0;_key2<_len2;_key2++){args[_key2]=arguments[_key2];}_this2=_preact$Component2.call.apply(_preact$Component2,[this].concat(args))||this;_this2.
+state={selectedRoute:null,nicknames:{}};_this2.
 
 
 
@@ -181,22 +311,22 @@ state={selectedRoute:null,nicknames:{}};_this.
 
 
 selectRoute=function(routeName){
-_this.setState({selectedRoute:routeName});
-};_this.
+_this2.setState({selectedRoute:routeName});
+};_this2.
 
 setNick=function(uid,value){
-_this.setState(function(s){var _Object$assign;return{nicknames:Object.assign({},s.nicknames,(_Object$assign={},_Object$assign[uid]=value,_Object$assign))};});
-};_this.
+_this2.setState(function(s){var _Object$assign;return{nicknames:Object.assign({},s.nicknames,(_Object$assign={},_Object$assign[uid]=value,_Object$assign))};});
+};_this2.
 
 submit=function(){
-var game=_this.props.game;
+var game=_this2.props.game;
 var parts=game.box.
-map(function(p){var _this$state$nicknames;return p.uid+" "+((_this$state$nicknames=_this.state.nicknames[p.uid])!=null?_this$state$nicknames:p.nickname).replace(/\s+/g,'_');}).
+map(function(p){var _this2$state$nickname;return p.uid+" "+((_this2$state$nickname=_this2.state.nicknames[p.uid])!=null?_this2$state$nickname:p.nickname).replace(/\s+/g,'_');}).
 join(' ');
 PS.send("/nuzlocke setnicks "+parts);
-};return _this;}_inheritsLoose(EncountersScreen,_preact$Component);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updated=Object.assign({},state.nicknames);var changed=false;props.game.box.forEach(function(p){if(!(p.uid in updated)){updated[p.uid]=p.nickname;changed=true;}});var selectedRoute=state.selectedRoute;if(!selectedRoute){var _ref4,_pending$routeName,_groups$;var flatEntries=buildFlatEntries(segment.encounters);var groups=buildRouteGroups(flatEntries);var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var pending=groups.find(function(g){return!props.game.resolvedRoutes.includes(g.routeName)&&!g.methods.every(function(m){return m.route.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});});});selectedRoute=(_ref4=(_pending$routeName=pending==null?void 0:pending.routeName)!=null?_pending$routeName:(_groups$=groups[0])==null?void 0:_groups$.routeName)!=null?_ref4:null;if(selectedRoute!==state.selectedRoute)changed=true;}return changed?{nicknames:updated,selectedRoute:selectedRoute}:null;};var _proto=EncountersScreen.prototype;_proto.
+};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updated=Object.assign({},state.nicknames);var changed=false;props.game.box.forEach(function(p){if(!(p.uid in updated)){updated[p.uid]=p.nickname;changed=true;}});var selectedRoute=state.selectedRoute;if(!selectedRoute){var _ref5,_pending$routeName,_groups$;var flatEntries=buildFlatEntries(segment.encounters);var groups=buildRouteGroups(flatEntries);var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var pending=groups.find(function(g){return!props.game.resolvedRoutes.includes(g.routeName)&&!g.methods.every(function(m){return m.route.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});});});selectedRoute=(_ref5=(_pending$routeName=pending==null?void 0:pending.routeName)!=null?_pending$routeName:(_groups$=groups[0])==null?void 0:_groups$.routeName)!=null?_ref5:null;if(selectedRoute!==state.selectedRoute)changed=true;}return changed?{nicknames:updated,selectedRoute:selectedRoute}:null;};var _proto2=EncountersScreen.prototype;_proto2.
 
-render=function render(){var _segment$gifts,_routeGroups$find,_game$box$find,_game$box$find2,_selectedGroup$method,_segment$battles$0$tr,_segment$battles$,_this2=this,_nicknames$selectedGi,_selectedGroup$method2,_nicknames$selectedCa;
+render=function render(){var _segment$gifts,_routeGroups$find,_game$box$find,_game$box$find2,_selectedGroup$method,_segment$battles$0$tr,_segment$battles$,_this3=this,_nicknames$selectedGi;
 var game=this.props.game;
 var _this$state=this.state,nicknames=_this$state.nicknames,selectedRoute=_this$state.selectedRoute;
 var segment=game.segment;
@@ -259,7 +389,7 @@ var isSelected=selectedRoute===group.routeName;
 return preact.h("div",{
 key:group.routeName,
 "class":"nz-route-list-row"+(isSelected?' selected':'')+(resolved?' resolved':''),
-onClick:function(){return _this2.selectRoute(group.routeName);}},
+onClick:function(){return _this3.selectRoute(group.routeName);}},
 
 preact.h("span",{"class":"nz-route-list-status"},
 resolved?'✓':allDupes?'—':''
@@ -277,7 +407,7 @@ giftPokemon.map(function(p){return(
 preact.h("div",{
 key:p.uid,
 "class":"nz-route-list-row resolved"+(selectedRoute===p.caughtRoute?' selected':''),
-onClick:function(){return _this2.selectRoute(p.caughtRoute);}},
+onClick:function(){return _this3.selectRoute(p.caughtRoute);}},
 
 preact.h("span",{"class":"nz-route-list-status"},"\u2713"),
 preact.h("span",{"class":"nz-route-list-name"},p.caughtRoute)
@@ -292,6 +422,15 @@ segment.items.map(function(item){return(
 preact.h("span",{key:item,"class":"nz-item-chip"},item));}
 )
 )
+),
+
+segment.tmMoves.length>0&&preact.h(preact.Fragment,null,
+preact.h("div",{"class":"nz-route-list-divider"},"TMs"),
+preact.h("div",{"class":"nz-items-list",style:"padding: 6px 8px"},
+segment.tmMoves.map(function(move){return(
+preact.h("span",{key:move,"class":"nz-item-chip nz-tm-chip"},move));}
+)
+)
 )
 ),
 
@@ -303,15 +442,8 @@ nickname:(_nicknames$selectedGi=nicknames[selectedGift.uid])!=null?_nicknames$se
 onNickChange:this.setNick}
 ),
 
-!selectedGift&&isResolved&&selectedCaught&&preact.h(NzRouteCardCaught,{
-pokemon:selectedCaught,
-pool:selectedGroup==null||(_selectedGroup$method2=selectedGroup.methods[0])==null?void 0:_selectedGroup$method2.route.pokemon,
-nickname:(_nicknames$selectedCa=nicknames[selectedCaught.uid])!=null?_nicknames$selectedCa:selectedCaught.nickname,
-onNickChange:this.setNick}
-),
-
-!selectedGift&&!isResolved&&selectedGroup&&preact.h(preact.Fragment,null,
-isMultiMethod&&preact.h("div",{"class":"nz-detail-choose-hint"},"Choose one method \u2014 you only get one encounter here"
+!selectedGift&&selectedGroup&&preact.h(preact.Fragment,null,
+isMultiMethod&&!isResolved&&preact.h("div",{"class":"nz-detail-choose-hint"},"Choose one method \u2014 you only get one encounter here"
 
 ),
 preact.h("div",{"class":"nz-method-pools"},
@@ -321,17 +453,31 @@ key:entry.method,
 method:entry.method,
 encounter:entry.route,
 ownedRoots:ownedRoots,
-onScout:function(){return PS.send("/nuzlocke encounter "+entry.flatIndex);}}
+onScout:function(){return PS.send("/nuzlocke encounter "+entry.flatIndex);},
+caughtSpecies:isResolved?selectedCaught==null?void 0:selectedCaught.species:undefined}
 ));}
 )
 )
 ),
 
 !selectedRoute&&preact.h("div",{"class":"nz-detail-empty"},"Select a route to scout")
-)
 ),
 
-preact.h("div",{style:"margin-top:8px;"},
+
+function(_nicknames$displayed$){
+var alive=game.box.filter(function(p){return p.alive;});
+var displayed=isResolved&&selectedCaught?selectedCaught:
+alive.length>0?alive[alive.length-1]:null;
+return preact.h(EncounterPokemonStats,{
+pokemon:displayed,
+generation:game.generation,
+nickname:displayed?(_nicknames$displayed$=nicknames[displayed.uid])!=null?_nicknames$displayed$:displayed.nickname:'',
+onNickChange:_this3.setNick}
+);
+}()
+),
+
+preact.h("div",{"class":"nz-tb-battle-footer"},
 preact.h(NzBtn,{
 onClick:this.submit,
 disabled:!canContinue,

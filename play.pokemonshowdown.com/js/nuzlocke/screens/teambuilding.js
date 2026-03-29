@@ -18,6 +18,7 @@
 
 
 
+
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponentIndex:null};_this.
 
@@ -224,14 +225,25 @@ selectedPokemon.nickname!==selectedPokemon.species&&
 preact.h("div",{"class":"nz-card-species"},selectedPokemon.species),
 preact.h("div",{"class":"nz-card-level"},"Lv. ",segment.levelCap),
 preact.h("div",{"class":"nz-card-types"},preact.h(NzTypeBadges,{species:selectedPokemon.species})),
-preact.h("div",{"class":"nz-card-nature"},selectedPokemon.nature," \xB7 ",selectedPokemon.ability)
+preact.h("div",{"class":"nz-card-nature"},selectedPokemon.nature),
+function(_BattleNatures){
+var nat=(_BattleNatures=BattleNatures[selectedPokemon.nature])!=null?_BattleNatures:{};
+return nat.plus&&nat.minus?
+preact.h("div",{"class":"nz-card-subdesc"},"+",nat.plus.toUpperCase()," \u2212",nat.minus.toUpperCase()):
+null;
+}(),
+preact.h("div",{"class":"nz-card-nature",style:"margin-top:4px"},selectedPokemon.ability),
+function(){
+var desc=Dex.forGen(_this2.props.game.generation).abilities.get(selectedPokemon.ability).shortDesc;
+return desc?preact.h("div",{"class":"nz-card-subdesc"},desc):null;
+}()
 )
 ),
 
 preact.h("div",{"class":"nz-stat-split"},
 preact.h("div",null,
 preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"Base"),
-preact.h(NzStatBars,{species:selectedPokemon.species})
+preact.h(NzStatBars,{species:selectedPokemon.species,nature:selectedPokemon.nature})
 ),
 preact.h("div",null,
 preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"IVs"),
@@ -307,6 +319,7 @@ return desc?preact.h("div",{"class":"nz-item-desc"},desc):null;
 ),
 
 preact.h("div",{"class":"nz-tb-detail-actions"},
+preact.h("div",null,
 isInParty?
 preact.h(NzBtn,{size:"sm",variant:"danger",
 onClick:function(){return PS.send("/nuzlocke removefromparty "+selectedPokemon.uid);}},"Remove from Party"
@@ -316,8 +329,10 @@ game.party.length<6&&
 preact.h(NzBtn,{size:"sm",variant:"secondary",
 onClick:function(){return PS.send("/nuzlocke addtoparty "+selectedPokemon.uid);}},"Add to Party"
 
-),
+)
 
+),
+evos.length>0&&preact.h("div",{"class":"nz-tb-detail-evos"},
 evos.map(function(evo){return(
 preact.h(NzBtn,{key:evo.species,size:"sm",variant:"evolve",
 onClick:function(){return PS.send("/nuzlocke evolve "+selectedPokemon.uid+" "+toID(evo.species));}},
@@ -325,6 +340,7 @@ evo.type==='item'?"Evolve \u2192 "+
 evo.species+" ("+evo.item+")":"Evolve \u2192 "+
 evo.species
 ));}
+)
 )
 )
 );

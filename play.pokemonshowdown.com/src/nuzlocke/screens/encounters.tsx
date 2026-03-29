@@ -8,10 +8,12 @@
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { toID, Dex } from "../../battle-dex";
+import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
-import { NzBtn } from "../components/primitives";
+import { NzBtn, NzTypeBadges } from "../components/primitives";
+import { NzIvBars } from "../components/teambuilding";
 import { NzRouteCardCaught } from "../components/route-cards";
-import type { NuzlockePanelPayload, RouteEncounter } from "../types";
+import type { NuzlockePanelPayload, RouteEncounter, StatsTable } from "../types";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -41,11 +43,10 @@ const METHOD_ICONS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 function getEvoRoot(speciesName: string, generation?: number): string {
-	let species = generation
-		? Dex.forGen(generation).species.get(speciesName)
-		: Dex.species.get(speciesName);
+	const dex = generation ? Dex.forGen(generation) : Dex;
+	let species = dex.species.get(speciesName);
 	while (species.prevo) {
-		species = Dex.species.get(species.prevo);
+		species = dex.species.get(species.prevo);
 	}
 	return species.id;
 }
@@ -94,13 +95,16 @@ function MethodPoolCard({
 	encounter,
 	ownedRoots,
 	onScout,
+	caughtSpecies,
 }: {
 	method: string;
 	encounter: RouteEncounter;
 	ownedRoots: Set<string>;
 	onScout: () => void;
+	caughtSpecies?: string;
 }) {
-	const allDupes = encounter.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)));
+	const resolved = caughtSpecies !== undefined;
+	const allDupes = !resolved && encounter.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)));
 	const dupeSet = new Set(
 		encounter.pokemon.filter(e => ownedRoots.has(getEvoRoot(e.species))).map(e => toID(e.species))
 	);
@@ -108,16 +112,25 @@ function MethodPoolCard({
 		.filter(e => !dupeSet.has(toID(e.species)))
 		.reduce((sum, e) => sum + e.rate, 0);
 
+	const clickable = !resolved && !allDupes;
+
 	return <div
-		class={`nz-method-pool-card${allDupes ? ' nz-method-pool-card-dupe' : ''}${!allDupes ? ' nz-method-pool-card-selectable' : ''}`}
-		onClick={allDupes ? undefined : onScout}
+		class={`nz-method-pool-card${allDupes ? ' nz-method-pool-card-dupe' : ''}${clickable ? ' nz-method-pool-card-selectable' : ''}`}
+		onClick={clickable ? onScout : undefined}
 	>
 		<div class="nz-method-pool-label">{METHOD_LABELS[method] ?? method}</div>
-		<div class="nz-route-pool" style={`grid-template-columns: repeat(${Math.max(1, Math.ceil(encounter.pokemon.length / 2))}, 80px)`}>
+		<div class="nz-route-pool">
 			{encounter.pokemon.map(e => {
-				const dupe = dupeSet.has(toID(e.species));
+				const dupe = !resolved && dupeSet.has(toID(e.species));
+				const isCaught = resolved && toID(e.species) === toID(caughtSpecies!);
 				const pct = dupe || activeTotal === 0 ? 0 : Math.round(e.rate / activeTotal * 100);
-				return <div key={e.species} class={`nz-encounter-slot${dupe ? ' nz-encounter-slot-dupe' : ''}`}>
+				const slotClass = [
+					'nz-encounter-slot',
+					dupe ? 'nz-encounter-slot-dupe' : '',
+					resolved && !isCaught ? 'nz-encounter-slot-dimmed' : '',
+					isCaught ? 'nz-encounter-slot-caught' : '',
+				].filter(Boolean).join(' ');
+				return <div key={e.species} class={slotClass}>
 					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} />
 					<div class="nz-encounter-rate-bar">
 						<div class="nz-encounter-rate-fill" style={`width:${pct}%`} />
@@ -128,6 +141,125 @@ function MethodPoolCard({
 		</div>
 		{allDupes && <div class="nz-label">Duplicate clause</div>}
 	</div>;
+}
+
+// ---------------------------------------------------------------------------
+// Pokemon stats panel (right column)
+// ---------------------------------------------------------------------------
+
+const STAT_KEYS: Array<{ label: string; key: keyof StatsTable }> = [
+	{ label: 'HP',  key: 'hp'  },
+	{ label: 'Atk', key: 'atk' },
+	{ label: 'Def', key: 'def' },
+	{ label: 'SpA', key: 'spa' },
+	{ label: 'SpD', key: 'spd' },
+	{ label: 'Spe', key: 'spe' },
+];
+
+class EncounterPokemonStats extends preact.Component<{
+	pokemon: import('../types').OwnedPokemon | null;
+	generation: number;
+	nickname: string;
+	onNickChange: (uid: string, value: string) => void;
+}, { editing: boolean }> {
+	state = { editing: false };
+	startEdit = () => this.setState({ editing: true });
+	stopEdit = () => this.setState({ editing: false });
+
+	render() {
+	const { pokemon, generation, nickname, onNickChange } = this.props;
+	const { editing } = this.state;
+	const dex = Dex.forGen(generation);
+
+	if (!pokemon) {
+		return <div class="nz-encounter-stats">
+			<div class="nz-detail-empty" style="margin:auto">No pokemon caught yet</div>
+		</div>;
+	}
+
+	const sp = dex.species.get(pokemon.species);
+	const nature = BattleNatures[pokemon.nature as keyof typeof BattleNatures] ?? {};
+	const boostedStat = nature.plus as keyof StatsTable | undefined;
+	const reducedStat = nature.minus as keyof StatsTable | undefined;
+
+	return <div class="nz-encounter-stats">
+		{/* Header: sprite + identity */}
+		<div class="nz-encounter-stats-header">
+			<img
+				class="nz-encounter-stats-sprite"
+				src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(pokemon.species)}.png`}
+				alt={pokemon.species}
+			/>
+			<div class="nz-encounter-stats-identity">
+				{editing
+					? <input
+						class="nz-encounter-stats-nick-input"
+						type="text"
+						value={nickname}
+						maxlength={12}
+						autoFocus
+						onInput={e => onNickChange(pokemon.uid, (e.target as HTMLInputElement).value)}
+						onBlur={this.stopEdit}
+					/>
+					: <div class="nz-encounter-stats-nick nz-encounter-stats-nick-editable" onClick={this.startEdit}>
+						{nickname}
+						{pokemon.shiny && <span class="nz-shiny-star">★</span>}
+					</div>
+				}
+				{nickname !== pokemon.species &&
+					<div class="nz-encounter-stats-species">{pokemon.species}</div>
+				}
+				<div class="nz-encounter-stats-types"><NzTypeBadges species={pokemon.species} /></div>
+				<div class="nz-encounter-stats-meta">
+					Lv.{pokemon.level} · {pokemon.caughtRoute}
+				</div>
+			</div>
+		</div>
+
+		{/* Nature + Ability */}
+		<div class="nz-encounter-stats-attrs">
+			<div class="nz-encounter-stats-attr">
+				<span class="nz-encounter-stats-attr-label">Nature</span>
+				<span class="nz-encounter-stats-attr-value">{pokemon.nature}</span>
+				{boostedStat && reducedStat &&
+					<span class="nz-encounter-stats-attr-desc">
+						+{boostedStat.toUpperCase()} −{reducedStat.toUpperCase()}
+					</span>
+				}
+			</div>
+			<div class="nz-encounter-stats-attr">
+				<span class="nz-encounter-stats-attr-label">Ability</span>
+				<span class="nz-encounter-stats-attr-value">{pokemon.ability}</span>
+				{(() => {
+					const desc = dex.abilities.get(pokemon.ability).shortDesc;
+					return desc ? <span class="nz-encounter-stats-attr-desc">{desc}</span> : null;
+				})()}
+			</div>
+		</div>
+
+		{/* Base stats */}
+		<div class="nz-encounter-stats-section-label">Base Stats</div>
+		<div class="nz-stat-bars" style="margin-bottom:8px">
+			{STAT_KEYS.map(({ label, key }) => {
+				const val = sp.baseStats[key as keyof typeof sp.baseStats] as number;
+				const pct = Math.round((val / 255) * 100);
+				const tier = val >= 100 ? 'high' : val >= 70 ? 'mid' : val >= 50 ? 'low' : 'poor';
+				const mod = key === boostedStat ? ' nz-stat-nature-up' : key === reducedStat ? ' nz-stat-nature-down' : '';
+				return <div key={key} class="nz-stat-row">
+					<div class={`nz-stat-label${mod}`}>{label}</div>
+					<div class="nz-stat-bar-track">
+						<div class={`nz-stat-bar-fill nz-stat-${tier}`} style={`width:${pct}%`} />
+					</div>
+					<div class={`nz-stat-value${mod}`}>{val}</div>
+				</div>;
+			})}
+		</div>
+
+		{/* IVs */}
+		<div class="nz-encounter-stats-section-label">IVs</div>
+		<NzIvBars ivs={pokemon.ivs} />
+	</div>;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -291,9 +423,18 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 							)}
 						</div>
 					</>}
+
+					{segment.tmMoves.length > 0 && <>
+						<div class="nz-route-list-divider">TMs</div>
+						<div class="nz-items-list" style="padding: 6px 8px">
+							{segment.tmMoves.map(move =>
+								<span key={move} class="nz-item-chip nz-tm-chip">{move}</span>
+							)}
+						</div>
+					</>}
 				</div>
 
-				{/* Right: detail panel */}
+				{/* Middle: detail panel */}
 				<div class="nz-encounter-detail">
 					{selectedGift && <NzRouteCardCaught
 						pokemon={selectedGift}
@@ -301,15 +442,8 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						onNickChange={this.setNick}
 					/>}
 
-					{!selectedGift && isResolved && selectedCaught && <NzRouteCardCaught
-						pokemon={selectedCaught}
-						pool={selectedGroup?.methods[0]?.route.pokemon}
-						nickname={nicknames[selectedCaught.uid] ?? selectedCaught.nickname}
-						onNickChange={this.setNick}
-					/>}
-
-					{!selectedGift && !isResolved && selectedGroup && <>
-						{isMultiMethod && <div class="nz-detail-choose-hint">
+					{!selectedGift && selectedGroup && <>
+						{isMultiMethod && !isResolved && <div class="nz-detail-choose-hint">
 							Choose one method — you only get one encounter here
 						</div>}
 						<div class="nz-method-pools">
@@ -320,6 +454,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 									encounter={entry.route}
 									ownedRoots={ownedRoots}
 									onScout={() => PS.send(`/nuzlocke encounter ${entry.flatIndex}`)}
+									caughtSpecies={isResolved ? selectedCaught?.species : undefined}
 								/>
 							)}
 						</div>
@@ -327,9 +462,22 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 					{!selectedRoute && <div class="nz-detail-empty">Select a route to scout</div>}
 				</div>
+
+				{/* Right: pokemon stats */}
+				{(() => {
+					const alive = game.box.filter(p => p.alive);
+					const displayed = (isResolved && selectedCaught) ? selectedCaught
+						: alive.length > 0 ? alive[alive.length - 1] : null;
+					return <EncounterPokemonStats
+						pokemon={displayed}
+						generation={game.generation}
+						nickname={displayed ? (nicknames[displayed.uid] ?? displayed.nickname) : ''}
+						onNickChange={this.setNick}
+					/>;
+				})()}
 			</div>
 
-			<div style="margin-top:8px;">
+			<div class="nz-tb-battle-footer">
 				<NzBtn
 					onClick={this.submit}
 					disabled={!canContinue}

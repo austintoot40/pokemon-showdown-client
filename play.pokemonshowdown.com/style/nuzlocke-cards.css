@@ -75,6 +75,21 @@
   letter-spacing: 0.05em;
 }
 
+.nz-card-subdesc {
+  font-size: 10px;
+  color: var(--nz-text-muted);
+  line-height: 1.4;
+  margin-top: 1px;
+}
+
+.nz-stat-nature-up {
+  color: var(--nz-success) !important;
+}
+
+.nz-stat-nature-down {
+  color: var(--nz-danger) !important;
+}
+
 /* Moves section inside a card (teambuilding) */
 .nz-card-moves {
   width: 100%;
@@ -313,7 +328,8 @@
 }
 
 .nz-route-pool {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0;
   margin-bottom: 8px;
 }

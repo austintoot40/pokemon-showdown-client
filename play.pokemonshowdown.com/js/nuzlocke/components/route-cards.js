@@ -22,7 +22,6 @@ function NzRouteCard(_ref)
 
 
 {var routeName=_ref.routeName,pool=_ref.pool,dupeSpecies=_ref.dupeSpecies,allDupes=_ref.allDupes,onExplore=_ref.onExplore;
-var cols=Math.max(1,Math.ceil(pool.length/2));
 var activeTotal=pool.
 filter(function(e){return!dupeSpecies.has(toID(e.species));}).
 reduce(function(sum,e){return sum+e.rate;},0);
@@ -31,7 +30,7 @@ return preact.h("div",{
 onClick:allDupes?undefined:onExplore},
 
 preact.h("div",{"class":"nz-route-name"},routeName),
-preact.h("div",{"class":"nz-route-pool",style:"grid-template-columns: repeat("+cols+", 80px)"},
+preact.h("div",{"class":"nz-route-pool"},
 pool.map(function(e){
 var src="https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png";
 var dupe=dupeSpecies.has(toID(e.species));
@@ -65,10 +64,9 @@ render=function render(){
 var _this$props=this.props,pokemon=_this$props.pokemon,pool=_this$props.pool,nickname=_this$props.nickname,onNickChange=_this$props.onNickChange;
 var editing=this.state.editing;
 var displayName=nickname!=null?nickname:pokemon.nickname;
-var cols=pool?Math.max(1,Math.ceil(pool.length/2)):1;
 return preact.h("div",{"class":"nz-route-card nz-route-card-resolved"},
 preact.h("div",{"class":"nz-route-name"},pokemon.caughtRoute),
-preact.h("div",{"class":"nz-route-pool",style:"grid-template-columns: repeat("+cols+", 80px)"},
+preact.h("div",{"class":"nz-route-pool"},
 pool?
 pool.map(function(e){return toID(e.species)===toID(pokemon.species)?
 preact.h("div",{key:e.species,"class":"nz-route-caught-aura"},

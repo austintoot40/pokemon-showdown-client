@@ -47,6 +47,8 @@ interface NuzlockeScenarioCard {
     battleCount: number;
     encounterCount: number;
     starters: string[];
+    color: string;
+    pokemon: string;
 }
 
 // Lightweight run summary delivered globally (|updatenuzlocke| message).
@@ -75,32 +77,6 @@ const AI_DIFFICULTIES = [
     { id: 'competitive', label: 'Competitive' },
 ];
 
-const SCENARIOS: { id: string; name: string; meta: string; color: string; pokemon: string; backingId?: string }[] = [
-    { id: 'red',              name: 'Red',                   meta: 'Gen 1 · Coming Soon', color: '#C62828', pokemon: 'charizard',  backingId: 'firered' },
-    { id: 'blue',             name: 'Blue',                  meta: 'Gen 1 · Coming Soon', color: '#1565C0', pokemon: 'blastoise',  backingId: 'firered' },
-    { id: 'yellow',           name: 'Yellow',                meta: 'Gen 1 · Coming Soon', color: '#F9A825', pokemon: 'pikachu',    backingId: 'firered' },
-    { id: 'gold',             name: 'Gold',                  meta: 'Gen 2 · Coming Soon', color: '#F57F17', pokemon: 'ho-oh',      backingId: 'firered' },
-    { id: 'silver',           name: 'Silver',                meta: 'Gen 2 · Coming Soon', color: '#607D8B', pokemon: 'lugia',      backingId: 'firered' },
-    { id: 'crystal',          name: 'Crystal',               meta: 'Gen 2 · Coming Soon', color: '#4FC3F7', pokemon: 'suicune',    backingId: 'firered' },
-    { id: 'ruby',             name: 'Ruby',                  meta: 'Gen 3 · Coming Soon', color: '#B71C1C', pokemon: 'groudon',    backingId: 'firered' },
-    { id: 'sapphire',         name: 'Sapphire',              meta: 'Gen 3 · Coming Soon', color: '#0D47A1', pokemon: 'kyogre',     backingId: 'firered' },
-    { id: 'emerald',          name: 'Emerald',               meta: 'Gen 3 · Coming Soon', color: '#2E7D32', pokemon: 'rayquaza',   backingId: 'firered' },
-    { id: 'firered',          name: 'FireRed',               meta: 'Gen 3',               color: '#C62828', pokemon: 'charizard' },
-    { id: 'leafgreen',        name: 'LeafGreen',             meta: 'Gen 3 · Coming Soon', color: '#388E3C', pokemon: 'venusaur',   backingId: 'firered' },
-    { id: 'diamond',          name: 'Diamond',               meta: 'Gen 4 · Coming Soon', color: '#4A148C', pokemon: 'dialga',     backingId: 'firered' },
-    { id: 'pearl',            name: 'Pearl',                 meta: 'Gen 4 · Coming Soon', color: '#AD1457', pokemon: 'palkia',     backingId: 'firered' },
-    { id: 'platinum',         name: 'Platinum',              meta: 'Gen 4 · Coming Soon', color: '#546E7A', pokemon: 'giratina',   backingId: 'firered' },
-    { id: 'heartgold',        name: 'HeartGold',             meta: 'Gen 4 · Coming Soon', color: '#E65100', pokemon: 'ho-oh',      backingId: 'firered' },
-    { id: 'soulsilver',       name: 'SoulSilver',            meta: 'Gen 4 · Coming Soon', color: '#455A64', pokemon: 'lugia',      backingId: 'firered' },
-    { id: 'black',            name: 'Black',                 meta: 'Gen 5 · Coming Soon', color: '#37474F', pokemon: 'reshiram',   backingId: 'firered' },
-    { id: 'white',            name: 'White',                 meta: 'Gen 5 · Coming Soon', color: '#546E7A', pokemon: 'zekrom',     backingId: 'firered' },
-    { id: 'black2',           name: 'Black 2',               meta: 'Gen 5 · Coming Soon', color: '#263238', pokemon: 'kyurem',     backingId: 'firered' },
-    { id: 'white2',           name: 'White 2',               meta: 'Gen 5 · Coming Soon', color: '#455A64', pokemon: 'kyurem',     backingId: 'firered' },
-    { id: 'x',                name: 'X',                     meta: 'Gen 6 · Coming Soon', color: '#1565C0', pokemon: 'xerneas',    backingId: 'firered' },
-    { id: 'y',                name: 'Y',                     meta: 'Gen 6 · Coming Soon', color: '#B71C1C', pokemon: 'yveltal',    backingId: 'firered' },
-    { id: 'omegaruby',        name: 'Omega Ruby',            meta: 'Gen 6 · Coming Soon', color: '#B71C1C', pokemon: 'groudon',    backingId: 'firered' },
-    { id: 'alphasapphire',    name: 'Alpha Sapphire',        meta: 'Gen 6 · Coming Soon', color: '#0D47A1', pokemon: 'kyogre',     backingId: 'firered' },
-];
 
 export class MainMenuRoom extends PSRoom {
     override readonly classType: string = 'mainmenu';
@@ -649,10 +625,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         this.forceUpdate();
     };
     clickStartRun = () => {
-        const scenario = SCENARIOS.find(s => s.id === this.selectedScenario);
-        const scenarioId = scenario?.backingId ?? scenario?.id ?? this.selectedScenario;
         const difficulty = this.props.room.nuzlockeMenuPayload?.selectedAi ?? this.selectedDifficulty;
-        PS.send(`/nuzlocke start ${scenarioId} ${difficulty} ${this.selectedStarter}`);
+        PS.send(`/nuzlocke start ${this.selectedScenario} ${difficulty} ${this.selectedStarter}`);
     };
     selectScenario = (id: string) => {
         this.selectedScenario = id;
@@ -677,17 +651,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
         const serverScenarios = status?.scenarios ?? [];
         const selectedScenarioData = this.selectedScenario
-            ? SCENARIOS.find(s => s.id === this.selectedScenario) ?? null
-            : null;
-        const scenarioBackingId = selectedScenarioData
-            ? (selectedScenarioData.backingId ?? selectedScenarioData.id)
-            : null;
-        // Data computed from the server-pushed scenario list
-        const serverScenarioCard = scenarioBackingId
-            ? serverScenarios.find(s => s.id === scenarioBackingId) ?? null
+            ? serverScenarios.find(s => s.id === this.selectedScenario) ?? null
             : null;
         const scenarioRuns = selectedScenarioData
-            ? pastRuns.filter(r => r.scenarioId === scenarioBackingId)
+            ? pastRuns.filter(r => r.scenarioId === selectedScenarioData.id)
             : [];
         const scenarioVictories = scenarioRuns.filter(r => r.outcome === 'victory').length;
         const scenarioWipes = scenarioRuns.filter(r => r.outcome === 'wipe').length;
@@ -713,32 +680,23 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                 <div class="nz-panel-col-main">
 
                                                     <div class="nz-panel-section">
-                                                        {serverScenarioCard ? (
-                                                            <>
-                                                                <div class="nz-active-run-title" style="font-size:18px;margin-bottom:6px;">{selectedScenarioData.name}</div>
-                                                                <div class="nz-scenario-stats">
-                                                                    <span>Gen {serverScenarioCard.generation}</span>
-                                                                    <span class="nz-scenario-stats-sep">·</span>
-                                                                    <span>{serverScenarioCard.battleCount} fights</span>
-                                                                    <span class="nz-scenario-stats-sep">·</span>
-                                                                    <span>{serverScenarioCard.encounterCount} encounters</span>
-                                                                </div>
-                                                                <div class="nz-scenario-description">{serverScenarioCard.description}</div>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <div class="nz-active-run-title" style="font-size:18px;">{selectedScenarioData.name}</div>
-                                                                <div class="nz-scenario-description" style="-webkit-line-clamp:unset;">Coming soon</div>
-                                                            </>
-                                                        )}
+                                                        <div class="nz-active-run-title" style="font-size:18px;margin-bottom:6px;">{selectedScenarioData.name}</div>
+                                                        <div class="nz-scenario-stats">
+                                                            <span>Gen {selectedScenarioData.generation}</span>
+                                                            <span class="nz-scenario-stats-sep">·</span>
+                                                            <span>{selectedScenarioData.battleCount} fights</span>
+                                                            <span class="nz-scenario-stats-sep">·</span>
+                                                            <span>{selectedScenarioData.encounterCount} encounters</span>
+                                                        </div>
+                                                        <div class="nz-scenario-description">{selectedScenarioData.description}</div>
                                                     </div>
 
                                                     <div class="nz-panel-section nz-panel-section-config">
-                                                        {serverScenarioCard && serverScenarioCard.starters.length > 0 && (
+                                                        {selectedScenarioData.starters.length > 0 && (
                                                             <>
                                                                 <div class="nz-label" style="margin-bottom:6px;">Starter</div>
                                                                 <div class="nz-starter-picker">
-                                                                    {serverScenarioCard.starters.map((species, i) => {
+                                                                    {selectedScenarioData.starters.map((species, i) => {
                                                                         const types = Dex.species.get(species)?.types ?? [];
                                                                         return <div
                                                                             key={i}
@@ -774,7 +732,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                             <button
                                                                 class="nz-btn nz-btn-primary"
                                                                 onClick={this.clickStartRun}
-                                                                disabled={!!(serverScenarioCard?.starters.length && this.selectedStarter === null)}
+                                                                disabled={!!(selectedScenarioData.starters.length && this.selectedStarter === null)}
                                                             >Start Run</button>
                                                         </div>
                                                     </div>
@@ -830,8 +788,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                         </div>
                                     )
                                 ) : (
-                                    <div class="nz-active-run-panel" style={`--scenario-color:${SCENARIOS.find(s => s.id === activeRun.scenarioId || s.backingId === activeRun.scenarioId)?.color ?? ''};`}>
-                                        <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(SCENARIOS.find(s => s.id === activeRun.scenarioId || s.backingId === activeRun.scenarioId)?.pokemon ?? '')}.png`} alt="" aria-hidden="true" />
+                                    <div class="nz-active-run-panel" style={`--scenario-color:${serverScenarios.find(s => s.id === activeRun.scenarioId)?.color ?? ''};`}>
+                                        <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(serverScenarios.find(s => s.id === activeRun.scenarioId)?.pokemon ?? '')}.png`} alt="" aria-hidden="true" />
                                         <div class="nz-active-run-header">
                                             <div>
                                                 <div class="nz-active-run-title">{activeRun.scenarioName}</div>
@@ -905,7 +863,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                     <div class="nz-section-title" style="margin-bottom:0;">Scenarios</div>
                                 </div>
                                 <div class="nz-scenario-grid">
-                                    {SCENARIOS.map(scenario => {
+                                    {serverScenarios.map(scenario => {
                                         const selected = this.selectedScenario === scenario.id;
                                         return <div
                                             key={scenario.id}
@@ -921,7 +879,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                             />
                                             <div class="nz-scenario-card-content">
                                                 <div class="nz-scenario-card-title">{scenario.name}</div>
-                                                <div class="nz-scenario-card-meta">{scenario.meta}</div>
+                                                <div class="nz-scenario-card-meta">Gen {scenario.generation}</div>
                                             </div>
                                         </div>;
                                     })}

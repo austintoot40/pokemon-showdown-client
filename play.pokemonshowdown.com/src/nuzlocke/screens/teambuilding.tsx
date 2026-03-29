@@ -5,6 +5,7 @@
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { Dex, toID } from "../../battle-dex";
+import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
 import { NzStatBars, NzIvBars, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
@@ -224,14 +225,25 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 							<div class="nz-card-species">{selectedPokemon.species}</div>}
 						<div class="nz-card-level">Lv. {segment.levelCap}</div>
 						<div class="nz-card-types"><NzTypeBadges species={selectedPokemon.species} /></div>
-						<div class="nz-card-nature">{selectedPokemon.nature} · {selectedPokemon.ability}</div>
+						<div class="nz-card-nature">{selectedPokemon.nature}</div>
+						{(() => {
+							const nat = BattleNatures[selectedPokemon.nature as keyof typeof BattleNatures] ?? {} as any;
+							return nat.plus && nat.minus
+								? <div class="nz-card-subdesc">+{nat.plus.toUpperCase()} −{nat.minus.toUpperCase()}</div>
+								: null;
+						})()}
+						<div class="nz-card-nature" style="margin-top:4px">{selectedPokemon.ability}</div>
+						{(() => {
+							const desc = Dex.forGen(this.props.game.generation).abilities.get(selectedPokemon.ability).shortDesc;
+							return desc ? <div class="nz-card-subdesc">{desc}</div> : null;
+						})()}
 					</div>
 				</div>
 
 				<div class="nz-stat-split">
 					<div>
 						<div class="nz-label" style="margin-bottom:4px;">Base</div>
-						<NzStatBars species={selectedPokemon.species} />
+						<NzStatBars species={selectedPokemon.species} nature={selectedPokemon.nature} />
 					</div>
 					<div>
 						<div class="nz-label" style="margin-bottom:4px;">IVs</div>
@@ -307,25 +319,29 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				</>}
 
 				<div class="nz-tb-detail-actions">
-					{isInParty
-						? <NzBtn size="sm" variant="danger"
-							onClick={() => PS.send(`/nuzlocke removefromparty ${selectedPokemon.uid}`)}>
-							Remove from Party
-						</NzBtn>
-						: game.party.length < 6 &&
-							<NzBtn size="sm" variant="secondary"
-								onClick={() => PS.send(`/nuzlocke addtoparty ${selectedPokemon.uid}`)}>
-								Add to Party
+					<div>
+						{isInParty
+							? <NzBtn size="sm" variant="danger"
+								onClick={() => PS.send(`/nuzlocke removefromparty ${selectedPokemon.uid}`)}>
+								Remove from Party
 							</NzBtn>
-					}
-					{evos.map(evo =>
-						<NzBtn key={evo.species} size="sm" variant="evolve"
-							onClick={() => PS.send(`/nuzlocke evolve ${selectedPokemon.uid} ${toID(evo.species)}`)}>
-							{evo.type === 'item'
-								? `Evolve → ${evo.species} (${evo.item})`
-								: `Evolve → ${evo.species}`}
-						</NzBtn>
-					)}
+							: game.party.length < 6 &&
+								<NzBtn size="sm" variant="secondary"
+									onClick={() => PS.send(`/nuzlocke addtoparty ${selectedPokemon.uid}`)}>
+									Add to Party
+								</NzBtn>
+						}
+					</div>
+					{evos.length > 0 && <div class="nz-tb-detail-evos">
+						{evos.map(evo =>
+							<NzBtn key={evo.species} size="sm" variant="evolve"
+								onClick={() => PS.send(`/nuzlocke evolve ${selectedPokemon.uid} ${toID(evo.species)}`)}>
+								{evo.type === 'item'
+									? `Evolve → ${evo.species} (${evo.item})`
+									: `Evolve → ${evo.species}`}
+							</NzBtn>
+						)}
+					</div>}
 				</div>
 			</>;
 		}
