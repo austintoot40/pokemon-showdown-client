@@ -68,7 +68,7 @@ export interface TrainerPokemon {
 // ---------------------------------------------------------------------------
 
 export type NuzlockeScreen =
-	'dashboard' | 'encounters' | 'teambuilding' | 'battle' | 'results' | 'summary';
+	'encounters' | 'teambuilding' | 'battle' | 'results' | 'summary';
 
 export interface EncounterEntry {
 	species: string;
@@ -79,6 +79,7 @@ export interface RouteEncounter {
 	route: string;
 	pokemon: EncounterEntry[];
 	levels: [number, number];
+	choice?: boolean;  // if true, player selects the species
 }
 
 export interface TrainerBattle {
@@ -133,4 +134,5 @@ export interface NuzlockePanelPayload {
 	nextScreen: NuzlockeScreen | null;
 	segmentNames: Record<string, string>;
 	scenarios: NuzlockeScenarioCard[];
+	battleRoomId: string | null;
 }

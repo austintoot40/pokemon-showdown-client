@@ -21,9 +21,6 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | nu
 
 	let screen: preact.VNode;
 	switch (gameState.curScreen) {
-	case 'dashboard':
-		screen = <NzScreen><p class="nz-notice">No active run. Return to the main menu to start one.</p></NzScreen>;
-		break;
 	case 'encounters':   screen = <EncountersScreen game={gameState} />; break;
 	case 'teambuilding': screen = <TeambuildingScreen game={gameState} />; break;
 	case 'battle':       screen = <BattleScreen game={gameState} />; break;

@@ -108,7 +108,9 @@ var allDupes=!resolved&&encounter.pokemon.every(function(e){return ownedRoots.ha
 var dupeSet=new Set(
 encounter.pokemon.filter(function(e){return ownedRoots.has(getEvoRoot(e.species));}).map(function(e){return toID(e.species);})
 );
-var activeTotal=encounter.pokemon.
+var activeTotal=resolved?
+encounter.pokemon.reduce(function(sum,e){return sum+e.rate;},0):
+encounter.pokemon.
 filter(function(e){return!dupeSet.has(toID(e.species));}).
 reduce(function(sum,e){return sum+e.rate;},0);
 
@@ -259,8 +261,50 @@ preact.h("div",{"class":"nz-stat-value"+mod},val)
 preact.h("div",{"class":"nz-encounter-stats-section-label"},"IVs"),
 preact.h(NzIvBars,{ivs:pokemon.ivs})
 );
-};return EncounterPokemonStats;}(preact.Component);var
+};return EncounterPokemonStats;}(preact.Component);
 
+
+
+
+
+
+function GiftChoicePicker(_ref5)
+
+
+
+
+
+
+
+
+
+{var gift=_ref5.gift,giftIndex=_ref5.giftIndex,ownedRoots=_ref5.ownedRoots,generation=_ref5.generation;
+return preact.h("div",{"class":"nz-gift-choice-picker"},
+preact.h("div",{"class":"nz-gift-choice-header"},
+preact.h("div",{"class":"nz-gift-choice-label"},"Choose one to receive"),
+preact.h("div",{"class":"nz-gift-choice-route"},gift.route)
+),
+preact.h("div",{"class":"nz-gift-choice-options"},
+gift.pokemon.map(function(e){
+var isDupe=ownedRoots.has(getEvoRoot(e.species,generation));
+return preact.h("div",{
+key:e.species,
+"class":"nz-gift-choice-option"+(isDupe?' nz-gift-choice-option-dupe':''),
+onClick:function(){return PS.send("/nuzlocke choosegift "+giftIndex+" "+toID(e.species));}},
+
+preact.h("img",{
+"class":"nz-gift-choice-sprite",
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",
+alt:e.species}
+),
+preact.h("div",{"class":"nz-gift-choice-name"},e.species),
+preact.h(NzTypeBadges,{species:e.species}),
+isDupe&&preact.h("div",{"class":"nz-gift-dupe-label"},"Dupe")
+);
+})
+)
+);
+}var
 
 
 
@@ -273,6 +317,13 @@ preact.h(NzIvBars,{ivs:pokemon.ivs})
 
 EncountersScreen=function(_preact$Component2){function EncountersScreen(){var _this2;for(var _len2=arguments.length,args=new Array(_len2),_key2=0;_key2<_len2;_key2++){args[_key2]=arguments[_key2];}_this2=_preact$Component2.call.apply(_preact$Component2,[this].concat(args))||this;_this2.
 state={selectedRoute:null,nicknames:{}};_this2.
+
+
+
+
+
+
+
 
 
 
@@ -324,9 +375,9 @@ var parts=game.box.
 map(function(p){var _this2$state$nickname;return p.uid+" "+((_this2$state$nickname=_this2.state.nicknames[p.uid])!=null?_this2$state$nickname:p.nickname).replace(/\s+/g,'_');}).
 join(' ');
 PS.send("/nuzlocke setnicks "+parts);
-};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updated=Object.assign({},state.nicknames);var changed=false;props.game.box.forEach(function(p){if(!(p.uid in updated)){updated[p.uid]=p.nickname;changed=true;}});var selectedRoute=state.selectedRoute;if(!selectedRoute){var _ref5,_pending$routeName,_groups$;var flatEntries=buildFlatEntries(segment.encounters);var groups=buildRouteGroups(flatEntries);var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var pending=groups.find(function(g){return!props.game.resolvedRoutes.includes(g.routeName)&&!g.methods.every(function(m){return m.route.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});});});selectedRoute=(_ref5=(_pending$routeName=pending==null?void 0:pending.routeName)!=null?_pending$routeName:(_groups$=groups[0])==null?void 0:_groups$.routeName)!=null?_ref5:null;if(selectedRoute!==state.selectedRoute)changed=true;}return changed?{nicknames:updated,selectedRoute:selectedRoute}:null;};var _proto2=EncountersScreen.prototype;_proto2.
+};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updated=Object.assign({},state.nicknames);var changed=false;props.game.box.forEach(function(p){if(!(p.uid in updated)){updated[p.uid]=p.nickname;changed=true;}});var selectedRoute=state.selectedRoute;if(!selectedRoute){var _pending$routeName;var flatEntries=buildFlatEntries(segment.encounters);var groups=buildRouteGroups(flatEntries);var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var pending=groups.find(function(g){return!props.game.resolvedRoutes.includes(g.routeName)&&!g.methods.every(function(m){return m.route.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});});});selectedRoute=(_pending$routeName=pending==null?void 0:pending.routeName)!=null?_pending$routeName:null;if(!selectedRoute){var _segment$gifts,_ref6,_unresolvedChoice$rou,_groups$;var unresolvedChoice=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);});selectedRoute=(_ref6=(_unresolvedChoice$rou=unresolvedChoice==null?void 0:unresolvedChoice.route)!=null?_unresolvedChoice$rou:(_groups$=groups[0])==null?void 0:_groups$.routeName)!=null?_ref6:null;}if(selectedRoute!==state.selectedRoute)changed=true;}return changed?{nicknames:updated,selectedRoute:selectedRoute}:null;};var _proto2=EncountersScreen.prototype;_proto2.
 
-render=function render(){var _segment$gifts,_routeGroups$find,_game$box$find,_game$box$find2,_selectedGroup$method,_segment$battles$0$tr,_segment$battles$,_this3=this,_nicknames$selectedGi;
+render=function render(){var _segment$gifts2,_routeGroups$find,_game$box$find,_allGifts$find,_game$box$find2,_selectedGroup$method,_segment$battles$0$tr,_segment$battles$,_this3=this,_nicknames$selectedRe;
 var game=this.props.game;
 var _this$state=this.state,nicknames=_this$state.nicknames,selectedRoute=_this$state.selectedRoute;
 var segment=game.segment;
@@ -338,25 +389,33 @@ game.graveyard.map(function(p){return getEvoRoot(p.species,game.generation);}))
 
 var flatEntries=buildFlatEntries(segment.encounters);
 var routeGroups=buildRouteGroups(flatEntries);
-var giftRouteNames=new Set(((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).map(function(r){return r.route;}));
+var allGifts=(_segment$gifts2=segment.gifts)!=null?_segment$gifts2:[];
+var giftRouteNames=new Set(allGifts.map(function(r){return r.route;}));
 
 
 var pendingRoutes=routeGroups.filter(function(g){return(
 !game.resolvedRoutes.includes(g.routeName)&&
 !g.methods.every(function(m){return m.route.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});}));}
 );
-var canContinue=pendingRoutes.length===0;
+var unresolvedChoiceGifts=allGifts.filter(function(g){return g.choice&&!game.resolvedRoutes.includes(g.route);});
+var canContinue=pendingRoutes.length===0&&unresolvedChoiceGifts.length===0;
 
 
-var giftPokemon=game.box.filter(function(p){return giftRouteNames.has(p.caughtRoute);});
+var resolvedGiftPokemon=game.box.filter(function(p){return giftRouteNames.has(p.caughtRoute);});
 
 
 var selectedGroup=(_routeGroups$find=routeGroups.find(function(g){return g.routeName===selectedRoute;}))!=null?_routeGroups$find:null;
 var selectedCaught=selectedRoute?(_game$box$find=
 game.box.find(function(p){return p.caughtRoute===selectedRoute;}))!=null?_game$box$find:null:
 null;
-var selectedGift=selectedRoute&&giftRouteNames.has(selectedRoute)?(_game$box$find2=
+var selectedGiftDef=selectedRoute?(_allGifts$find=
+allGifts.find(function(g){return g.route===selectedRoute;}))!=null?_allGifts$find:null:
+null;
+var selectedResolvedGift=selectedGiftDef&&game.resolvedRoutes.includes(selectedRoute)?(_game$box$find2=
 game.box.find(function(p){return p.caughtRoute===selectedRoute;}))!=null?_game$box$find2:null:
+null;
+var selectedChoiceGift=selectedGiftDef!=null&&selectedGiftDef.choice&&!game.resolvedRoutes.includes(selectedRoute)?
+selectedGiftDef:
 null;
 
 var isResolved=selectedRoute?game.resolvedRoutes.includes(selectedRoute):false;
@@ -381,36 +440,98 @@ var resolved=game.resolvedRoutes.includes(group.routeName);
 var allDupes=!resolved&&group.methods.every(function(m){return(
 m.route.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));}));}
 );
-var nonWalkMethods=group.methods.
-filter(function(m){return m.method!=='walk';}).
-map(function(m){return m.method;});
 var isSelected=selectedRoute===group.routeName;
+
+var caughtPokemon=resolved?
+game.box.find(function(p){return p.caughtRoute===group.routeName;}):
+undefined;
 
 return preact.h("div",{
 key:group.routeName,
 "class":"nz-route-list-row"+(isSelected?' selected':'')+(resolved?' resolved':''),
 onClick:function(){return _this3.selectRoute(group.routeName);}},
 
+preact.h("div",{"class":"nz-route-list-row-top"},
 preact.h("span",{"class":"nz-route-list-status"},
 resolved?'✓':allDupes?'—':''
 ),
-preact.h("span",{"class":"nz-route-list-name"},group.routeName),
-nonWalkMethods.map(function(m){var _METHOD_ICONS$m;return(
-preact.h("span",{key:m,"class":"nz-method-pill"},(_METHOD_ICONS$m=METHOD_ICONS[m])!=null?_METHOD_ICONS$m:m));}
+preact.h("span",{"class":"nz-route-list-name"},group.routeName)
+),
+preact.h("div",{"class":"nz-route-list-sprites"},
+group.methods.map(function(entry){var _METHOD_ICONS$entry$m;
+var uniqueSpecies=Array.from(
+new Map(entry.route.pokemon.map(function(e){return[toID(e.species),e.species];})).values()
+);
+return preact.h("div",{key:entry.method,"class":"nz-route-sprite-group"},
+entry.method!=='walk'&&
+preact.h("span",{"class":"nz-route-sprite-method-icon"},(_METHOD_ICONS$entry$m=METHOD_ICONS[entry.method])!=null?_METHOD_ICONS$entry$m:entry.method),
+
+uniqueSpecies.map(function(species){
+var sid=toID(species);
+var isDupe=ownedRoots.has(getEvoRoot(species,game.generation));
+var isCaught=caughtPokemon!==undefined&&toID(caughtPokemon.species)===sid;
+var cls=[
+'nz-route-sprite',
+isDupe&&!isCaught?'nz-route-sprite-dupe':'',
+isCaught?'nz-route-sprite-caught':''].
+filter(Boolean).join(' ');
+return preact.h("img",{
+key:sid,
+"class":cls,
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+sid+".png",
+alt:species,
+title:species}
+);
+})
+);
+})
 )
 );
 }),
 
-giftPokemon.length>0&&preact.h(preact.Fragment,null,
+(unresolvedChoiceGifts.length>0||resolvedGiftPokemon.length>0)&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-route-list-divider"},"Gifts"),
-giftPokemon.map(function(p){return(
+unresolvedChoiceGifts.map(function(g){return(
+preact.h("div",{
+key:g.route,
+"class":"nz-route-list-row nz-route-list-row-choice"+(selectedRoute===g.route?' selected':''),
+onClick:function(){return _this3.selectRoute(g.route);}},
+
+preact.h("div",{"class":"nz-route-list-row-top"},
+preact.h("span",{"class":"nz-route-list-status nz-gift-status-choose"},"!"),
+preact.h("span",{"class":"nz-route-list-name"},g.route)
+),
+preact.h("div",{"class":"nz-route-list-sprites"},
+g.pokemon.map(function(e){return(
+preact.h("img",{
+key:toID(e.species),
+"class":"nz-route-sprite",
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",
+alt:e.species,
+title:e.species}
+));}
+)
+)
+));}
+),
+resolvedGiftPokemon.map(function(p){return(
 preact.h("div",{
 key:p.uid,
 "class":"nz-route-list-row resolved"+(selectedRoute===p.caughtRoute?' selected':''),
 onClick:function(){return _this3.selectRoute(p.caughtRoute);}},
 
+preact.h("div",{"class":"nz-route-list-row-top"},
 preact.h("span",{"class":"nz-route-list-status"},"\u2713"),
 preact.h("span",{"class":"nz-route-list-name"},p.caughtRoute)
+),
+preact.h("div",{"class":"nz-route-list-sprites"},
+preact.h("img",{
+"class":"nz-route-sprite nz-route-sprite-caught",
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(p.species)+".png",
+alt:p.species,
+title:p.species}
+)
+)
 ));}
 )
 ),
@@ -436,13 +557,20 @@ preact.h("span",{key:move,"class":"nz-item-chip nz-tm-chip"},move));}
 
 
 preact.h("div",{"class":"nz-encounter-detail"},
-selectedGift&&preact.h(NzRouteCardCaught,{
-pokemon:selectedGift,
-nickname:(_nicknames$selectedGi=nicknames[selectedGift.uid])!=null?_nicknames$selectedGi:selectedGift.nickname,
+selectedChoiceGift&&preact.h(GiftChoicePicker,{
+gift:selectedChoiceGift,
+giftIndex:allGifts.indexOf(selectedChoiceGift),
+ownedRoots:ownedRoots,
+generation:game.generation}
+),
+
+!selectedChoiceGift&&selectedResolvedGift&&preact.h(NzRouteCardCaught,{
+pokemon:selectedResolvedGift,
+nickname:(_nicknames$selectedRe=nicknames[selectedResolvedGift.uid])!=null?_nicknames$selectedRe:selectedResolvedGift.nickname,
 onNickChange:this.setNick}
 ),
 
-!selectedGift&&selectedGroup&&preact.h(preact.Fragment,null,
+!selectedChoiceGift&&!selectedResolvedGift&&selectedGroup&&preact.h(preact.Fragment,null,
 isMultiMethod&&!isResolved&&preact.h("div",{"class":"nz-detail-choose-hint"},"Choose one method \u2014 you only get one encounter here"
 
 ),

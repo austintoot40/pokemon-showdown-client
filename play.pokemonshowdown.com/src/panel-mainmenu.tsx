@@ -239,6 +239,11 @@ export class MainMenuRoom extends PSRoom {
         } case 'updatenuzlocke': {
             const [, payload] = args;
             this.nuzlockeMenuPayload = JSON.parse(payload);
+            const ar = this.nuzlockeMenuPayload?.activeRun;
+            console.log('[NuzlockeMainMenu] updatenuzlocke received', {
+                activeRun: ar ? { scenarioId: ar.scenarioId, curRoom: ar.curRoom, segmentIndex: ar.segmentIndex, deaths: ar.deaths } : null,
+                pastRunCount: this.nuzlockeMenuPayload?.pastRuns?.length ?? 0,
+            });
             this.update(null);
             return;
         }

@@ -110,7 +110,11 @@ export class PSRouter {
 	subscribeHash() {
 		if (location.hash) {
 			const currentRoomid = location.hash.slice(1);
-			if (/^[a-z0-9-]+$/.test(currentRoomid)) {
+			// Don't auto-join battle rooms from the hash on page load — the server
+			// reconnects the user via |init|battle after login, by which time CDN
+			// data files (text.js, graphics.js) will have loaded. Joining eagerly
+			// from the hash races with those async loads and crashes the battle panel.
+			if (/^[a-z0-9-]+$/.test(currentRoomid) && !currentRoomid.startsWith('battle-')) {
 				PS.join(currentRoomid as RoomID);
 			}
 		}
@@ -758,6 +762,7 @@ export class PSView extends preact.Component {
 		return false;
 	}
 	componentDidCatch(err: Error) {
+		console.error('[PSView Error]', err);
 		PS.mainmenu.caughtError = err.stack || err.message;
 		this.setState({});
 	}

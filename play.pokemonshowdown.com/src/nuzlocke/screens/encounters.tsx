@@ -108,9 +108,11 @@ function MethodPoolCard({
 	const dupeSet = new Set(
 		encounter.pokemon.filter(e => ownedRoots.has(getEvoRoot(e.species))).map(e => toID(e.species))
 	);
-	const activeTotal = encounter.pokemon
-		.filter(e => !dupeSet.has(toID(e.species)))
-		.reduce((sum, e) => sum + e.rate, 0);
+	const activeTotal = resolved
+		? encounter.pokemon.reduce((sum, e) => sum + e.rate, 0)
+		: encounter.pokemon
+			.filter(e => !dupeSet.has(toID(e.species)))
+			.reduce((sum, e) => sum + e.rate, 0);
 
 	const clickable = !resolved && !allDupes;
 
@@ -263,6 +265,48 @@ class EncounterPokemonStats extends preact.Component<{
 }
 
 // ---------------------------------------------------------------------------
+// Gift choice picker
+// ---------------------------------------------------------------------------
+
+function GiftChoicePicker({
+	gift,
+	giftIndex,
+	ownedRoots,
+	generation,
+}: {
+	gift: RouteEncounter;
+	giftIndex: number;
+	ownedRoots: Set<string>;
+	generation: number;
+}) {
+	return <div class="nz-gift-choice-picker">
+		<div class="nz-gift-choice-header">
+			<div class="nz-gift-choice-label">Choose one to receive</div>
+			<div class="nz-gift-choice-route">{gift.route}</div>
+		</div>
+		<div class="nz-gift-choice-options">
+			{gift.pokemon.map(e => {
+				const isDupe = ownedRoots.has(getEvoRoot(e.species, generation));
+				return <div
+					key={e.species}
+					class={`nz-gift-choice-option${isDupe ? ' nz-gift-choice-option-dupe' : ''}`}
+					onClick={() => PS.send(`/nuzlocke choosegift ${giftIndex} ${toID(e.species)}`)}
+				>
+					<img
+						class="nz-gift-choice-sprite"
+						src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`}
+						alt={e.species}
+					/>
+					<div class="nz-gift-choice-name">{e.species}</div>
+					<NzTypeBadges species={e.species} />
+					{isDupe && <div class="nz-gift-dupe-label">Dupe</div>}
+				</div>;
+			})}
+		</div>
+	</div>;
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -303,7 +347,14 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 				!props.game.resolvedRoutes.includes(g.routeName) &&
 				!g.methods.every(m => m.route.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species))))
 			);
-			selectedRoute = pending?.routeName ?? groups[0]?.routeName ?? null;
+			selectedRoute = pending?.routeName ?? null;
+			// Fall back to first unresolved choice gift, then first route
+			if (!selectedRoute) {
+				const unresolvedChoice = (segment.gifts ?? []).find(
+					g => g.choice && !props.game.resolvedRoutes.includes(g.route)
+				);
+				selectedRoute = unresolvedChoice?.route ?? groups[0]?.routeName ?? null;
+			}
 			if (selectedRoute !== state.selectedRoute) changed = true;
 		}
 
@@ -338,25 +389,33 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 		const flatEntries = buildFlatEntries(segment.encounters);
 		const routeGroups = buildRouteGroups(flatEntries);
-		const giftRouteNames = new Set((segment.gifts ?? []).map(r => r.route));
+		const allGifts = segment.gifts ?? [];
+		const giftRouteNames = new Set(allGifts.map(r => r.route));
 
 		// A route is pending if unresolved and not all-dupes across all its methods
 		const pendingRoutes = routeGroups.filter(g =>
 			!game.resolvedRoutes.includes(g.routeName) &&
 			!g.methods.every(m => m.route.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species))))
 		);
-		const canContinue = pendingRoutes.length === 0;
+		const unresolvedChoiceGifts = allGifts.filter(g => g.choice && !game.resolvedRoutes.includes(g.route));
+		const canContinue = pendingRoutes.length === 0 && unresolvedChoiceGifts.length === 0;
 
-		// Gift pokemon always appear (auto-resolved on segment start)
-		const giftPokemon = game.box.filter(p => giftRouteNames.has(p.caughtRoute));
+		// Gift pokemon: resolved ones are in the box
+		const resolvedGiftPokemon = game.box.filter(p => giftRouteNames.has(p.caughtRoute));
 
 		// Detail panel content for the selected route
 		const selectedGroup = routeGroups.find(g => g.routeName === selectedRoute) ?? null;
 		const selectedCaught = selectedRoute
 			? game.box.find(p => p.caughtRoute === selectedRoute) ?? null
 			: null;
-		const selectedGift = selectedRoute && giftRouteNames.has(selectedRoute)
+		const selectedGiftDef = selectedRoute
+			? allGifts.find(g => g.route === selectedRoute) ?? null
+			: null;
+		const selectedResolvedGift = selectedGiftDef && game.resolvedRoutes.includes(selectedRoute!)
 			? game.box.find(p => p.caughtRoute === selectedRoute) ?? null
+			: null;
+		const selectedChoiceGift = selectedGiftDef?.choice && !game.resolvedRoutes.includes(selectedRoute!)
+			? selectedGiftDef
 			: null;
 
 		const isResolved = selectedRoute ? game.resolvedRoutes.includes(selectedRoute) : false;
@@ -381,36 +440,98 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						const allDupes = !resolved && group.methods.every(m =>
 							m.route.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)))
 						);
-						const nonWalkMethods = group.methods
-							.filter(m => m.method !== 'walk')
-							.map(m => m.method);
 						const isSelected = selectedRoute === group.routeName;
+
+						const caughtPokemon = resolved
+							? game.box.find(p => p.caughtRoute === group.routeName)
+							: undefined;
 
 						return <div
 							key={group.routeName}
 							class={`nz-route-list-row${isSelected ? ' selected' : ''}${resolved ? ' resolved' : ''}`}
 							onClick={() => this.selectRoute(group.routeName)}
 						>
-							<span class="nz-route-list-status">
-								{resolved ? '✓' : allDupes ? '—' : ''}
-							</span>
-							<span class="nz-route-list-name">{group.routeName}</span>
-							{nonWalkMethods.map(m =>
-								<span key={m} class="nz-method-pill">{METHOD_ICONS[m] ?? m}</span>
-							)}
+							<div class="nz-route-list-row-top">
+								<span class="nz-route-list-status">
+									{resolved ? '✓' : allDupes ? '—' : ''}
+								</span>
+								<span class="nz-route-list-name">{group.routeName}</span>
+							</div>
+							<div class="nz-route-list-sprites">
+								{group.methods.map(entry => {
+									const uniqueSpecies = Array.from(
+										new Map(entry.route.pokemon.map(e => [toID(e.species), e.species])).values()
+									);
+									return <div key={entry.method} class="nz-route-sprite-group">
+										{entry.method !== 'walk' &&
+											<span class="nz-route-sprite-method-icon">{METHOD_ICONS[entry.method] ?? entry.method}</span>
+										}
+										{uniqueSpecies.map(species => {
+											const sid = toID(species);
+											const isDupe = ownedRoots.has(getEvoRoot(species, game.generation));
+											const isCaught = caughtPokemon !== undefined && toID(caughtPokemon.species) === sid;
+											const cls = [
+												'nz-route-sprite',
+												isDupe && !isCaught ? 'nz-route-sprite-dupe' : '',
+												isCaught ? 'nz-route-sprite-caught' : '',
+											].filter(Boolean).join(' ');
+											return <img
+												key={sid}
+												class={cls}
+												src={`https://play.pokemonshowdown.com/sprites/gen5/${sid}.png`}
+												alt={species}
+												title={species}
+											/>;
+										})}
+									</div>;
+								})}
+							</div>
 						</div>;
 					})}
 
-					{giftPokemon.length > 0 && <>
+					{(unresolvedChoiceGifts.length > 0 || resolvedGiftPokemon.length > 0) && <>
 						<div class="nz-route-list-divider">Gifts</div>
-						{giftPokemon.map(p =>
+						{unresolvedChoiceGifts.map(g =>
+							<div
+								key={g.route}
+								class={`nz-route-list-row nz-route-list-row-choice${selectedRoute === g.route ? ' selected' : ''}`}
+								onClick={() => this.selectRoute(g.route)}
+							>
+								<div class="nz-route-list-row-top">
+									<span class="nz-route-list-status nz-gift-status-choose">!</span>
+									<span class="nz-route-list-name">{g.route}</span>
+								</div>
+								<div class="nz-route-list-sprites">
+									{g.pokemon.map(e =>
+										<img
+											key={toID(e.species)}
+											class="nz-route-sprite"
+											src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`}
+											alt={e.species}
+											title={e.species}
+										/>
+									)}
+								</div>
+							</div>
+						)}
+						{resolvedGiftPokemon.map(p =>
 							<div
 								key={p.uid}
 								class={`nz-route-list-row resolved${selectedRoute === p.caughtRoute ? ' selected' : ''}`}
 								onClick={() => this.selectRoute(p.caughtRoute)}
 							>
-								<span class="nz-route-list-status">✓</span>
-								<span class="nz-route-list-name">{p.caughtRoute}</span>
+								<div class="nz-route-list-row-top">
+									<span class="nz-route-list-status">✓</span>
+									<span class="nz-route-list-name">{p.caughtRoute}</span>
+								</div>
+								<div class="nz-route-list-sprites">
+									<img
+										class="nz-route-sprite nz-route-sprite-caught"
+										src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(p.species)}.png`}
+										alt={p.species}
+										title={p.species}
+									/>
+								</div>
 							</div>
 						)}
 					</>}
@@ -436,13 +557,20 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 				{/* Middle: detail panel */}
 				<div class="nz-encounter-detail">
-					{selectedGift && <NzRouteCardCaught
-						pokemon={selectedGift}
-						nickname={nicknames[selectedGift.uid] ?? selectedGift.nickname}
+					{selectedChoiceGift && <GiftChoicePicker
+						gift={selectedChoiceGift}
+						giftIndex={allGifts.indexOf(selectedChoiceGift)}
+						ownedRoots={ownedRoots}
+						generation={game.generation}
+					/>}
+
+					{!selectedChoiceGift && selectedResolvedGift && <NzRouteCardCaught
+						pokemon={selectedResolvedGift}
+						nickname={nicknames[selectedResolvedGift.uid] ?? selectedResolvedGift.nickname}
 						onNickChange={this.setNick}
 					/>}
 
-					{!selectedGift && selectedGroup && <>
+					{!selectedChoiceGift && !selectedResolvedGift && selectedGroup && <>
 						{isMultiMethod && !isResolved && <div class="nz-detail-choose-hint">
 							Choose one method — you only get one encounter here
 						</div>}
