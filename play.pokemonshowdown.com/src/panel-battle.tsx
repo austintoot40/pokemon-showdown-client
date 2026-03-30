@@ -405,6 +405,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (room.side && room.request) {
 			return this.renderPlayerControls(room.request);
 		}
+		if (room.id.includes('nuzlockebattle')) return null;
 		const atStart = !room.battle.started;
 		const atEnd = room.battle.atQueueEnd;
 		return <div class="controls">
@@ -824,7 +825,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const room = this.props.room;
 		return <div class="controls">
 			{!room.battle.hardcoreMode && <div class="whatdo">
-				<button class="button" data-cmd="/ffto end">Skip animation <i class="fa fa-fast-forward" aria-hidden></i></button>
+				<button class="nz-btn nz-btn-secondary" data-cmd="/ffto end">Skip animation <i class="fa fa-fast-forward" aria-hidden></i></button>
 			</div>}
 			{this.renderTeamList()}
 		</div>;
@@ -943,9 +944,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderAfterBattleControls() {
 		return <div class="controls">
 			<p>
-				<button class="button" data-cmd="/closeand /join view-nuzlocke">
-					<strong>Continue</strong>
-				</button>
+				<button class="nz-btn nz-btn-primary" data-cmd="/closeand /join view-nuzlocke">Continue</button>
 			</p>
 		</div>;
 	}
