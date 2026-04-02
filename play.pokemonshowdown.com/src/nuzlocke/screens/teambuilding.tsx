@@ -123,12 +123,13 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 		const isInParty = selectedUid ? game.party.includes(selectedUid) : false;
 		const hasErrors = Object.keys(errors).length > 0;
 
-		const takenItems = (uid: string) => new Set(
+		const itemCount = (id: string) =>
+			game.items.filter(i => toID(i) === id).length;
+		const heldByOthers = (uid: string, id: string) =>
 			game.party
-				.filter(id => id !== uid)
-				.map(id => heldItems[id] ?? game.box.find(p => p.uid === id)?.item ?? '')
-				.filter(Boolean)
-		);
+				.filter(pid => pid !== uid)
+				.filter(pid => toID(heldItems[pid] ?? game.box.find(p => p.uid === pid)?.item ?? '') === id)
+				.length;
 
 		// ---- Detail panel ----
 		let detailContent: preact.VNode;
@@ -230,7 +231,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 							const nat = BattleNatures[selectedPokemon.nature as keyof typeof BattleNatures] ?? {} as any;
 							return nat.plus && nat.minus
 								? <div class="nz-card-subdesc">+{nat.plus.toUpperCase()} −{nat.minus.toUpperCase()}</div>
-								: null;
+								: <div class="nz-card-subdesc">Neutral</div>;
 						})()}
 						<div class="nz-card-nature" style="margin-top:4px">{selectedPokemon.ability}</div>
 						{(() => {
@@ -302,12 +303,11 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 							onChange={e => this.setItem(selectedPokemon.uid, (e.target as HTMLSelectElement).value)}
 						>
 							<option value="">(none)</option>
-							{game.items.map(item => {
-								const id = toID(item);
-								return <option key={id} value={id} disabled={takenItems(selectedPokemon.uid).has(id)}>
+							{Array.from(new Map(game.items.map(item => [toID(item), item])).entries()).map(([id, item]) => (
+								<option key={id} value={id} disabled={heldByOthers(selectedPokemon.uid, id) >= itemCount(id)}>
 									{item}
-								</option>;
-							})}
+								</option>
+							))}
 						</select>
 						{(() => {
 							const itemId = heldItems[selectedPokemon.uid] ?? '';

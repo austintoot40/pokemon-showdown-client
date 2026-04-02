@@ -123,12 +123,13 @@ var selectedPokemon=selectedUid?(_game$box$find=game.box.find(function(p){return
 var isInParty=selectedUid?game.party.includes(selectedUid):false;
 var hasErrors=Object.keys(errors).length>0;
 
-var takenItems=function(uid){return new Set(
+var itemCount=function(id){return(
+game.items.filter(function(i){return toID(i)===id;}).length);};
+var heldByOthers=function(uid,id){return(
 game.party.
-filter(function(id){return id!==uid;}).
-map(function(id){var _ref2,_heldItems$id,_game$box$find2;return(_ref2=(_heldItems$id=heldItems[id])!=null?_heldItems$id:(_game$box$find2=game.box.find(function(p){return p.uid===id;}))==null?void 0:_game$box$find2.item)!=null?_ref2:'';}).
-filter(Boolean)
-);};
+filter(function(pid){return pid!==uid;}).
+filter(function(pid){var _ref2,_heldItems$pid,_game$box$find2;return toID((_ref2=(_heldItems$pid=heldItems[pid])!=null?_heldItems$pid:(_game$box$find2=game.box.find(function(p){return p.uid===pid;}))==null?void 0:_game$box$find2.item)!=null?_ref2:'')===id;}).
+length);};
 
 
 var detailContent;
@@ -230,7 +231,7 @@ function(_BattleNatures){
 var nat=(_BattleNatures=BattleNatures[selectedPokemon.nature])!=null?_BattleNatures:{};
 return nat.plus&&nat.minus?
 preact.h("div",{"class":"nz-card-subdesc"},"+",nat.plus.toUpperCase()," \u2212",nat.minus.toUpperCase()):
-null;
+preact.h("div",{"class":"nz-card-subdesc"},"Neutral");
 }(),
 preact.h("div",{"class":"nz-card-nature",style:"margin-top:4px"},selectedPokemon.ability),
 function(){
@@ -302,12 +303,11 @@ value:(_heldItems$selectedPo=heldItems[selectedPokemon.uid])!=null?_heldItems$se
 onChange:function(e){return _this2.setItem(selectedPokemon.uid,e.target.value);}},
 
 preact.h("option",{value:""},"(none)"),
-game.items.map(function(item){
-var id=toID(item);
-return preact.h("option",{key:id,value:id,disabled:takenItems(selectedPokemon.uid).has(id)},
+Array.from(new Map(game.items.map(function(item){return[toID(item),item];})).entries()).map(function(_ref3){var id=_ref3[0],item=_ref3[1];return(
+preact.h("option",{key:id,value:id,disabled:heldByOthers(selectedPokemon.uid,id)>=itemCount(id)},
 item
-);
-})
+));}
+)
 ),
 function(_heldItems$selectedPo2){
 var itemId=(_heldItems$selectedPo2=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo2:'';

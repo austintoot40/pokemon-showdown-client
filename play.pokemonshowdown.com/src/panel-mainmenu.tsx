@@ -915,7 +915,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                             <span class="nz-run-entry-name">{run.scenarioName}</span>
                                             {(run.finalParty ?? run.survivors).length > 0 && <span class="nz-run-entry-sprites">
                                                 {(run.finalParty ?? run.survivors.map(s => ({ ...s, alive: true }))).map((p, i) =>
-                                                    <span key={i} style={p.alive ? '' : 'opacity:0.35;filter:grayscale(1)'}>
+                                                    <span key={i}>
                                                         <PSIcon pokemon={toID(p.species)} />
                                                     </span>
                                                 )}

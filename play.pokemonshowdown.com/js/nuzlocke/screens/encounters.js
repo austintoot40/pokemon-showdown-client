@@ -30,13 +30,6 @@ superRod:'Super Rod',
 rockSmash:'Rock Smash'
 };
 
-var METHOD_ICONS={
-surf:'🌊',
-oldRod:'🎣',
-goodRod:'🎣',
-superRod:'🎣',
-rockSmash:'⛏'
-};
 
 
 
@@ -458,14 +451,11 @@ resolved?'✓':allDupes?'—':''
 preact.h("span",{"class":"nz-route-list-name"},group.routeName)
 ),
 preact.h("div",{"class":"nz-route-list-sprites"},
-group.methods.map(function(entry){var _METHOD_ICONS$entry$m;
+group.methods.map(function(entry){
 var uniqueSpecies=Array.from(
 new Map(entry.route.pokemon.map(function(e){return[toID(e.species),e.species];})).values()
 );
 return preact.h("div",{key:entry.method,"class":"nz-route-sprite-group"},
-entry.method!=='walk'&&
-preact.h("span",{"class":"nz-route-sprite-method-icon"},(_METHOD_ICONS$entry$m=METHOD_ICONS[entry.method])!=null?_METHOD_ICONS$entry$m:entry.method),
-
 uniqueSpecies.map(function(species){
 var sid=toID(species);
 var isDupe=ownedRoots.has(getEvoRoot(species,game.generation));

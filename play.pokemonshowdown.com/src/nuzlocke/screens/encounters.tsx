@@ -30,13 +30,6 @@ const METHOD_LABELS: Record<string, string> = {
 	rockSmash: 'Rock Smash',
 };
 
-const METHOD_ICONS: Record<string, string> = {
-	surf: '🌊',
-	oldRod: '🎣',
-	goodRod: '🎣',
-	superRod: '🎣',
-	rockSmash: '⛏',
-};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -463,9 +456,6 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 										new Map(entry.route.pokemon.map(e => [toID(e.species), e.species])).values()
 									);
 									return <div key={entry.method} class="nz-route-sprite-group">
-										{entry.method !== 'walk' &&
-											<span class="nz-route-sprite-method-icon">{METHOD_ICONS[entry.method] ?? entry.method}</span>
-										}
 										{uniqueSpecies.map(species => {
 											const sid = toID(species);
 											const isDupe = ownedRoots.has(getEvoRoot(species, game.generation));
