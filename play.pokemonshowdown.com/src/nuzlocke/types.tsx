@@ -46,6 +46,7 @@ export interface DeadPokemon {
 export interface LegalMove {
 	name: string;
 	fromTM: boolean;
+	fromHM: boolean;
 }
 
 export interface EvoOption {

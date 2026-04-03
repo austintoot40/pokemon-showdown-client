@@ -451,6 +451,126 @@
   text-overflow: ellipsis;
 }
 
+/* Combobox move picker — fills first column, dropdown overlays content below */
+.nz-moves-grid .nz-move-select {
+  justify-self: stretch;
+  min-width: 0;
+}
+
+.nz-move-select {
+  position: relative;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.nz-move-select-input {
+  display: block;
+  width: 100%;
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 14px;
+  padding: 5px 8px;
+  border-radius: var(--nz-radius);
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.nz-move-select-input:focus {
+  border-color: var(--nz-accent);
+  cursor: text;
+}
+
+.nz-move-select-dropdown {
+  position: fixed;
+  z-index: 9999;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-accent);
+  max-width: 420px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Option rows: grid matching the moves table — name fills, then Type (68px), Cat (50px).
+   340px dropdown gives name column exactly 190px, matching the select's grid column. */
+.nz-move-select-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 68px 50px;
+  align-items: center;
+  column-gap: 8px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.nz-move-select-option:hover:not(.is-disabled) {
+  background: var(--nz-surface);
+}
+
+.nz-move-select-option.is-selected {
+  background: rgba(74, 158, 255, 0.1);
+}
+
+.nz-move-select-option.is-disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Name + TM/HM suffix share the first grid column */
+.nz-move-select-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nz-move-select-name > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.nz-move-select-suffix {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--nz-text-dim);
+  flex-shrink: 0;
+}
+
+.nz-move-select-empty {
+  padding: 8px;
+  font-size: 13px;
+  color: var(--nz-text-dim);
+  font-style: italic;
+}
+
+/* Item select options: flex with icon instead of type/cat grid */
+.nz-move-select-option.nz-item-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nz-item-option .itemicon {
+  flex-shrink: 0;
+}
+
+/* Type and cat badges fill their grid column and center — matches moves grid above */
+.nz-move-select-dropdown .nz-type,
+.nz-move-select-dropdown .nz-move-cat {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  padding: 1px 4px;
+}
+
 /* Type badge and category label in the moves grid: fill column, center text */
 .nz-moves-grid .nz-type,
 .nz-moves-grid .nz-move-cat {

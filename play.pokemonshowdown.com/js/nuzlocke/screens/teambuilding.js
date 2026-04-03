@@ -202,7 +202,7 @@ item.exists&&item.shortDesc&&preact.h("div",{"class":"nz-item-desc"},item.shortD
 detailContent=preact.h("div",{"class":"nz-tb-detail-empty"},
 preact.h("p",{"class":"nz-notice"},"Select a Pok\xE9mon to edit")
 );
-}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut,_heldItems$selectedPo;
+}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut;
 var legalMoves=(_game$legalMoves$sele=game.legalMoves[selectedPokemon.uid])!=null?_game$legalMoves$sele:[];
 var selectedMoves=(_moves$selectedPokemo=moves[selectedPokemon.uid])!=null?_moves$selectedPokemo:['','','',''];
 var evos=(_game$availableEvolut=game.availableEvolutions[selectedPokemon.uid])!=null?_game$availableEvolut:[];
@@ -267,21 +267,12 @@ var cat=ex?move.category==='Physical'?'Phys':move.category==='Special'?'Spec':'S
 var power=ex&&move.basePower>0?""+move.basePower:ex?'—':'';
 var acc=ex?move.accuracy===true?'—':move.accuracy+"%":'';
 return preact.h(preact.Fragment,{key:slot},
-preact.h("select",{
-"class":"nz-tb-select",
+preact.h(NzMoveSelect,{
 value:moveId,
-onChange:function(e){return _this2.setMove(selectedPokemon.uid,slot,e.target.value);}},
-
-preact.h("option",{value:""},"(empty)"),
-legalMoves.map(function(m){return(
-preact.h("option",{
-key:m.name,
-value:toID(m.name),
-disabled:selectedMoves.includes(toID(m.name))},
-
-m.fromTM?m.name+" (TM)":m.name
-));}
-)
+moves:legalMoves,
+disabledMoves:selectedMoves.filter(function(id){return id!==moveId;}),
+generation:_this2.props.game.generation,
+onChange:function(id){return _this2.setMove(selectedPokemon.uid,slot,id);}}
 ),
 ex?preact.h("span",{"class":"nz-type nz-type-"+move.type.toLowerCase()},move.type):preact.h("span",null),
 ex?preact.h("span",{"class":"nz-move-cat nz-move-cat-"+move.category.toLowerCase()},cat):preact.h("span",null),
@@ -295,18 +286,19 @@ preact.h("span",{"class":"nz-move-grid-desc"},ex?(_shortDesc2=move.shortDesc)!=n
 isInParty&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-label",style:"margin-top:12px;margin-bottom:5px;"},"Held Item"),
 preact.h("div",{"class":"nz-move-slot"},
-preact.h("select",{
-"class":"nz-tb-select",
+function(_heldItems$selectedPo){
+var itemEntries=Array.from(new Map(game.items.map(function(item){return[toID(item),item];})).entries()).
+map(function(_ref3){var id=_ref3[0],name=_ref3[1];return{id:id,name:name};});
+var disabledItemIds=itemEntries.
+filter(function(_ref4){var id=_ref4.id;return heldByOthers(selectedPokemon.uid,id)>=itemCount(id);}).
+map(function(_ref5){var id=_ref5.id;return id;});
+return preact.h(NzItemSelect,{
 value:(_heldItems$selectedPo=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo:'',
-onChange:function(e){return _this2.setItem(selectedPokemon.uid,e.target.value);}},
-
-preact.h("option",{value:""},"(none)"),
-Array.from(new Map(game.items.map(function(item){return[toID(item),item];})).entries()).map(function(_ref3){var id=_ref3[0],item=_ref3[1];return(
-preact.h("option",{key:id,value:id,disabled:heldByOthers(selectedPokemon.uid,id)>=itemCount(id)},
-item
-));}
-)
-),
+items:itemEntries,
+disabledIds:disabledItemIds,
+onChange:function(id){return _this2.setItem(selectedPokemon.uid,id);}}
+);
+}(),
 function(_heldItems$selectedPo2){
 var itemId=(_heldItems$selectedPo2=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo2:'';
 var item=itemId?Dex.forGen(_this2.props.game.generation).items.get(itemId):null;

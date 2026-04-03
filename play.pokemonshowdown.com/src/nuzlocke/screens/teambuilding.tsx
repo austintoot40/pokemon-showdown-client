@@ -7,7 +7,7 @@ import { PS } from "../../client-main";
 import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
-import { NzBtn, NzTypeBadges } from "../components/primitives";
+import { NzBtn, NzTypeBadges, NzMoveSelect, NzItemSelect } from "../components/primitives";
 import { NzStatBars, NzIvBars, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
 import type { NuzlockePanelPayload } from "../types";
 
@@ -267,22 +267,13 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 						const power = ex && move!.basePower > 0 ? `${move!.basePower}` : ex ? '—' : '';
 						const acc = ex ? (move!.accuracy === true ? '—' : `${move!.accuracy}%`) : '';
 						return <preact.Fragment key={slot}>
-							<select
-								class="nz-tb-select"
+							<NzMoveSelect
 								value={moveId}
-								onChange={e => this.setMove(selectedPokemon.uid, slot, (e.target as HTMLSelectElement).value)}
-							>
-								<option value="">(empty)</option>
-								{legalMoves.map(m =>
-									<option 
-										key={m.name} 
-										value={toID(m.name)}
-										disabled={selectedMoves.includes(toID(m.name))}
-									>
-										{m.fromTM ? `${m.name} (TM)` : m.name}
-									</option>
-								)}
-							</select>
+								moves={legalMoves}
+								disabledMoves={selectedMoves.filter(id => id !== moveId)}
+								generation={this.props.game.generation}
+								onChange={id => this.setMove(selectedPokemon.uid, slot, id)}
+							/>
 							{ex ? <span class={`nz-type nz-type-${move!.type.toLowerCase()}`}>{move!.type}</span> : <span />}
 							{ex ? <span class={`nz-move-cat nz-move-cat-${move!.category.toLowerCase()}`}>{cat}</span> : <span />}
 							<span class={ex ? 'nz-move-stat' : ''}>{power}</span>
@@ -295,18 +286,19 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				{isInParty && <>
 					<div class="nz-label" style="margin-top:12px;margin-bottom:5px;">Held Item</div>
 					<div class="nz-move-slot">
-						<select
-							class="nz-tb-select"
-							value={heldItems[selectedPokemon.uid] ?? ''}
-							onChange={e => this.setItem(selectedPokemon.uid, (e.target as HTMLSelectElement).value)}
-						>
-							<option value="">(none)</option>
-							{Array.from(new Map(game.items.map(item => [toID(item), item])).entries()).map(([id, item]) => (
-								<option key={id} value={id} disabled={heldByOthers(selectedPokemon.uid, id) >= itemCount(id)}>
-									{item}
-								</option>
-							))}
-						</select>
+						{(() => {
+							const itemEntries = Array.from(new Map(game.items.map(item => [toID(item), item])).entries())
+								.map(([id, name]) => ({ id, name }));
+							const disabledItemIds = itemEntries
+								.filter(({ id }) => heldByOthers(selectedPokemon.uid, id) >= itemCount(id))
+								.map(({ id }) => id);
+							return <NzItemSelect
+								value={heldItems[selectedPokemon.uid] ?? ''}
+								items={itemEntries}
+								disabledIds={disabledItemIds}
+								onChange={id => this.setItem(selectedPokemon.uid, id)}
+							/>;
+						})()}
 						{(() => {
 							const itemId = heldItems[selectedPokemon.uid] ?? '';
 							const item = itemId ? Dex.forGen(this.props.game.generation).items.get(itemId) : null;

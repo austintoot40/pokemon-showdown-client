@@ -65,10 +65,24 @@ interface NuzlockeMenuPayload {
         curRoom: string;
         ai: string;
     } | null;
-    pastRuns: NuzlockePastRun[];
-    selectedAi: string;
     generation: number;
     scenarios: NuzlockeScenarioCard[];
+}
+
+function getLocalPastRuns(): NuzlockePastRun[] {
+    try {
+        return JSON.parse(localStorage.getItem('nuzlocke_past_runs') ?? '[]');
+    } catch {
+        return [];
+    }
+}
+
+function getLocalAiPreference(): string {
+    return localStorage.getItem('nuzlocke_ai_preference') ?? 'game-accurate';
+}
+
+function setLocalAiPreference(difficulty: string) {
+    localStorage.setItem('nuzlocke_ai_preference', difficulty);
 }
 
 const AI_DIFFICULTIES = [
@@ -239,11 +253,6 @@ export class MainMenuRoom extends PSRoom {
         } case 'updatenuzlocke': {
             const [, payload] = args;
             this.nuzlockeMenuPayload = JSON.parse(payload);
-            const ar = this.nuzlockeMenuPayload?.activeRun;
-            console.log('[NuzlockeMainMenu] updatenuzlocke received', {
-                activeRun: ar ? { scenarioId: ar.scenarioId, curRoom: ar.curRoom, segmentIndex: ar.segmentIndex, deaths: ar.deaths } : null,
-                pastRunCount: this.nuzlockeMenuPayload?.pastRuns?.length ?? 0,
-            });
             this.update(null);
             return;
         }
@@ -613,7 +622,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     static readonly icon = <i class="fa fa-home" aria-hidden></i>;
     selectedScenario: string | null = null;
     selectedStarter: number | null = null;
-    selectedDifficulty: string = 'game-accurate';
+    selectedDifficulty: string = getLocalAiPreference();
     confirmAbandon: boolean = false;
 
     clickAbandon = () => {
@@ -630,8 +639,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         this.forceUpdate();
     };
     clickStartRun = () => {
-        const difficulty = this.props.room.nuzlockeMenuPayload?.selectedAi ?? this.selectedDifficulty;
-        PS.send(`/nuzlocke start ${this.selectedScenario} ${difficulty} ${this.selectedStarter}`);
+        PS.send(`/nuzlocke start ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedStarter}`);
     };
     selectScenario = (id: string) => {
         this.selectedScenario = id;
@@ -644,15 +652,15 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     };
     setDifficulty = (difficulty: string) => {
         this.selectedDifficulty = difficulty;
+        setLocalAiPreference(difficulty);
         PS.send(`/nuzlocke setai ${difficulty}`);
-        // server will push back updatenuzlocke, triggering re-render
         this.forceUpdate();
     };
     override render() {
         const status = this.props.room.nuzlockeMenuPayload;
         const activeRun = status?.activeRun ?? null;
-        const pastRuns = status?.pastRuns ?? [];
-        const currentDifficulty = status?.selectedAi ?? this.selectedDifficulty;
+        const pastRuns = getLocalPastRuns();
+        const currentDifficulty = activeRun?.ai ?? this.selectedDifficulty;
 
         const serverScenarios = status?.scenarios ?? [];
         const selectedScenarioData = this.selectedScenario
