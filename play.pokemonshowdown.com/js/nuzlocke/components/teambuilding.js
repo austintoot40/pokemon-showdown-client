@@ -124,8 +124,7 @@ alt:pokemon.species}
 ),
 preact.h("div",{"class":"nz-party-slot-info"},
 preact.h("div",{"class":"nz-party-slot-name"},
-pokemon.nickname,
-pokemon.shiny&&preact.h("span",{style:"color:var(--nz-warning);margin-left:3px;"},"\u2605")
+pokemon.nickname
 ),
 preact.h("div",{"class":"nz-party-slot-sub"},
 pokemon.nickname!==pokemon.species?pokemon.species+" \xB7 ":'',"Lv.",levelCap

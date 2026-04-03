@@ -112,7 +112,7 @@
 }
 
 .nz-active-run-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -129,7 +129,7 @@
 
 .nz-active-run-segment {
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
 }
 
@@ -195,7 +195,7 @@
 }
 
 .nz-team-slot-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -279,7 +279,7 @@
 }
 
 .nz-stat-chip-value {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1;
   color: var(--nz-text);
@@ -308,7 +308,7 @@
 }
 
 .nz-stat-chip-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -319,7 +319,7 @@
 /* Scenario description — 2-line clamp */
 .nz-scenario-description {
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -370,7 +370,7 @@
 }
 
 .nz-starter-pick-name {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -390,7 +390,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
   margin-bottom: 20px;
 }
@@ -495,7 +495,7 @@
 }
 
 .nz-scenario-card-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -505,7 +505,7 @@
 
 .nz-scenario-card-meta {
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
   margin-bottom: 16px;
 }
@@ -538,7 +538,7 @@
 }
 
 .nz-run-widget-name {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -547,7 +547,7 @@
 
 .nz-run-widget-meta {
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
   margin-top: 3px;
 }
@@ -567,7 +567,7 @@
 
 .nz-run-widget-deaths {
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-danger);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -597,7 +597,7 @@
 
 .nz-run-entry-name {
   flex: 1;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -606,7 +606,7 @@
 
 .nz-run-entry-meta {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-dim);
 }
 
@@ -630,7 +630,7 @@
   background: var(--nz-elevated);
   border: 1px solid var(--nz-border);
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
 }
 
@@ -658,7 +658,7 @@
   background: transparent;
   color: var(--nz-text-muted);
   font-family: var(--nz-font-ui);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;

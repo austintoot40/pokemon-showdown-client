@@ -12,7 +12,7 @@
 
 .nz-root {
   font-family: var(--nz-font-ui);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--nz-text);
   padding: 16px 20px;
 }
@@ -88,7 +88,7 @@ body {
 }
 
 .nz-section-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -121,7 +121,7 @@ body {
 }
 
 .nz-screen-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--nz-text);
   text-transform: uppercase;
@@ -130,7 +130,7 @@ body {
 
 .nz-screen-meta {
   font-family: var(--nz-font-mono);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--nz-text-muted);
   margin-top: 4px;
   display: flex;
@@ -147,7 +147,7 @@ body {
 .nz-screen-meta span::before {
   content: '▸';
   color: var(--nz-accent);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 /* =============================================
@@ -155,7 +155,7 @@ body {
    ============================================= */
 
 .nz-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -179,7 +179,7 @@ body {
   border-radius: var(--nz-radius);
   clip-path: var(--nz-clip-sm);
   font-family: var(--nz-font-ui);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -264,7 +264,7 @@ body {
 
 .nz-btn-sm {
   padding: 4px 11px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .nz-btn-group {
@@ -281,7 +281,7 @@ body {
 .nz-badge {
   display: inline-block;
   padding: 2px 8px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -302,7 +302,7 @@ body {
 .nz-type {
   display: inline-block;
   padding: 1px 7px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -341,7 +341,7 @@ body {
   display: flex;
   justify-content: space-between;
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-muted);
   margin-bottom: 3px;
   text-transform: uppercase;
@@ -381,7 +381,7 @@ body {
   border: 1px solid var(--nz-border);
   color: var(--nz-text);
   font-family: var(--nz-font-ui);
-  font-size: 12px;
+  font-size: 14px;
   padding: 4px 8px;
   border-radius: var(--nz-radius);
   outline: none;
@@ -399,7 +399,7 @@ body {
 
 .nz-notice {
   font-family: var(--nz-font-mono);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--nz-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -407,7 +407,7 @@ body {
 }
 
 .nz-error {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;

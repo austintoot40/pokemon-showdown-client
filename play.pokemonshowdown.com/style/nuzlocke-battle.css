@@ -62,7 +62,7 @@
   color: var(--nz-text);
   padding: 6px 10px;
   clip-path: var(--nz-clip-sm);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -77,7 +77,7 @@
 .battle-controls h3.shiftselect {
   font-family: var(--nz-font-ui);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--nz-text-muted);
@@ -92,7 +92,7 @@
 
 .battle-controls .movebutton {
   font-family: var(--nz-font-ui);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   background: var(--nz-elevated);
   border: 1px solid var(--nz-border);
@@ -215,7 +215,7 @@
 
 .battle-controls .megaevo {
   font-family: var(--nz-font-ui);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--nz-text-muted);
   padding: 3px 8px;
   border: 1px solid transparent;
@@ -245,7 +245,7 @@
   font-family: var(--nz-font-ui);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.05em;
   background: var(--nz-elevated);
   border: 1px solid var(--nz-border);
@@ -292,7 +292,7 @@
 
 button[data-href="battleoptions"] {
   font-family: var(--nz-font-ui);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;

@@ -70,12 +70,12 @@ export class NzRouteCardCaught extends preact.Component<{
 				{pool
 					? pool.map(e => toID(e.species) === toID(pokemon.species)
 						? <div key={e.species} class="nz-route-caught-aura">
-							<NzSprite species={pokemon.species} shiny={pokemon.shiny} size={80} />
+							<NzSprite species={pokemon.species} size={80} />
 						</div>
 						: <img key={e.species} src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} style="opacity:0.25" />
 					)
 					: <div class="nz-route-caught-aura">
-						<NzSprite species={pokemon.species} shiny={pokemon.shiny} size={80} />
+						<NzSprite species={pokemon.species} size={80} />
 					</div>
 				}
 			</div>

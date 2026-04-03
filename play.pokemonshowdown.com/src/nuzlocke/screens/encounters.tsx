@@ -35,6 +35,80 @@ const METHOD_LABELS: Record<string, string> = {
 // Helpers
 // ---------------------------------------------------------------------------
 
+function calcIvScore(ivs: StatsTable, baseStats: { [k: string]: number }): number {
+	const keys: Array<keyof StatsTable> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+	let weighted = 0;
+	let maxWeighted = 0;
+	for (const key of keys) {
+		weighted += ivs[key] * (baseStats[key] ?? 0);
+		maxWeighted += 31 * (baseStats[key] ?? 0);
+	}
+	return maxWeighted > 0 ? weighted / maxWeighted : 0;
+}
+
+function calcNatureQuality(
+	nature: { plus?: string; minus?: string },
+	baseStats: { [k: string]: number }
+): 'good' | 'neutral' | 'bad' {
+	const plus = nature.plus;
+	const minus = nature.minus;
+	if (!plus || !minus) return 'neutral';
+	const boostBase = baseStats[plus] ?? 0;
+	const penaltyBase = baseStats[minus] ?? 0;
+	if (boostBase >= penaltyBase) return 'good';
+	return 'bad';
+}
+
+// Abramowitz & Stegun approximation, accurate to ~7 decimal places.
+function normalCDF(z: number): number {
+	if (z < -8) return 0;
+	if (z > 8) return 1;
+	const t = 1 / (1 + 0.2316419 * Math.abs(z));
+	const poly = t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+	const pdf = Math.exp(-0.5 * z * z) / 2.5066282746; // sqrt(2π)
+	const p = 1 - pdf * poly;
+	return z >= 0 ? p : 1 - p;
+}
+
+// Returns the fraction of random rolls at least as good as this pokemon (IVs + nature combined).
+// Returns null if not in the top 5%.
+function calcCombinedPercentile(
+	ivScore: number,
+	natureQuality: 'good' | 'neutral' | 'bad',
+	baseStats: { [k: string]: number }
+): number | null {
+	const keys = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+	const weights = keys.map(k => baseStats[k] ?? 0);
+	const sumW = weights.reduce((a, b) => a + b, 0);
+	if (sumW === 0) return null;
+
+	// Variance of a single IV normalized to [0,1]: Var(uniform 0-31) / 31^2
+	const varIvNorm = 1023 / (12 * 31 * 31);
+	const sumW2 = weights.reduce((s, w) => s + w * w, 0);
+	const stdDev = Math.sqrt(varIvNorm * sumW2) / sumW;
+
+	const pIv = 1 - normalCDF((ivScore - 0.5) / stdDev);
+
+	// Count non-neutral natures that are "good" for this species
+	let goodNatures = 0;
+	for (const nat of Object.values(BattleNatures)) {
+		const n = nat as { plus?: string; minus?: string };
+		if (!n.plus || !n.minus) continue;
+		if ((baseStats[n.plus] ?? 0) >= (baseStats[n.minus] ?? 0)) goodNatures++;
+	}
+
+	const pNature = natureQuality === 'good' ? goodNatures / 25
+		: natureQuality === 'neutral' ? (goodNatures + 5) / 25
+		: 1;
+
+	return pIv * pNature;
+}
+
+function formatTopPct(p: number): string {
+	const pct = p * 100;
+	return pct < 1 ? `${pct.toFixed(1)}%` : `${Math.round(pct)}%`;
+}
+
 function getEvoRoot(speciesName: string, generation?: number): string {
 	const dex = generation ? Dex.forGen(generation) : Dex;
 	let species = dex.species.get(speciesName);
@@ -99,13 +173,13 @@ function MethodPoolCard({
 	const resolved = caughtSpecies !== undefined;
 	const allDupes = !resolved && encounter.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)));
 	const dupeSet = new Set(
-		encounter.pokemon.filter(e => ownedRoots.has(getEvoRoot(e.species))).map(e => toID(e.species))
+		encounter.pokemon
+			.filter(e => ownedRoots.has(getEvoRoot(e.species)) && !(resolved && toID(e.species) === toID(caughtSpecies ?? '')))
+			.map(e => toID(e.species))
 	);
-	const activeTotal = resolved
-		? encounter.pokemon.reduce((sum, e) => sum + e.rate, 0)
-		: encounter.pokemon
-			.filter(e => !dupeSet.has(toID(e.species)))
-			.reduce((sum, e) => sum + e.rate, 0);
+	const activeTotal = encounter.pokemon
+		.filter(e => !dupeSet.has(toID(e.species)))
+		.reduce((sum, e) => sum + e.rate, 0);
 
 	const clickable = !resolved && !allDupes;
 
@@ -116,7 +190,7 @@ function MethodPoolCard({
 		<div class="nz-method-pool-label">{METHOD_LABELS[method] ?? method}</div>
 		<div class="nz-route-pool">
 			{encounter.pokemon.map(e => {
-				const dupe = !resolved && dupeSet.has(toID(e.species));
+				const dupe = dupeSet.has(toID(e.species));
 				const isCaught = resolved && toID(e.species) === toID(caughtSpecies!);
 				const pct = dupe || activeTotal === 0 ? 0 : Math.round(e.rate / activeTotal * 100);
 				const slotClass = [
@@ -177,6 +251,15 @@ class EncounterPokemonStats extends preact.Component<{
 	const boostedStat = nature.plus as keyof StatsTable | undefined;
 	const reducedStat = nature.minus as keyof StatsTable | undefined;
 
+	const ivScore = calcIvScore(pokemon.ivs, sp.baseStats);
+	const ivPct = Math.round(ivScore * 100);
+	const ivTier = ivPct >= 62 ? 'high' : ivPct >= 50 ? 'mid' : ivPct >= 38 ? 'low' : 'poor';
+	const ivLabel = ivTier === 'high' ? 'Great' : ivTier === 'mid' ? 'Good' : ivTier === 'low' ? 'Fair' : 'Poor';
+	const natureQuality = calcNatureQuality(nature, sp.baseStats);
+	const combinedPct = calcCombinedPercentile(ivScore, natureQuality, sp.baseStats);
+	const topPercentile = combinedPct !== null && combinedPct <= 0.05 ? combinedPct : null;
+	const worsePercentile = combinedPct !== null && combinedPct >= 0.95 ? combinedPct : null;
+
 	return <div class="nz-encounter-stats">
 		{/* Header: sprite + identity */}
 		<div class="nz-encounter-stats-header">
@@ -198,7 +281,6 @@ class EncounterPokemonStats extends preact.Component<{
 					/>
 					: <div class="nz-encounter-stats-nick nz-encounter-stats-nick-editable" onClick={this.startEdit}>
 						{nickname}
-						{pokemon.shiny && <span class="nz-shiny-star">★</span>}
 					</div>
 				}
 				{nickname !== pokemon.species &&
@@ -215,7 +297,14 @@ class EncounterPokemonStats extends preact.Component<{
 		<div class="nz-encounter-stats-attrs">
 			<div class="nz-encounter-stats-attr">
 				<span class="nz-encounter-stats-attr-label">Nature</span>
-				<span class="nz-encounter-stats-attr-value">{pokemon.nature}</span>
+				<div class="nz-encounter-stats-attr-value-row">
+					<span class="nz-encounter-stats-attr-value">{pokemon.nature}</span>
+					{natureQuality !== 'neutral' &&
+						<span class={`nz-nature-quality nz-nature-quality-${natureQuality}`}>
+							{natureQuality}
+						</span>
+					}
+				</div>
 				{boostedStat && reducedStat &&
 					<span class="nz-encounter-stats-attr-desc">
 						+{boostedStat.toUpperCase()} −{reducedStat.toUpperCase()}
@@ -251,8 +340,21 @@ class EncounterPokemonStats extends preact.Component<{
 		</div>
 
 		{/* IVs */}
-		<div class="nz-encounter-stats-section-label">IVs</div>
+		<div class="nz-encounter-stats-section-label">
+			IVs
+			<span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span>
+		</div>
 		<NzIvBars ivs={pokemon.ivs} />
+		{topPercentile !== null &&
+			<div class="nz-encounter-top-callout">
+				This {pokemon.species} is in the top {formatTopPct(topPercentile)} of {pokemon.species}s!
+			</div>
+		}
+		{worsePercentile !== null &&
+			<div class="nz-encounter-bad-callout">
+				This {pokemon.species} is worse than {formatTopPct(worsePercentile)} of {pokemon.species}s!
+			</div>
+		}
 	</div>;
 	}
 }

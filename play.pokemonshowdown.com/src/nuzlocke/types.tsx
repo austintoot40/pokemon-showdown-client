@@ -30,7 +30,6 @@ export interface OwnedPokemon {
 	moves: string[];
 	item: string;
 	gender: string;
-	shiny: boolean;
 	caughtRoute: string;
 	alive: boolean;
 }

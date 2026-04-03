@@ -39,7 +39,7 @@
 }
 
 .nz-card-nickname {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--nz-text);
   margin-top: 2px;
@@ -49,13 +49,13 @@
 
 .nz-card-species {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-muted);
 }
 
 .nz-card-level {
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-accent);
   font-weight: 600;
 }
@@ -69,14 +69,14 @@
 }
 
 .nz-card-nature {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .nz-card-subdesc {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-muted);
   line-height: 1.4;
   margin-top: 1px;
@@ -107,7 +107,7 @@
   border: 1px solid var(--nz-border);
   color: var(--nz-text);
   font-family: var(--nz-font-ui);
-  font-size: 11px;
+  font-size: 12px;
   padding: 3px 6px;
   border-radius: var(--nz-radius);
   outline: none;
@@ -130,7 +130,7 @@
   border: 1px solid var(--nz-border);
   color: var(--nz-text);
   font-family: var(--nz-font-ui);
-  font-size: 11px;
+  font-size: 12px;
   padding: 3px 6px;
   border-radius: var(--nz-radius);
   outline: none;
@@ -148,7 +148,7 @@
 }
 
 .nz-card-error {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-danger);
   font-weight: 700;
   text-align: left;
@@ -180,7 +180,7 @@
 }
 
 .nz-card-compact .nz-card-nickname {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* =============================================
@@ -203,7 +203,7 @@
 }
 
 .nz-card-dead .nz-card-killed-by {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-danger);
   font-weight: 700;
   text-transform: uppercase;
@@ -215,7 +215,7 @@
 
 .nz-card-dead .nz-card-died-in {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--nz-text-dim);
   filter: none;
 }
@@ -234,7 +234,7 @@
 }
 
 .nz-card-opponent .nz-card-ability {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -248,12 +248,12 @@
 
 .nz-card-opponent .nz-card-item-label {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-warning);
 }
 
 .nz-card-opponent .nz-card-move-list {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--nz-text-muted);
   text-align: left;
   width: 100%;
@@ -308,7 +308,7 @@
 }
 
 .nz-route-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -322,7 +322,7 @@
 
 .nz-route-levels {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-dim);
   margin-bottom: 6px;
 }
@@ -349,7 +349,7 @@
 }
 
 .nz-route-caught {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--nz-success);
   text-transform: uppercase;
@@ -439,7 +439,7 @@
 
 .nz-starter-stat {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--nz-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -447,7 +447,7 @@
 
 .nz-starter-stat span {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--nz-text);
   font-weight: 600;
 }

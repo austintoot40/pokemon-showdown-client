@@ -125,7 +125,6 @@ export function NzPartySlot({
 		<div class="nz-party-slot-info">
 			<div class="nz-party-slot-name">
 				{pokemon.nickname}
-				{pokemon.shiny && <span style="color:var(--nz-warning);margin-left:3px;">★</span>}
 			</div>
 			<div class="nz-party-slot-sub">
 				{pokemon.nickname !== pokemon.species ? `${pokemon.species} · ` : ''}Lv.{levelCap}

@@ -20,10 +20,9 @@ function NzPokemonCard(_ref)
 {var pokemon=_ref.pokemon,levelCap=_ref.levelCap,actions=_ref.actions;
 var sp=Dex.species.get(pokemon.species);
 return preact.h("div",{"class":"nz-card"},
-preact.h(NzSprite,{species:pokemon.species,shiny:pokemon.shiny}),
+preact.h(NzSprite,{species:pokemon.species}),
 preact.h("div",{"class":"nz-card-nickname"},
-pokemon.nickname,
-pokemon.shiny&&preact.h("span",{style:"color:var(--nz-warning);margin-left:4px;"},"\u2605")
+pokemon.nickname
 ),
 pokemon.nickname!==pokemon.species&&preact.h("div",{"class":"nz-card-species"},pokemon.species),
 preact.h("div",{"class":"nz-card-level"},"Lv. ",levelCap!=null?levelCap:pokemon.level),
@@ -43,7 +42,7 @@ function NzBoxCard(_ref2)
 
 {var pokemon=_ref2.pokemon,levelCap=_ref2.levelCap,actions=_ref2.actions;
 return preact.h("div",{"class":"nz-card nz-card-compact"},
-preact.h(NzSprite,{species:pokemon.species,shiny:pokemon.shiny,size:48}),
+preact.h(NzSprite,{species:pokemon.species,size:48}),
 preact.h("div",{"class":"nz-card-nickname"},pokemon.nickname),
 pokemon.nickname!==pokemon.species&&preact.h("div",{"class":"nz-card-species"},pokemon.species),
 preact.h("div",{"class":"nz-card-level"},"Lv. ",levelCap!=null?levelCap:pokemon.level),

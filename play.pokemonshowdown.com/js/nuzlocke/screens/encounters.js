@@ -35,6 +35,80 @@ rockSmash:'Rock Smash'
 
 
 
+function calcIvScore(ivs,baseStats){
+var keys=['hp','atk','def','spa','spd','spe'];
+var weighted=0;
+var maxWeighted=0;for(var _i2=0;_i2<
+keys.length;_i2++){var _baseStats$key,_baseStats$key2;var key=keys[_i2];
+weighted+=ivs[key]*((_baseStats$key=baseStats[key])!=null?_baseStats$key:0);
+maxWeighted+=31*((_baseStats$key2=baseStats[key])!=null?_baseStats$key2:0);
+}
+return maxWeighted>0?weighted/maxWeighted:0;
+}
+
+function calcNatureQuality(
+nature,
+baseStats)
+{var _baseStats$plus,_baseStats$minus;
+var plus=nature.plus;
+var minus=nature.minus;
+if(!plus||!minus)return'neutral';
+var boostBase=(_baseStats$plus=baseStats[plus])!=null?_baseStats$plus:0;
+var penaltyBase=(_baseStats$minus=baseStats[minus])!=null?_baseStats$minus:0;
+if(boostBase>=penaltyBase)return'good';
+return'bad';
+}
+
+
+function normalCDF(z){
+if(z<-8)return 0;
+if(z>8)return 1;
+var t=1/(1+0.2316419*Math.abs(z));
+var poly=t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+var pdf=Math.exp(-0.5*z*z)/2.5066282746;
+var p=1-pdf*poly;
+return z>=0?p:1-p;
+}
+
+
+
+function calcCombinedPercentile(
+ivScore,
+natureQuality,
+baseStats)
+{
+var keys=['hp','atk','def','spa','spd','spe'];
+var weights=keys.map(function(k){var _baseStats$k;return(_baseStats$k=baseStats[k])!=null?_baseStats$k:0;});
+var sumW=weights.reduce(function(a,b){return a+b;},0);
+if(sumW===0)return null;
+
+
+var varIvNorm=1023/(12*31*31);
+var sumW2=weights.reduce(function(s,w){return s+w*w;},0);
+var stdDev=Math.sqrt(varIvNorm*sumW2)/sumW;
+
+var pIv=1-normalCDF((ivScore-0.5)/stdDev);
+
+
+var goodNatures=0;for(var _i4=0,_Object$values2=
+Object.values(BattleNatures);_i4<_Object$values2.length;_i4++){var _baseStats$n$plus,_baseStats$n$minus;var nat=_Object$values2[_i4];
+var n=nat;
+if(!n.plus||!n.minus)continue;
+if(((_baseStats$n$plus=baseStats[n.plus])!=null?_baseStats$n$plus:0)>=((_baseStats$n$minus=baseStats[n.minus])!=null?_baseStats$n$minus:0))goodNatures++;
+}
+
+var pNature=natureQuality==='good'?goodNatures/25:
+natureQuality==='neutral'?(goodNatures+5)/25:
+1;
+
+return pIv*pNature;
+}
+
+function formatTopPct(p){
+var pct=p*100;
+return pct<1?pct.toFixed(1)+"%":Math.round(pct)+"%";
+}
+
 function getEvoRoot(speciesName,generation){
 var dex=generation?Dex.forGen(generation):Dex;
 var species=dex.species.get(speciesName);
@@ -53,9 +127,9 @@ return species.id;
 
 function buildFlatEntries(encounters){
 var result=[];
-var idx=0;for(var _i2=0;_i2<
-METHOD_ORDER.length;_i2++){var method=METHOD_ORDER[_i2];for(var _i4=0,_ref2=(_encounters$method=
-encounters[method])!=null?_encounters$method:[];_i4<_ref2.length;_i4++){var _encounters$method;var route=_ref2[_i4];
+var idx=0;for(var _i6=0;_i6<
+METHOD_ORDER.length;_i6++){var method=METHOD_ORDER[_i6];for(var _i8=0,_ref2=(_encounters$method=
+encounters[method])!=null?_encounters$method:[];_i8<_ref2.length;_i8++){var _encounters$method;var route=_ref2[_i8];
 result.push({route:route,method:method,flatIndex:idx++});
 }
 }
@@ -69,8 +143,8 @@ return result;
 
 
 function buildRouteGroups(flatEntries){
-var map=new Map();for(var _i6=0;_i6<
-flatEntries.length;_i6++){var entry=flatEntries[_i6];
+var map=new Map();for(var _i10=0;_i10<
+flatEntries.length;_i10++){var entry=flatEntries[_i10];
 var name=entry.route.route;
 if(!map.has(name))map.set(name,{routeName:name,methods:[]});
 map.get(name).methods.push(entry);
@@ -99,11 +173,11 @@ function MethodPoolCard(_ref3)
 var resolved=caughtSpecies!==undefined;
 var allDupes=!resolved&&encounter.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});
 var dupeSet=new Set(
-encounter.pokemon.filter(function(e){return ownedRoots.has(getEvoRoot(e.species));}).map(function(e){return toID(e.species);})
-);
-var activeTotal=resolved?
-encounter.pokemon.reduce(function(sum,e){return sum+e.rate;},0):
 encounter.pokemon.
+filter(function(e){return ownedRoots.has(getEvoRoot(e.species))&&!(resolved&&toID(e.species)===toID(caughtSpecies!=null?caughtSpecies:''));}).
+map(function(e){return toID(e.species);})
+);
+var activeTotal=encounter.pokemon.
 filter(function(e){return!dupeSet.has(toID(e.species));}).
 reduce(function(sum,e){return sum+e.rate;},0);
 
@@ -116,7 +190,7 @@ onClick:clickable?onScout:undefined},
 preact.h("div",{"class":"nz-method-pool-label"},(_METHOD_LABELS$method=METHOD_LABELS[method])!=null?_METHOD_LABELS$method:method),
 preact.h("div",{"class":"nz-route-pool"},
 encounter.pokemon.map(function(e){
-var dupe=!resolved&&dupeSet.has(toID(e.species));
+var dupe=dupeSet.has(toID(e.species));
 var isCaught=resolved&&toID(e.species)===toID(caughtSpecies);
 var pct=dupe||activeTotal===0?0:Math.round(e.rate/activeTotal*100);
 var slotClass=[
@@ -177,6 +251,15 @@ var nature=(_BattleNatures=BattleNatures[pokemon.nature])!=null?_BattleNatures:{
 var boostedStat=nature.plus;
 var reducedStat=nature.minus;
 
+var ivScore=calcIvScore(pokemon.ivs,sp.baseStats);
+var ivPct=Math.round(ivScore*100);
+var ivTier=ivPct>=62?'high':ivPct>=50?'mid':ivPct>=38?'low':'poor';
+var ivLabel=ivTier==='high'?'Great':ivTier==='mid'?'Good':ivTier==='low'?'Fair':'Poor';
+var natureQuality=calcNatureQuality(nature,sp.baseStats);
+var combinedPct=calcCombinedPercentile(ivScore,natureQuality,sp.baseStats);
+var topPercentile=combinedPct!==null&&combinedPct<=0.05?combinedPct:null;
+var worsePercentile=combinedPct!==null&&combinedPct>=0.95?combinedPct:null;
+
 return preact.h("div",{"class":"nz-encounter-stats"},
 
 preact.h("div",{"class":"nz-encounter-stats-header"},
@@ -197,8 +280,7 @@ onInput:function(e){return onNickChange(pokemon.uid,e.target.value);},
 onBlur:this.stopEdit}
 ):
 preact.h("div",{"class":"nz-encounter-stats-nick nz-encounter-stats-nick-editable",onClick:this.startEdit},
-nickname,
-pokemon.shiny&&preact.h("span",{"class":"nz-shiny-star"},"\u2605")
+nickname
 ),
 
 nickname!==pokemon.species&&
@@ -215,7 +297,14 @@ pokemon.level," \xB7 ",pokemon.caughtRoute
 preact.h("div",{"class":"nz-encounter-stats-attrs"},
 preact.h("div",{"class":"nz-encounter-stats-attr"},
 preact.h("span",{"class":"nz-encounter-stats-attr-label"},"Nature"),
+preact.h("div",{"class":"nz-encounter-stats-attr-value-row"},
 preact.h("span",{"class":"nz-encounter-stats-attr-value"},pokemon.nature),
+natureQuality!=='neutral'&&
+preact.h("span",{"class":"nz-nature-quality nz-nature-quality-"+natureQuality},
+natureQuality
+)
+
+),
 boostedStat&&reducedStat&&
 preact.h("span",{"class":"nz-encounter-stats-attr-desc"},"+",
 boostedStat.toUpperCase()," \u2212",reducedStat.toUpperCase()
@@ -251,8 +340,21 @@ preact.h("div",{"class":"nz-stat-value"+mod},val)
 ),
 
 
-preact.h("div",{"class":"nz-encounter-stats-section-label"},"IVs"),
-preact.h(NzIvBars,{ivs:pokemon.ivs})
+preact.h("div",{"class":"nz-encounter-stats-section-label"},"IVs",
+
+preact.h("span",{"class":"nz-iv-score nz-iv-score-"+ivTier},ivLabel)
+),
+preact.h(NzIvBars,{ivs:pokemon.ivs}),
+topPercentile!==null&&
+preact.h("div",{"class":"nz-encounter-top-callout"},"This ",
+pokemon.species," is in the top ",formatTopPct(topPercentile)," of ",pokemon.species,"s!"
+),
+
+worsePercentile!==null&&
+preact.h("div",{"class":"nz-encounter-bad-callout"},"This ",
+pokemon.species," is worse than ",formatTopPct(worsePercentile)," of ",pokemon.species,"s!"
+)
+
 );
 };return EncounterPokemonStats;}(preact.Component);
 

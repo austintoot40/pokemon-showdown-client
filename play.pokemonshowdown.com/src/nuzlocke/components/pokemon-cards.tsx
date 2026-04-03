@@ -20,10 +20,9 @@ export function NzPokemonCard({
 }) {
 	const sp = Dex.species.get(pokemon.species);
 	return <div class="nz-card">
-		<NzSprite species={pokemon.species} shiny={pokemon.shiny} />
+		<NzSprite species={pokemon.species} />
 		<div class="nz-card-nickname">
 			{pokemon.nickname}
-			{pokemon.shiny && <span style="color:var(--nz-warning);margin-left:4px;">★</span>}
 		</div>
 		{pokemon.nickname !== pokemon.species && <div class="nz-card-species">{pokemon.species}</div>}
 		<div class="nz-card-level">Lv. {levelCap ?? pokemon.level}</div>
@@ -43,7 +42,7 @@ export function NzBoxCard({
 	actions?: preact.ComponentChildren;
 }) {
 	return <div class="nz-card nz-card-compact">
-		<NzSprite species={pokemon.species} shiny={pokemon.shiny} size={48} />
+		<NzSprite species={pokemon.species} size={48} />
 		<div class="nz-card-nickname">{pokemon.nickname}</div>
 		{pokemon.nickname !== pokemon.species && <div class="nz-card-species">{pokemon.species}</div>}
 		<div class="nz-card-level">Lv. {levelCap ?? pokemon.level}</div>

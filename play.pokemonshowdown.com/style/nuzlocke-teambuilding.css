@@ -32,7 +32,7 @@
 }
 
 .nz-tb-hint {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
@@ -104,10 +104,6 @@
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-accent) 40%, transparent));
 }
 
-.nz-tb-detail-sprite img.shiny {
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-warning) 50%, transparent));
-}
-
 .nz-tb-detail-actions {
   display: flex;
   flex-direction: row;
@@ -134,7 +130,7 @@
   border: 1px solid var(--nz-border);
   color: var(--nz-text);
   font-family: var(--nz-font-ui);
-  font-size: 12px;
+  font-size: 14px;
   padding: 5px 8px;
   border-radius: var(--nz-radius);
   outline: none;
@@ -201,7 +197,7 @@
   opacity: 0.25;
   justify-content: center;
   min-height: 52px;
-  font-size: 10px;
+  font-size: 12px;
   font-family: var(--nz-font-mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -261,7 +257,7 @@
 }
 
 .nz-party-slot-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -273,7 +269,7 @@
 
 .nz-party-slot-sub {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-muted);
   margin-top: 1px;
 }
@@ -301,7 +297,7 @@
   background: var(--nz-surface);
   border: 1px solid var(--nz-border);
   color: var(--nz-text-muted);
-  font-size: 9px;
+  font-size: 11px;
   cursor: pointer;
   padding: 0;
   line-height: 1;
@@ -379,7 +375,7 @@
 }
 
 .nz-tb-box-card-name {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -415,7 +411,7 @@
 /* Static move name display (opponent detail — no dropdown) */
 .nz-tb-move-name {
   font-family: var(--nz-font-ui);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--nz-text);
   padding: 5px 0;
@@ -469,7 +465,7 @@
 /* Column header labels */
 .nz-moves-col-header {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -482,7 +478,7 @@
 /* Description column: inline, wraps within its 1fr cell */
 .nz-move-grid-desc {
   font-style: italic;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
   overflow-wrap: break-word;
   min-width: 0;
@@ -531,7 +527,7 @@
 }
 
 .nz-stat-no-ivs {
-  font-size: 11px;
+  font-size: 13px;
   font-style: italic;
   color: var(--nz-text-dim);
   padding-top: 4px;
@@ -557,7 +553,7 @@
 
 .nz-stat-label {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -585,7 +581,7 @@
 
 .nz-stat-value {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--nz-text-muted);
   text-align: right;
@@ -605,7 +601,7 @@
 
 .nz-move-cat {
   padding: 1px 5px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -633,7 +629,7 @@
 
 .nz-move-stat {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-muted);
 }
 
@@ -642,7 +638,7 @@
    ============================================= */
 
 .nz-item-desc {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-muted);
   font-style: italic;
   padding: 3px 2px 0;

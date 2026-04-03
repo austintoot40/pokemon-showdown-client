@@ -36,7 +36,7 @@
 }
 
 .nz-banner-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -47,7 +47,7 @@
 .nz-banner-loss     .nz-banner-title { color: var(--nz-danger); }
 
 .nz-banner-sub {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--nz-text-muted);
   margin-top: 4px;
 }
@@ -59,7 +59,7 @@
 }
 
 .nz-banner-deaths-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -71,7 +71,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--nz-text-muted);
   margin-bottom: 4px;
 }
@@ -124,7 +124,7 @@
   justify-content: center;
   border: 1px solid var(--nz-border);
   background: var(--nz-surface);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--nz-text-dim);
   font-family: var(--nz-font-mono);
@@ -149,7 +149,7 @@
 }
 
 .nz-progress-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;

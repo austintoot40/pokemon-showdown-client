@@ -213,14 +213,12 @@ preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
 preact.h("img",{
 src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(selectedPokemon.species)+".png",
-alt:selectedPokemon.species,
-"class":selectedPokemon.shiny?'shiny':''}
+alt:selectedPokemon.species}
 )
 ),
 preact.h("div",{"class":"nz-tb-detail-info"},
 preact.h("div",{"class":"nz-card-nickname"},
-selectedPokemon.nickname,
-selectedPokemon.shiny&&preact.h("span",{style:"color:var(--nz-warning);margin-left:4px;"},"\u2605")
+selectedPokemon.nickname
 ),
 selectedPokemon.nickname!==selectedPokemon.species&&
 preact.h("div",{"class":"nz-card-species"},selectedPokemon.species),

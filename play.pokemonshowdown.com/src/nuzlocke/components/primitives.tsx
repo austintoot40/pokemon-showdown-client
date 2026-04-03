@@ -58,13 +58,13 @@ export function NzBtn({
 	return <button class={cls} onClick={onClick} disabled={disabled} title={title}>{children}</button>;
 }
 
-export function NzSprite({ species, shiny, size = 60 }: { species: string; shiny?: boolean; size?: number }) {
+export function NzSprite({ species, size = 60 }: { species: string; size?: number }) {
 	const id = toID(species);
 	const src = `https://play.pokemonshowdown.com/sprites/gen5/${id}.png`;
 	return <img
 		class="nz-card-sprite"
 		src={src}
 		alt={species}
-		style={`width:${size}px;height:${size}px;${shiny ? 'filter:hue-rotate(30deg) saturate(1.4)' : ''}`}
+		style={`width:${size}px;height:${size}px;`}
 	/>;
 }

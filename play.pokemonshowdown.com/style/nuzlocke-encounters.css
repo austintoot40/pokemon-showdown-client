@@ -30,7 +30,7 @@
 
 .nz-route-list-section-label {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -46,7 +46,7 @@
   cursor: pointer;
   box-shadow: inset 3px 0 0 transparent;
   transition: background 0.1s, box-shadow 0.1s;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--nz-text);
   user-select: none;
 }
@@ -72,7 +72,7 @@
 }
 
 .nz-route-sprite-method-icon {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1;
   margin-right: 2px;
   flex-shrink: 0;
@@ -108,7 +108,7 @@
 
 .nz-route-list-status {
   font-family: var(--nz-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-success);
   width: 12px;
   flex-shrink: 0;
@@ -126,13 +126,13 @@
 }
 
 .nz-method-pill {
-  font-size: 11px;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
 .nz-route-list-divider {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -158,7 +158,7 @@
 
 .nz-detail-choose-hint {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -168,7 +168,7 @@
 
 .nz-detail-empty {
   color: var(--nz-text-dim);
-  font-size: 13px;
+  font-size: 15px;
   margin: auto;
   text-align: center;
 }
@@ -211,7 +211,7 @@
 
 .nz-method-pool-label {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -272,7 +272,7 @@
 
 .nz-encounter-rate-label {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--nz-text-muted);
   letter-spacing: 0.04em;
 }
@@ -294,7 +294,7 @@
 .nz-item-chip {
   background: var(--nz-elevated);
   border: 1px solid var(--nz-border);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -346,7 +346,7 @@
 }
 
 .nz-encounter-stats-nick {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--nz-text);
   line-height: 1.1;
@@ -364,7 +364,7 @@
 }
 
 .nz-encounter-stats-nick-input {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   font-family: var(--nz-font);
   background: var(--nz-elevated);
@@ -375,14 +375,8 @@
   width: 100%;
 }
 
-.nz-shiny-star {
-  color: var(--nz-warning);
-  margin-left: 4px;
-  font-size: 14px;
-}
-
 .nz-encounter-stats-species {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--nz-text-muted);
   margin-top: -2px;
 }
@@ -395,7 +389,7 @@
 
 .nz-encounter-stats-meta {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-dim);
   letter-spacing: 0.04em;
 }
@@ -419,7 +413,7 @@
 
 .nz-encounter-stats-attr-label {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -427,13 +421,13 @@
 }
 
 .nz-encounter-stats-attr-value {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--nz-text);
 }
 
 .nz-encounter-stats-attr-desc {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--nz-text-muted);
   line-height: 1.4;
   margin-top: 2px;
@@ -467,7 +461,7 @@
 
 .nz-gift-choice-label {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -475,7 +469,7 @@
 }
 
 .nz-gift-choice-route {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--nz-text);
 }
@@ -516,7 +510,7 @@
 }
 
 .nz-gift-choice-name {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--nz-text);
   text-align: center;
@@ -524,7 +518,7 @@
 
 .nz-gift-dupe-label {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--nz-text-dim);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -534,11 +528,75 @@
 
 .nz-encounter-stats-section-label {
   font-family: var(--nz-font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--nz-text-dim);
   margin-bottom: -6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+/* IV score badge (inline in section label) */
+
+.nz-iv-score {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.nz-iv-score-high { color: #0f1624;             background: var(--nz-success);     }
+.nz-iv-score-mid  { color: var(--nz-success);  background: var(--nz-success-dim); }
+.nz-iv-score-low  { color: var(--nz-warning);  background: var(--nz-warning-dim); }
+.nz-iv-score-poor { color: var(--nz-danger);   background: var(--nz-danger-dim);  }
+
+/* Nature quality badge */
+
+.nz-encounter-stats-attr-value-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nz-nature-quality {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.nz-nature-quality-good { color: var(--nz-success); background: var(--nz-success-dim); }
+.nz-nature-quality-bad  { color: var(--nz-danger);  background: var(--nz-danger-dim);  }
+
+/* Top percentile callout */
+
+.nz-encounter-top-callout {
+  background: var(--nz-success-dim);
+  border: 1px solid var(--nz-success);
+  color: var(--nz-success);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: center;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+
+.nz-encounter-bad-callout {
+  background: var(--nz-danger-dim);
+  border: 1px solid var(--nz-danger);
+  color: var(--nz-danger);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: center;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}

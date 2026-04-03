@@ -70,12 +70,12 @@ preact.h("div",{"class":"nz-route-pool"},
 pool?
 pool.map(function(e){return toID(e.species)===toID(pokemon.species)?
 preact.h("div",{key:e.species,"class":"nz-route-caught-aura"},
-preact.h(NzSprite,{species:pokemon.species,shiny:pokemon.shiny,size:80})
+preact.h(NzSprite,{species:pokemon.species,size:80})
 ):
 preact.h("img",{key:e.species,src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species,style:"opacity:0.25"});}
 ):
 preact.h("div",{"class":"nz-route-caught-aura"},
-preact.h(NzSprite,{species:pokemon.species,shiny:pokemon.shiny,size:80})
+preact.h(NzSprite,{species:pokemon.species,size:80})
 )
 
 ),

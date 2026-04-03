@@ -214,13 +214,11 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 						<img
 							src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(selectedPokemon.species)}.png`}
 							alt={selectedPokemon.species}
-							class={selectedPokemon.shiny ? 'shiny' : ''}
 						/>
 					</div>
 					<div class="nz-tb-detail-info">
 						<div class="nz-card-nickname">
 							{selectedPokemon.nickname}
-							{selectedPokemon.shiny && <span style="color:var(--nz-warning);margin-left:4px;">★</span>}
 						</div>
 						{selectedPokemon.nickname !== selectedPokemon.species &&
 							<div class="nz-card-species">{selectedPokemon.species}</div>}

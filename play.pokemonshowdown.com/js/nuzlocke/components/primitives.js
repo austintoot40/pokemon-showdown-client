@@ -58,14 +58,14 @@ filter(Boolean).join(' ');
 return preact.h("button",{"class":cls,onClick:onClick,disabled:disabled,title:title},children);
 }
 
-function NzSprite(_ref5){var species=_ref5.species,shiny=_ref5.shiny,_ref5$size=_ref5.size,size=_ref5$size===void 0?60:_ref5$size;
+function NzSprite(_ref5){var species=_ref5.species,_ref5$size=_ref5.size,size=_ref5$size===void 0?60:_ref5$size;
 var id=toID(species);
 var src="https://play.pokemonshowdown.com/sprites/gen5/"+id+".png";
 return preact.h("img",{
 "class":"nz-card-sprite",
 src:src,
 alt:species,
-style:"width:"+size+"px;height:"+size+"px;"+(shiny?'filter:hue-rotate(30deg) saturate(1.4)':'')}
+style:"width:"+size+"px;height:"+size+"px;"}
 );
 }
 //# sourceMappingURL=primitives.js.map
