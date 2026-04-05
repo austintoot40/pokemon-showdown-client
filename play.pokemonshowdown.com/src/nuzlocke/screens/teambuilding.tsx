@@ -8,7 +8,8 @@ import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges, NzMoveSelect, NzItemSelect } from "../components/primitives";
-import { NzStatBars, NzIvBars, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
+import { NzStatPair, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
+import { calcIvScore, calcNatureQuality, calcCombinedPercentile } from "./encounters";
 import type { NuzlockePanelPayload } from "../types";
 
 interface TeambuildingState {
@@ -137,30 +138,22 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			// Opponent read-only detail
 			const opp = battle.team[selectedOpponentIndex];
 			detailContent = <>
-				<div class="nz-tb-detail-header">
-					<div class="nz-tb-detail-sprite">
-						<img
-							src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(opp.species)}.png`}
-							alt={opp.species}
-						/>
+				<div class="nz-tb-info-stats">
+					<div class="nz-tb-detail-header">
+						<div class="nz-tb-detail-sprite">
+							<img
+								src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(opp.species)}.png`}
+								alt={opp.species}
+							/>
+						</div>
+						<div class="nz-tb-detail-info">
+							<div class="nz-card-nickname">{opp.species}</div>
+							<div class="nz-card-level">Lv. {opp.level}</div>
+							<div class="nz-card-types"><NzTypeBadges species={opp.species} generation={this.props.game.generation} /></div>
+							<div class="nz-card-nature">{opp.ability}</div>
+						</div>
 					</div>
-					<div class="nz-tb-detail-info">
-						<div class="nz-card-nickname">{opp.species}</div>
-						<div class="nz-card-level">Lv. {opp.level}</div>
-						<div class="nz-card-types"><NzTypeBadges species={opp.species} /></div>
-						<div class="nz-card-nature">{opp.ability}</div>
-					</div>
-				</div>
-
-				<div class="nz-stat-split">
-					<div>
-						<div class="nz-label" style="margin-bottom:4px;">Base</div>
-						<NzStatBars species={opp.species} />
-					</div>
-					<div>
-						<div class="nz-label" style="margin-bottom:4px;">IVs</div>
-						<div class="nz-stat-no-ivs">Enemy Pokémon don't have IVs.</div>
-					</div>
+					<NzStatPair species={opp.species} generation={this.props.game.generation} />
 				</div>
 
 				<div class="nz-moves-grid">
@@ -208,46 +201,67 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			const evos = game.availableEvolutions[selectedPokemon.uid] ?? [];
 			const error = isInParty ? errors[selectedPokemon.uid] : undefined;
 
-			detailContent = <>
-				<div class="nz-tb-detail-header">
-					<div class="nz-tb-detail-sprite">
-						<img
-							src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(selectedPokemon.species)}.png`}
-							alt={selectedPokemon.species}
-						/>
-					</div>
-					<div class="nz-tb-detail-info">
-						<div class="nz-card-nickname">
-							{selectedPokemon.nickname}
-						</div>
-						{selectedPokemon.nickname !== selectedPokemon.species &&
-							<div class="nz-card-species">{selectedPokemon.species}</div>}
-						<div class="nz-card-level">Lv. {segment.levelCap}</div>
-						<div class="nz-card-types"><NzTypeBadges species={selectedPokemon.species} /></div>
-						<div class="nz-card-nature">{selectedPokemon.nature}</div>
-						{(() => {
-							const nat = BattleNatures[selectedPokemon.nature as keyof typeof BattleNatures] ?? {} as any;
-							return nat.plus && nat.minus
-								? <div class="nz-card-subdesc">+{nat.plus.toUpperCase()} −{nat.minus.toUpperCase()}</div>
-								: <div class="nz-card-subdesc">Neutral</div>;
-						})()}
-						<div class="nz-card-nature" style="margin-top:4px">{selectedPokemon.ability}</div>
-						{(() => {
-							const desc = Dex.forGen(this.props.game.generation).abilities.get(selectedPokemon.ability).shortDesc;
-							return desc ? <div class="nz-card-subdesc">{desc}</div> : null;
-						})()}
-					</div>
-				</div>
+			const sp = Dex.forGen(this.props.game.generation).species.get(selectedPokemon.species);
+			const nat = BattleNatures[selectedPokemon.nature as keyof typeof BattleNatures] ?? {} as any;
+			const natureQuality = sp?.exists ? calcNatureQuality(nat, sp.baseStats) : 'neutral' as const;
+			const ivScore = sp?.exists && selectedPokemon.ivs ? calcIvScore(selectedPokemon.ivs, sp.baseStats) : 0;
+			const ivPct = Math.round(ivScore * 100);
+			const ivTier = ivPct >= 62 ? 'high' : ivPct >= 50 ? 'mid' : ivPct >= 38 ? 'low' : 'poor';
+			const ivLabel = ivTier === 'high' ? 'Great' : ivTier === 'mid' ? 'Good' : ivTier === 'low' ? 'Fair' : 'Poor';
 
-				<div class="nz-stat-split">
-					<div>
-						<div class="nz-label" style="margin-bottom:4px;">Base</div>
-						<NzStatBars species={selectedPokemon.species} nature={selectedPokemon.nature} />
+			const combinedPct = sp?.exists ? calcCombinedPercentile(ivScore, natureQuality, sp.baseStats) : null;
+			const topPercentile = combinedPct !== null && combinedPct <= 0.05 ? combinedPct : null;
+			const worsePercentile = combinedPct !== null && combinedPct >= 0.95 ? combinedPct : null;
+			const formatTopPct = (p: number): string => {
+				const pct = p * 100;
+				return pct < 1 ? `${pct.toFixed(1)}%` : `${Math.round(pct)}%`;
+			};
+
+			detailContent = <>
+				<div class="nz-tb-info-stats">
+					<div class="nz-tb-left-col">
+						<div class="nz-tb-detail-header">
+							<div class="nz-tb-detail-sprite">
+								<img
+									src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(selectedPokemon.species)}.png`}
+									alt={selectedPokemon.species}
+								/>
+							</div>
+							<div class="nz-tb-detail-info">
+								<div class="nz-card-nickname">
+									<span>{selectedPokemon.nickname}</span>
+									{topPercentile && <span class="nz-tb-percentile-badge nz-tb-percentile-top">Top {formatTopPct(topPercentile)}</span>}
+									{worsePercentile && <span class="nz-tb-percentile-badge nz-tb-percentile-worse">Bottom {formatTopPct(worsePercentile)}</span>}
+								</div>
+								{selectedPokemon.nickname !== selectedPokemon.species &&
+									<div class="nz-card-species">{selectedPokemon.species}</div>}
+								<div class="nz-card-level">Lv. {segment.levelCap}</div>
+								<div class="nz-card-types"><NzTypeBadges species={selectedPokemon.species} generation={this.props.game.generation} /></div>
+							</div>
+						</div>
+						<div class="nz-tb-nature-ability">
+							<div class="nz-tb-nature-col">
+								<div class="nz-card-nature" style="display:flex;align-items:center;gap:6px">
+									<span>{selectedPokemon.nature}</span>
+									{natureQuality !== 'neutral' &&
+										<span class={`nz-nature-quality nz-nature-quality-${natureQuality}`}>{natureQuality}</span>
+									}
+								</div>
+								{nat.plus && nat.minus
+									? <div class="nz-card-subdesc">+{nat.plus.toUpperCase()} −{nat.minus.toUpperCase()}</div>
+									: <div class="nz-card-subdesc">Neutral</div>
+								}
+							</div>
+							<div class="nz-tb-ability-col">
+								<div class="nz-card-nature">{selectedPokemon.ability}</div>
+								{(() => {
+									const desc = Dex.forGen(this.props.game.generation).abilities.get(selectedPokemon.ability).shortDesc;
+									return desc ? <div class="nz-card-subdesc">{desc}</div> : null;
+								})()}
+							</div>
+						</div>
 					</div>
-					<div>
-						<div class="nz-label" style="margin-bottom:4px;">IVs</div>
-						<NzIvBars ivs={selectedPokemon.ivs} />
-					</div>
+					<NzStatPair species={selectedPokemon.species} nature={selectedPokemon.nature} generation={this.props.game.generation} ivs={selectedPokemon.ivs} ivsExtra={selectedPokemon.ivs && ivLabel !== 'Fair' ? <span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span> : undefined} />
 				</div>
 
 				{error && <div class="nz-card-error" style="margin-bottom:8px;">⚠ {error}</div>}
@@ -356,8 +370,8 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				{/* Col 2: party + opponent + box (shared grid — rows size together) */}
 				<div class="nz-tb-columns">
 					<div class="nz-section-title">Party ({partyPokemon.length}/6)<span class="nz-tb-hint">double-click to move to box</span></div>
-					<div class="nz-section-title nz-section-title-danger">vs. {battle?.trainer ?? 'Opponent'}</div>
 					<div class="nz-section-title">Box ({boxOnly.length})<span class="nz-tb-hint">double-click to add to party</span></div>
+					<div class="nz-section-title nz-section-title-danger">vs. {battle?.trainer ?? 'Opponent'}</div>
 					{([0, 1, 2, 3, 4, 5] as const).map(i => {
 						const pok = partyPokemon[i];
 						const opp = battle?.team[i];
@@ -367,6 +381,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 								? <NzPartySlot
 									pokemon={pok}
 									levelCap={segment.levelCap}
+									generation={this.props.game.generation}
 									selected={selectedUid === pok.uid}
 									isFirst={i === 0}
 									isLast={i === partyPokemon.length - 1}
@@ -379,14 +394,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 								/>
 								: <div class="nz-party-slot nz-party-slot-empty">— empty —</div>
 							}
-							{opp
-								? <NzOpponentSlot
-									pokemon={opp}
-									selected={selectedOpponentIndex === i}
-									onSelect={() => this.selectOpponent(i)}
-								/>
-								: <div class="nz-party-slot nz-party-slot-empty" />
-							}
 							<div class="nz-box-row-cell">
 								{[0, 1, 2].map(j => chunk[j]
 									? <div
@@ -404,13 +411,21 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 									: null
 								)}
 							</div>
+							{opp
+								? <NzOpponentSlot
+									pokemon={opp}
+									generation={this.props.game.generation}
+									selected={selectedOpponentIndex === i}
+									onSelect={() => this.selectOpponent(i)}
+								/>
+								: <div class="nz-party-slot nz-party-slot-empty" />
+							}
 						</preact.Fragment>;
 					})}
 					{boxOnly.length > 18 && Array.from({ length: Math.ceil((boxOnly.length - 18) / 3) }, (_, i) => {
 						const chunk = boxOnly.slice(18 + i * 3, 21 + i * 3);
 						return <preact.Fragment key={`overflow-${i}`}>
 							<div />
-							<div />
 							<div class="nz-box-row-cell">
 								{[0, 1, 2].map(j => chunk[j]
 									? <div
@@ -428,6 +443,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 									: null
 								)}
 							</div>
+							<div />
 						</preact.Fragment>;
 					})}
 				</div>

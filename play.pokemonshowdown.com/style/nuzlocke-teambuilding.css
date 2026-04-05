@@ -69,6 +69,37 @@
   justify-content: center;
 }
 
+
+/* Pokemon info (1/3) beside side-by-side charts (2/3) */
+.nz-tb-info-stats {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nz-border-subtle);
+  align-items: start;
+}
+
+.nz-tb-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nz-tb-info-stats .nz-tb-detail-header {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.nz-tb-info-stats .nz-stat-view {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
 .nz-tb-detail-header {
   display: flex;
   flex-direction: row;
@@ -102,6 +133,27 @@
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-accent) 40%, transparent));
+}
+
+.nz-tb-nature-ability {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.nz-tb-nature-col {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nz-tb-ability-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .nz-tb-detail-actions {
@@ -694,10 +746,6 @@
   transition: width 0.3s ease;
 }
 
-.nz-stat-high { background: var(--nz-success); box-shadow: 0 0 4px rgba(68, 204, 136, 0.4); }
-.nz-stat-mid  { background: var(--nz-accent);  box-shadow: 0 0 4px rgba(74, 158, 255, 0.4); }
-.nz-stat-low  { background: var(--nz-warning); box-shadow: 0 0 4px rgba(255, 200, 68, 0.3); }
-.nz-stat-poor { background: var(--nz-danger);  box-shadow: 0 0 4px rgba(255, 68, 68, 0.3);  }
 
 .nz-stat-value {
   font-family: var(--nz-font-mono);
@@ -706,6 +754,122 @@
   color: var(--nz-text-muted);
   text-align: right;
 }
+
+/* =============================================
+   STAT VIEW TOGGLE + RADAR
+   ============================================= */
+
+/* Wrapper that holds either bars or radar */
+.nz-stat-view {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nz-border-subtle);
+}
+
+/* .nz-stat-bars inside .nz-stat-view inherits the outer border/spacing
+   from .nz-stat-view, so remove its own */
+.nz-stat-view .nz-stat-bars {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.nz-stat-view-toggle {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-bottom: 5px;
+  padding: 1px 7px;
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text-dim);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.nz-stat-view-toggle:hover {
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+}
+
+/* Flex row containing two radar columns */
+.nz-stat-radar-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.nz-stat-radar-col {
+  flex: 1;
+  min-width: 0;
+  max-width: 230px;
+}
+
+/* Radar SVG — fills its flex column */
+.nz-stat-radar {
+  display: block;
+  width: 100%;
+  margin: 0 0 4px;
+}
+
+/* Grid background rings */
+.nz-radar-grid {
+  fill: none;
+  stroke: var(--nz-border);
+  stroke-width: 0.75;
+}
+
+/* Axis spokes */
+.nz-radar-axis {
+  stroke: var(--nz-border);
+  stroke-width: 0.75;
+}
+
+/* Stat polygon — filled area */
+.nz-radar-fill {
+  fill: var(--nz-accent);
+  fill-opacity: 0.15;
+  transition: d 0.3s ease;
+}
+
+/* Stat polygon — filled area */
+.nz-radar-fill {
+  fill: var(--nz-accent);
+  fill-opacity: 0.15;
+  transition: d 0.3s ease;
+}
+
+/* Stat polygon — outline */
+.nz-radar-stroke {
+  fill: none;
+  stroke: var(--nz-accent);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: d 0.3s ease;
+}
+
+/* Vertex dots */
+.nz-radar-dot {
+  fill: var(--nz-accent);
+}
+
+/* Axis labels */
+.nz-radar-label {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  fill: var(--nz-text-dim);
+}
+
+/* Nature modifiers on radar labels use fill, not color */
+.nz-radar-label.nz-stat-nature-up  { fill: var(--nz-success) !important; }
+.nz-radar-label.nz-stat-nature-down { fill: var(--nz-danger)  !important; }
 
 /* =============================================
    MOVE INFO STRIP (below each move dropdown)
@@ -763,4 +927,35 @@
   font-style: italic;
   padding: 3px 2px 0;
   line-height: 1.4;
+}
+
+/* =============================================
+   PERCENTILE BADGES (next to pokemon name)
+   ============================================= */
+
+.nz-card-nickname {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.nz-tb-percentile-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.nz-tb-percentile-top {
+  background: var(--nz-success-dim);
+  color: var(--nz-success);
+  border: 1px solid var(--nz-success);
+}
+
+.nz-tb-percentile-worse {
+  background: var(--nz-danger-dim);
+  color: var(--nz-danger);
+  border: 1px solid var(--nz-danger);
 }

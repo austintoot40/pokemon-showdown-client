@@ -8,8 +8,9 @@ import preact from "../../../js/lib/preact";
 import { Dex, toID } from "../../battle-dex";
 import type { LegalMove } from "../types";
 
-export function NzTypeBadges({ species }: { species: string }) {
-	const sp = Dex.species.get(species);
+export function NzTypeBadges({ species, generation }: { species: string; generation?: number }) {
+	const dex = generation ? Dex.forGen(generation) : Dex;
+	const sp = dex.species.get(species);
 	return <>{sp.types.map(t =>
 		<span key={t} class={`nz-type nz-type-${t.toLowerCase()}`}>{t}</span>
 	)}</>;

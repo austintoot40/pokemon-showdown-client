@@ -5,20 +5,20 @@
  */
 
 import preact from "../../../js/lib/preact";
-import { Dex } from "../../battle-dex";
 import { NzSprite, NzTypeBadges } from "./primitives";
 import type { OwnedPokemon, DeadPokemon, TrainerPokemon } from "../types";
 
 export function NzPokemonCard({
 	pokemon,
 	levelCap,
+	generation,
 	actions,
 }: {
 	pokemon: OwnedPokemon;
 	levelCap?: number;
+	generation?: number;
 	actions?: preact.ComponentChildren;
 }) {
-	const sp = Dex.species.get(pokemon.species);
 	return <div class="nz-card">
 		<NzSprite species={pokemon.species} />
 		<div class="nz-card-nickname">
@@ -26,7 +26,7 @@ export function NzPokemonCard({
 		</div>
 		{pokemon.nickname !== pokemon.species && <div class="nz-card-species">{pokemon.species}</div>}
 		<div class="nz-card-level">Lv. {levelCap ?? pokemon.level}</div>
-		<div class="nz-card-types"><NzTypeBadges species={pokemon.species} /></div>
+		<div class="nz-card-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
 		<div class="nz-card-nature">{pokemon.nature} · {pokemon.ability}</div>
 		{actions && <div class="nz-card-actions">{actions}</div>}
 	</div>;
@@ -35,10 +35,12 @@ export function NzPokemonCard({
 export function NzBoxCard({
 	pokemon,
 	levelCap,
+	generation,
 	actions,
 }: {
 	pokemon: OwnedPokemon;
 	levelCap?: number;
+	generation?: number;
 	actions?: preact.ComponentChildren;
 }) {
 	return <div class="nz-card nz-card-compact">
@@ -46,7 +48,7 @@ export function NzBoxCard({
 		<div class="nz-card-nickname">{pokemon.nickname}</div>
 		{pokemon.nickname !== pokemon.species && <div class="nz-card-species">{pokemon.species}</div>}
 		<div class="nz-card-level">Lv. {levelCap ?? pokemon.level}</div>
-		<div class="nz-card-types"><NzTypeBadges species={pokemon.species} /></div>
+		<div class="nz-card-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
 		{actions && <div style="margin-top:6px;width:100%;">{actions}</div>}
 	</div>;
 }
@@ -67,12 +69,12 @@ export function NzGraveyardCard({
 	</div>;
 }
 
-export function NzOpponentCard({ pokemon }: { pokemon: TrainerPokemon }) {
+export function NzOpponentCard({ pokemon, generation }: { pokemon: TrainerPokemon; generation?: number }) {
 	return <div class="nz-card nz-card-opponent">
 		<NzSprite species={pokemon.species} size={56} />
 		<div class="nz-card-nickname">{pokemon.species}</div>
 		<div class="nz-card-level">Lv. {pokemon.level}</div>
-		<div class="nz-card-types"><NzTypeBadges species={pokemon.species} /></div>
+		<div class="nz-card-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
 		<div class="nz-card-opponent nz-card-ability">{pokemon.ability}</div>
 		{pokemon.item && <div class="nz-card-item" style="margin-top:2px;padding-top:0;border:none;">
 			<span class="nz-card-item-label">{pokemon.item}</span>

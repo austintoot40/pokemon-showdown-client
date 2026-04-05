@@ -43,7 +43,7 @@ export function SummaryScreen({ game }: { game: NuzlockePanelPayload }) {
 
 		{alive.length > 0 && <NzSection title={`Survivors (${alive.length})`}>
 			<div style="display:flex;flex-wrap:wrap;gap:10px;">
-				{alive.map(p => <NzBoxCard key={p.uid} pokemon={p} />)}
+				{alive.map(p => <NzBoxCard key={p.uid} pokemon={p} generation={game.generation} />)}
 			</div>
 		</NzSection>}
 

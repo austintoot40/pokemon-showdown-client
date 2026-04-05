@@ -19,6 +19,7 @@
 
 
 
+
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponentIndex:null};_this.
 
@@ -137,6 +138,7 @@ if(selectedOpponentIndex!==null&&battle!=null&&battle.team[selectedOpponentIndex
 
 var opp=battle.team[selectedOpponentIndex];
 detailContent=preact.h(preact.Fragment,null,
+preact.h("div",{"class":"nz-tb-info-stats"},
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
 preact.h("img",{
@@ -147,20 +149,11 @@ alt:opp.species}
 preact.h("div",{"class":"nz-tb-detail-info"},
 preact.h("div",{"class":"nz-card-nickname"},opp.species),
 preact.h("div",{"class":"nz-card-level"},"Lv. ",opp.level),
-preact.h("div",{"class":"nz-card-types"},preact.h(NzTypeBadges,{species:opp.species})),
+preact.h("div",{"class":"nz-card-types"},preact.h(NzTypeBadges,{species:opp.species,generation:this.props.game.generation})),
 preact.h("div",{"class":"nz-card-nature"},opp.ability)
 )
 ),
-
-preact.h("div",{"class":"nz-stat-split"},
-preact.h("div",null,
-preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"Base"),
-preact.h(NzStatBars,{species:opp.species})
-),
-preact.h("div",null,
-preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"IVs"),
-preact.h("div",{"class":"nz-stat-no-ivs"},"Enemy Pok\xE9mon don't have IVs.")
-)
+preact.h(NzStatPair,{species:opp.species,generation:this.props.game.generation})
 ),
 
 preact.h("div",{"class":"nz-moves-grid"},
@@ -202,13 +195,31 @@ item.exists&&item.shortDesc&&preact.h("div",{"class":"nz-item-desc"},item.shortD
 detailContent=preact.h("div",{"class":"nz-tb-detail-empty"},
 preact.h("p",{"class":"nz-notice"},"Select a Pok\xE9mon to edit")
 );
-}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut;
+}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut,_BattleNatures;
 var legalMoves=(_game$legalMoves$sele=game.legalMoves[selectedPokemon.uid])!=null?_game$legalMoves$sele:[];
 var selectedMoves=(_moves$selectedPokemo=moves[selectedPokemon.uid])!=null?_moves$selectedPokemo:['','','',''];
 var evos=(_game$availableEvolut=game.availableEvolutions[selectedPokemon.uid])!=null?_game$availableEvolut:[];
 var error=isInParty?errors[selectedPokemon.uid]:undefined;
 
+var sp=Dex.forGen(this.props.game.generation).species.get(selectedPokemon.species);
+var nat=(_BattleNatures=BattleNatures[selectedPokemon.nature])!=null?_BattleNatures:{};
+var natureQuality=sp!=null&&sp.exists?calcNatureQuality(nat,sp.baseStats):'neutral';
+var ivScore=sp!=null&&sp.exists&&selectedPokemon.ivs?calcIvScore(selectedPokemon.ivs,sp.baseStats):0;
+var ivPct=Math.round(ivScore*100);
+var ivTier=ivPct>=62?'high':ivPct>=50?'mid':ivPct>=38?'low':'poor';
+var ivLabel=ivTier==='high'?'Great':ivTier==='mid'?'Good':ivTier==='low'?'Fair':'Poor';
+
+var combinedPct=sp!=null&&sp.exists?calcCombinedPercentile(ivScore,natureQuality,sp.baseStats):null;
+var topPercentile=combinedPct!==null&&combinedPct<=0.05?combinedPct:null;
+var worsePercentile=combinedPct!==null&&combinedPct>=0.95?combinedPct:null;
+var formatTopPct=function(p){
+var pct=p*100;
+return pct<1?pct.toFixed(1)+"%":Math.round(pct)+"%";
+};
+
 detailContent=preact.h(preact.Fragment,null,
+preact.h("div",{"class":"nz-tb-info-stats"},
+preact.h("div",{"class":"nz-tb-left-col"},
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
 preact.h("img",{
@@ -218,36 +229,39 @@ alt:selectedPokemon.species}
 ),
 preact.h("div",{"class":"nz-tb-detail-info"},
 preact.h("div",{"class":"nz-card-nickname"},
-selectedPokemon.nickname
+preact.h("span",null,selectedPokemon.nickname),
+topPercentile&&preact.h("span",{"class":"nz-tb-percentile-badge nz-tb-percentile-top"},"Top ",formatTopPct(topPercentile)),
+worsePercentile&&preact.h("span",{"class":"nz-tb-percentile-badge nz-tb-percentile-worse"},"Bottom ",formatTopPct(worsePercentile))
 ),
 selectedPokemon.nickname!==selectedPokemon.species&&
 preact.h("div",{"class":"nz-card-species"},selectedPokemon.species),
 preact.h("div",{"class":"nz-card-level"},"Lv. ",segment.levelCap),
-preact.h("div",{"class":"nz-card-types"},preact.h(NzTypeBadges,{species:selectedPokemon.species})),
-preact.h("div",{"class":"nz-card-nature"},selectedPokemon.nature),
-function(_BattleNatures){
-var nat=(_BattleNatures=BattleNatures[selectedPokemon.nature])!=null?_BattleNatures:{};
-return nat.plus&&nat.minus?
+preact.h("div",{"class":"nz-card-types"},preact.h(NzTypeBadges,{species:selectedPokemon.species,generation:this.props.game.generation}))
+)
+),
+preact.h("div",{"class":"nz-tb-nature-ability"},
+preact.h("div",{"class":"nz-tb-nature-col"},
+preact.h("div",{"class":"nz-card-nature",style:"display:flex;align-items:center;gap:6px"},
+preact.h("span",null,selectedPokemon.nature),
+natureQuality!=='neutral'&&
+preact.h("span",{"class":"nz-nature-quality nz-nature-quality-"+natureQuality},natureQuality)
+
+),
+nat.plus&&nat.minus?
 preact.h("div",{"class":"nz-card-subdesc"},"+",nat.plus.toUpperCase()," \u2212",nat.minus.toUpperCase()):
-preact.h("div",{"class":"nz-card-subdesc"},"Neutral");
-}(),
-preact.h("div",{"class":"nz-card-nature",style:"margin-top:4px"},selectedPokemon.ability),
+preact.h("div",{"class":"nz-card-subdesc"},"Neutral")
+
+),
+preact.h("div",{"class":"nz-tb-ability-col"},
+preact.h("div",{"class":"nz-card-nature"},selectedPokemon.ability),
 function(){
 var desc=Dex.forGen(_this2.props.game.generation).abilities.get(selectedPokemon.ability).shortDesc;
 return desc?preact.h("div",{"class":"nz-card-subdesc"},desc):null;
 }()
 )
-),
-
-preact.h("div",{"class":"nz-stat-split"},
-preact.h("div",null,
-preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"Base"),
-preact.h(NzStatBars,{species:selectedPokemon.species,nature:selectedPokemon.nature})
-),
-preact.h("div",null,
-preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"IVs"),
-preact.h(NzIvBars,{ivs:selectedPokemon.ivs})
 )
+),
+preact.h(NzStatPair,{species:selectedPokemon.species,nature:selectedPokemon.nature,generation:this.props.game.generation,ivs:selectedPokemon.ivs,ivsExtra:selectedPokemon.ivs&&ivLabel!=='Fair'?preact.h("span",{"class":"nz-iv-score nz-iv-score-"+ivTier},ivLabel):undefined})
 ),
 
 error&&preact.h("div",{"class":"nz-card-error",style:"margin-bottom:8px;"},"\u26A0 ",error),
@@ -356,8 +370,8 @@ detailContent
 
 preact.h("div",{"class":"nz-tb-columns"},
 preact.h("div",{"class":"nz-section-title"},"Party (",partyPokemon.length,"/6)",preact.h("span",{"class":"nz-tb-hint"},"double-click to move to box")),
-preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer2=battle==null?void 0:battle.trainer)!=null?_battle$trainer2:'Opponent'),
 preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
+preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer2=battle==null?void 0:battle.trainer)!=null?_battle$trainer2:'Opponent'),
 [0,1,2,3,4,5].map(function(i){var _game$availableEvolut2;
 var pok=partyPokemon[i];
 var opp=battle==null?void 0:battle.team[i];
@@ -367,6 +381,7 @@ pok?
 preact.h(NzPartySlot,{
 pokemon:pok,
 levelCap:segment.levelCap,
+generation:_this2.props.game.generation,
 selected:selectedUid===pok.uid,
 isFirst:i===0,
 isLast:i===partyPokemon.length-1,
@@ -378,14 +393,6 @@ hasError:!!errors[pok.uid],
 canEvolve:!!((_game$availableEvolut2=game.availableEvolutions[pok.uid])!=null&&_game$availableEvolut2.length)}
 ):
 preact.h("div",{"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty \u2014"),
-
-opp?
-preact.h(NzOpponentSlot,{
-pokemon:opp,
-selected:selectedOpponentIndex===i,
-onSelect:function(){return _this2.selectOpponent(i);}}
-):
-preact.h("div",{"class":"nz-party-slot nz-party-slot-empty"}),
 
 preact.h("div",{"class":"nz-box-row-cell"},
 [0,1,2].map(function(j){var _game$availableEvolut3;return chunk[j]?
@@ -403,13 +410,21 @@ preact.h("div",{"class":"nz-tb-box-card-name"},chunk[j].nickname)
 ):
 null;}
 )
-)
+),
+opp?
+preact.h(NzOpponentSlot,{
+pokemon:opp,
+generation:_this2.props.game.generation,
+selected:selectedOpponentIndex===i,
+onSelect:function(){return _this2.selectOpponent(i);}}
+):
+preact.h("div",{"class":"nz-party-slot nz-party-slot-empty"})
+
 );
 }),
 boxOnly.length>18&&Array.from({length:Math.ceil((boxOnly.length-18)/3)},function(_,i){
 var chunk=boxOnly.slice(18+i*3,21+i*3);
 return preact.h(preact.Fragment,{key:"overflow-"+i},
-preact.h("div",null),
 preact.h("div",null),
 preact.h("div",{"class":"nz-box-row-cell"},
 [0,1,2].map(function(j){var _game$availableEvolut4;return chunk[j]?
@@ -427,7 +442,8 @@ preact.h("div",{"class":"nz-tb-box-card-name"},chunk[j].nickname)
 ):
 null;}
 )
-)
+),
+preact.h("div",null)
 );
 })
 )

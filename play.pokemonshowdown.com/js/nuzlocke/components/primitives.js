@@ -8,8 +8,9 @@
 
 
 
-function NzTypeBadges(_ref){var species=_ref.species;
-var sp=Dex.species.get(species);
+function NzTypeBadges(_ref){var species=_ref.species,generation=_ref.generation;
+var dex=generation?Dex.forGen(generation):Dex;
+var sp=dex.species.get(species);
 return preact.h(preact.Fragment,null,sp.types.map(function(t){return(
 preact.h("span",{key:t,"class":"nz-type nz-type-"+t.toLowerCase()},t));}
 ));

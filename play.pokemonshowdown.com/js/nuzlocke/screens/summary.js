@@ -43,7 +43,7 @@ preact.h(NzProgress,{segments:segmentList,currentIndex:game.currentSegmentIndex}
 
 alive.length>0&&preact.h(NzSection,{title:"Survivors ("+alive.length+")"},
 preact.h("div",{style:"display:flex;flex-wrap:wrap;gap:10px;"},
-alive.map(function(p){return preact.h(NzBoxCard,{key:p.uid,pokemon:p});})
+alive.map(function(p){return preact.h(NzBoxCard,{key:p.uid,pokemon:p,generation:game.generation});})
 )
 ),
 
