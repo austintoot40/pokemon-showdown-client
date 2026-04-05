@@ -963,7 +963,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                     <div class="nz-section-title" style="margin-bottom:0;">Scenarios</div>
                                 </div>
                                 <div class="nz-scenario-grid">
-                                    {serverScenarios.map(scenario => {
+                                    {[...serverScenarios].sort((a, b) => a.generation - b.generation).map(scenario => {
                                         const selected = this.selectedScenario === scenario.id;
                                         return <div
                                             key={scenario.id}
