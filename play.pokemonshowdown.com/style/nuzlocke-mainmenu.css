@@ -726,3 +726,221 @@
 .nz-team-slot-loading {
   pointer-events: none;
 }
+
+/* =============================================
+   RANDOMIZER BUTTON
+   ============================================= */
+
+.nz-btn-randomizer {
+  background: color-mix(in srgb, var(--nz-warning) 15%, transparent);
+  border-color: var(--nz-warning);
+  color: var(--nz-warning);
+}
+
+.nz-btn-randomizer:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--nz-warning) 25%, transparent);
+}
+
+/* =============================================
+   RANDOMIZER MODAL
+   ============================================= */
+
+.nz-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nz-modal {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  border-top: 2px solid var(--nz-warning);
+  clip-path: var(--nz-clip);
+  padding: 24px 28px;
+  min-width: 340px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: var(--nz-shadow);
+}
+
+.nz-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-text);
+  margin-bottom: 20px;
+}
+
+.nz-modal-fieldset {
+  border: 1px solid var(--nz-border-subtle);
+  padding: 10px 14px 14px;
+  margin: 0 0 14px;
+}
+
+.nz-modal-legend {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nz-text-muted);
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nz-modal-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.nz-modal-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--nz-text);
+  cursor: pointer;
+}
+
+.nz-modal-radio input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--nz-border);
+  background: var(--nz-elevated);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+
+.nz-modal-radio input[type="radio"]::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--nz-accent);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.nz-modal-radio input[type="radio"]:checked {
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 15%, var(--nz-elevated));
+}
+
+.nz-modal-radio input[type="radio"]:checked::after {
+  opacity: 1;
+}
+
+.nz-modal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--nz-text);
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.nz-modal-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.nz-modal-toggle-track {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.nz-modal-toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--nz-text-dim);
+  top: 2px;
+  left: 2px;
+  transition: left 0.15s, background 0.15s;
+}
+
+.nz-modal-toggle input:checked + .nz-modal-toggle-track {
+  background: color-mix(in srgb, var(--nz-warning) 30%, transparent);
+  border-color: var(--nz-warning);
+}
+
+.nz-modal-toggle input:checked + .nz-modal-toggle-track::after {
+  left: 18px;
+  background: var(--nz-warning);
+}
+
+.nz-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* =============================================
+   CSS-ONLY TOOLTIPS
+   ============================================= */
+
+.nz-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--nz-text-muted);
+  cursor: help;
+  flex-shrink: 0;
+}
+
+.nz-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 6px 10px;
+  width: 220px;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+  clip-path: var(--nz-clip-sm);
+}
+
+.nz-tooltip:hover::after {
+  opacity: 1;
+}

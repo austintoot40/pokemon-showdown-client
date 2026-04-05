@@ -67,6 +67,7 @@ interface NuzlockeMenuPayload {
     } | null;
     generation: number;
     scenarios: NuzlockeScenarioCard[];
+    randomizerPreview: { scenarioId: string; starters: string[] } | null;
 }
 
 function getLocalPastRuns(): NuzlockePastRun[] {
@@ -83,6 +84,26 @@ function getLocalAiPreference(): string {
 
 function setLocalAiPreference(difficulty: string) {
     localStorage.setItem('nuzlocke_ai_preference', difficulty);
+}
+
+interface RandomizerSettings {
+    mode: 'shuffle' | 'fully-random';
+    bstVariance: 'low' | 'medium' | 'high';
+    randomizeItems: boolean;
+}
+
+const DEFAULT_RANDOMIZER: RandomizerSettings = { mode: 'shuffle', bstVariance: 'medium', randomizeItems: false };
+
+function getLocalRandomizerSettings(): RandomizerSettings {
+    try {
+        return { ...DEFAULT_RANDOMIZER, ...JSON.parse(localStorage.getItem('nuzlocke_randomizer_settings') ?? '{}') };
+    } catch {
+        return { ...DEFAULT_RANDOMIZER };
+    }
+}
+
+function setLocalRandomizerSettings(s: RandomizerSettings) {
+    localStorage.setItem('nuzlocke_randomizer_settings', JSON.stringify(s));
 }
 
 const AI_DIFFICULTIES = [
@@ -624,6 +645,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     selectedStarter: number | null = null;
     selectedDifficulty: string = getLocalAiPreference();
     confirmAbandon: boolean = false;
+    showRandomizerModal: boolean = false;
+    randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
 
     clickAbandon = () => {
         this.confirmAbandon = true;
@@ -639,7 +662,50 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         this.forceUpdate();
     };
     clickStartRun = () => {
-        PS.send(`/nuzlocke start ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedStarter}`);
+        const status = this.props.room.nuzlockeMenuPayload;
+        const randomizerPreview = status?.randomizerPreview ?? null;
+        const hasActivePreview = !!(randomizerPreview && randomizerPreview.scenarioId === this.selectedScenario);
+        if (hasActivePreview) {
+            PS.send(`/nuzlocke randomizestart ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedStarter}`);
+        } else {
+            PS.send(`/nuzlocke start ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedStarter}`);
+        }
+    };
+    clickCancelRandomizer = () => {
+        this.selectedStarter = null;
+        PS.send('/nuzlocke randomizercancel');
+        this.forceUpdate();
+    };
+    openRandomizerModal = () => {
+        this.showRandomizerModal = true;
+        this.forceUpdate();
+    };
+    closeRandomizerModal = () => {
+        this.showRandomizerModal = false;
+        this.forceUpdate();
+    };
+    setRandomizerMode = (mode: 'shuffle' | 'fully-random') => {
+        this.randomizerSettings = { ...this.randomizerSettings, mode };
+        setLocalRandomizerSettings(this.randomizerSettings);
+        this.forceUpdate();
+    };
+    setRandomizerBst = (bstVariance: 'low' | 'medium' | 'high') => {
+        this.randomizerSettings = { ...this.randomizerSettings, bstVariance };
+        setLocalRandomizerSettings(this.randomizerSettings);
+        this.forceUpdate();
+    };
+    setRandomizerItems = (randomizeItems: boolean) => {
+        this.randomizerSettings = { ...this.randomizerSettings, randomizeItems };
+        setLocalRandomizerSettings(this.randomizerSettings);
+        this.forceUpdate();
+    };
+    clickRandomize = () => {
+        if (!this.selectedScenario) return;
+        this.selectedStarter = null;
+        const { mode, bstVariance, randomizeItems } = this.randomizerSettings;
+        PS.send(`/nuzlocke randomizerpreview ${this.selectedScenario} ${mode} ${bstVariance} ${randomizeItems}`);
+        this.showRandomizerModal = false;
+        this.forceUpdate();
     };
     selectScenario = (id: string) => {
         this.selectedScenario = id;
@@ -666,6 +732,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         const selectedScenarioData = this.selectedScenario
             ? serverScenarios.find(s => s.id === this.selectedScenario) ?? null
             : null;
+        const randomizerPreview = status?.randomizerPreview ?? null;
+        const hasActivePreview = !!(randomizerPreview && randomizerPreview.scenarioId === this.selectedScenario);
+        const displayedStarters: string[] = hasActivePreview
+            ? randomizerPreview!.starters
+            : (selectedScenarioData?.starters ?? []);
         const scenarioRuns = selectedScenarioData
             ? pastRuns.filter(r => r.scenarioId === selectedScenarioData.id)
             : [];
@@ -707,9 +778,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                     <div class="nz-panel-section nz-panel-section-config">
                                                         {selectedScenarioData.starters.length > 0 && (
                                                             <>
-                                                                <div class="nz-label" style="margin-bottom:6px;">Starter</div>
+                                                                <div class="nz-label" style="margin-bottom:6px;">
+                                                                    Starter
+                                                                    {hasActivePreview && (
+                                                                        <span class="nz-badge nz-badge-warning" style="margin-left:6px;padding-top:0;padding-bottom:0;line-height:1;vertical-align:middle;">Randomized</span>
+                                                                    )}
+                                                                </div>
                                                                 <div class="nz-starter-picker">
-                                                                    {selectedScenarioData.starters.map((species, i) => {
+                                                                    {displayedStarters.map((species, i) => {
                                                                         const types = Dex.species.get(species)?.types ?? [];
                                                                         return <div
                                                                             key={i}
@@ -745,8 +821,19 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                             <button
                                                                 class="nz-btn nz-btn-primary"
                                                                 onClick={this.clickStartRun}
-                                                                disabled={!!(selectedScenarioData.starters.length && this.selectedStarter === null)}
+                                                                disabled={!!(displayedStarters.length && this.selectedStarter === null)}
                                                             >Start Run</button>
+                                                            {hasActivePreview ? (
+                                                                <button
+                                                                    class="nz-btn nz-btn-secondary"
+                                                                    onClick={this.clickCancelRandomizer}
+                                                                >Normal Run</button>
+                                                            ) : (
+                                                                <button
+                                                                    class="nz-btn nz-btn-randomizer"
+                                                                    onClick={this.openRandomizerModal}
+                                                                >Randomize</button>
+                                                            )}
                                                         </div>
                                                     </div>
 
@@ -942,8 +1029,134 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     </div>
                 </div>
             </div>
+            {this.showRandomizerModal && (
+                <RandomizerModal
+                    settings={this.randomizerSettings}
+                    onClose={this.closeRandomizerModal}
+                    onConfirm={this.clickRandomize}
+                    onSetMode={this.setRandomizerMode}
+                    onSetBst={this.setRandomizerBst}
+                    onSetItems={this.setRandomizerItems}
+                />
+            )}
         </PSPanelWrapper>;
     }
+}
+
+function RandomizerModal(props: {
+    settings: RandomizerSettings;
+    onClose: () => void;
+    onConfirm: () => void;
+    onSetMode: (mode: 'shuffle' | 'fully-random') => void;
+    onSetBst: (bst: 'low' | 'medium' | 'high') => void;
+    onSetItems: (val: boolean) => void;
+}) {
+    const { settings, onClose, onConfirm, onSetMode, onSetBst, onSetItems } = props;
+    return (
+        <div class="nz-modal-overlay" onClick={onClose}>
+            <div class="nz-modal" onClick={(e: Event) => e.stopPropagation()}>
+                <div class="nz-modal-title">Randomizer Settings</div>
+
+                <fieldset class="nz-modal-fieldset">
+                    <legend class="nz-modal-legend">
+                        Mode
+                        <span
+                            class="nz-tooltip"
+                            data-tooltip="Shuffle swaps each species for a unique replacement. Fully Random picks independently per route."
+                        >?</span>
+                    </legend>
+                    <div class="nz-modal-radio-group">
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-mode"
+                                value="shuffle"
+                                checked={settings.mode === 'shuffle'}
+                                onChange={() => onSetMode('shuffle')}
+                            />
+                            Shuffle
+                        </label>
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-mode"
+                                value="fully-random"
+                                checked={settings.mode === 'fully-random'}
+                                onChange={() => onSetMode('fully-random')}
+                            />
+                            Fully Random
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="nz-modal-fieldset">
+                    <legend class="nz-modal-legend">
+                        BST Variance
+                        <span
+                            class="nz-tooltip"
+                            data-tooltip="How similar the replacement's Base Stat Total must be to the original. Low = ±33%, Medium = ±66%, High = any."
+                        >?</span>
+                    </legend>
+                    <div class="nz-modal-radio-group">
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-bst"
+                                value="low"
+                                checked={settings.bstVariance === 'low'}
+                                onChange={() => onSetBst('low')}
+                            />
+                            Low (±33%)
+                        </label>
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-bst"
+                                value="medium"
+                                checked={settings.bstVariance === 'medium'}
+                                onChange={() => onSetBst('medium')}
+                            />
+                            Medium (±66%)
+                        </label>
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-bst"
+                                value="high"
+                                checked={settings.bstVariance === 'high'}
+                                onChange={() => onSetBst('high')}
+                            />
+                            High (any)
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="nz-modal-fieldset">
+                    <legend class="nz-modal-legend">
+                        Items
+                        <span
+                            class="nz-tooltip"
+                            data-tooltip="Shuffles held items across segments so you get different items each run."
+                        >?</span>
+                    </legend>
+                    <label class="nz-modal-toggle">
+                        <input
+                            type="checkbox"
+                            checked={settings.randomizeItems}
+                            onChange={(e: Event) => onSetItems((e.target as HTMLInputElement).checked)}
+                        />
+                        <span class="nz-modal-toggle-track" />
+                        Randomize Items
+                    </label>
+                </fieldset>
+
+                <div class="nz-modal-actions">
+                    <button class="nz-btn nz-btn-secondary" onClick={onClose}>Cancel</button>
+                    <button class="nz-btn nz-btn-randomizer" onClick={onConfirm}>Randomize</button>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export class FormatDropdown extends preact.Component<{

@@ -87,7 +87,7 @@ function StatBarsInner({ species, nature, generation }: { species: string; natur
 	</div>;
 }
 
-function IvBarsInner({ ivs }: { ivs: StatsTable }) {
+export function NzIvBars({ ivs }: { ivs: StatsTable }) {
 	const MAX = 31;
 	const stats: Array<{ label: string; key: keyof StatsTable }> = [
 		{ label: 'HP',  key: 'hp'  },
@@ -255,7 +255,7 @@ export class NzStatPair extends preact.Component<{
 				<div>
 					{ivsLabel}
 					{ivs
-						? <IvBarsInner ivs={ivs} />
+						? <NzIvBars ivs={ivs} />
 						: <div class="nz-stat-no-ivs">Enemy Pokémon don't have IVs.</div>
 					}
 				</div>

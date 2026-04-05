@@ -746,6 +746,11 @@
   transition: width 0.3s ease;
 }
 
+.nz-stat-high { background: hsl(120, 70%, 40%); box-shadow: 0 0 4px hsla(120, 70%, 40%, 0.4); }
+.nz-stat-mid  { background: hsl(80,  70%, 40%); box-shadow: 0 0 4px hsla(80,  70%, 40%, 0.4); }
+.nz-stat-low  { background: hsl(40,  80%, 45%); box-shadow: 0 0 4px hsla(40,  80%, 45%, 0.4); }
+.nz-stat-poor { background: hsl(10,  75%, 45%); box-shadow: 0 0 4px hsla(10,  75%, 45%, 0.4); }
+
 
 .nz-stat-value {
   font-family: var(--nz-font-mono);

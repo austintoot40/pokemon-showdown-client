@@ -87,7 +87,7 @@ preact.h("div",{"class":"nz-stat-value"+mod},val)
 );
 }
 
-function IvBarsInner(_ref3){var ivs=_ref3.ivs;
+function NzIvBars(_ref3){var ivs=_ref3.ivs;
 var MAX=31;
 var stats=[
 {label:'HP',key:'hp'},
@@ -255,7 +255,7 @@ preact.h(StatBarsInner,{species:species,nature:nature,generation:generation})
 preact.h("div",null,
 ivsLabel,
 ivs?
-preact.h(IvBarsInner,{ivs:ivs}):
+preact.h(NzIvBars,{ivs:ivs}):
 preact.h("div",{"class":"nz-stat-no-ivs"},"Enemy Pok\xE9mon don't have IVs.")
 
 )
