@@ -86,6 +86,7 @@ export interface TrainerBattle {
 	id: string;
 	trainer: string;
 	team: TrainerPokemon[];
+	battleType?: 'singles' | 'doubles';
 }
 
 export interface NuzlockeScenarioCard {
