@@ -510,6 +510,23 @@
   margin-bottom: 16px;
 }
 
+.nz-verified-badge {
+  display: inline-block;
+  margin-left: 8px;
+  margin-bottom: 2px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-family: var(--nz-font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--nz-success);
+  border: 1px solid var(--nz-success);
+  border-radius: 2px;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
 .nz-scenario-card-divider {
   border: none;
   border-top: 1px solid var(--nz-border-subtle);

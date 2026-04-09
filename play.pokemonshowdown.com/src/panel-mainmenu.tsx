@@ -49,6 +49,7 @@ interface NuzlockeScenarioCard {
     starters: string[];
     color: string;
     pokemon: string;
+    verified: boolean;
 }
 
 // Lightweight run summary delivered globally (|updatenuzlocke| message).
@@ -768,7 +769,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                         <div class="nz-scenario-stats">
                                                             <span>Gen {selectedScenarioData.generation}</span>
                                                             <span class="nz-scenario-stats-sep">·</span>
-                                                            <span>{selectedScenarioData.battleCount} fights</span>
+                                                            <span>{selectedScenarioData.battleCount} battles</span>
                                                             <span class="nz-scenario-stats-sep">·</span>
                                                             <span>{selectedScenarioData.encounterCount} encounters</span>
                                                         </div>
@@ -978,7 +979,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                 aria-hidden="true"
                                             />
                                             <div class="nz-scenario-card-content">
-                                                <div class="nz-scenario-card-title">{scenario.name}</div>
+                                                <div class="nz-scenario-card-title">
+                                                    {scenario.name}
+                                                    {scenario.verified && <span class="nz-verified-badge">Verified</span>}
+                                                </div>
                                                 <div class="nz-scenario-card-meta">Gen {scenario.generation}</div>
                                             </div>
                                         </div>;
