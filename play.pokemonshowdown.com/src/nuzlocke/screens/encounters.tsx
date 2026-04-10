@@ -13,27 +13,27 @@ import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
 import { NzIvBars } from "../components/teambuilding";
 import { NzRouteCardCaught } from "../components/route-cards";
-import type { NuzlockePanelPayload, RouteEncounter, StatsTable } from "../types";
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const METHOD_ORDER = ['walk', 'surf', 'oldRod', 'goodRod', 'superRod', 'rockSmash'];
-
-const METHOD_LABELS: Record<string, string> = {
-	walk: 'Grass',
-	surf: 'Surfing',
-	oldRod: 'Old Rod',
-	goodRod: 'Good Rod',
-	superRod: 'Super Rod',
-	rockSmash: 'Rock Smash',
-};
+import type { NuzlockePanelPayload, RouteEncounter, ZoneEncounter, StatsTable } from "../types";
 
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/** Methods that require a specific HM move or item before the zone is accessible. */
+const METHOD_PREREQS: Record<string, { type: 'hm' | 'item'; name: string }> = {
+	'Surf':       { type: 'hm',   name: 'Surf' },
+	'Rock Smash': { type: 'hm',   name: 'Rock Smash' },
+	'Fish Old':   { type: 'item', name: 'Old Rod' },
+	'Fish Good':  { type: 'item', name: 'Good Rod' },
+	'Fish Super': { type: 'item', name: 'Super Rod' },
+};
+
+function hasZonePrereq(zone: ZoneEncounter, tmMoves: string[], items: string[]): boolean {
+	const prereq = METHOD_PREREQS[zone.method];
+	if (!prereq) return true;
+	return prereq.type === 'hm' ? tmMoves.includes(prereq.name) : items.includes(prereq.name);
+}
 
 function calcIvScore(ivs: StatsTable, baseStats: { [k: string]: number }): number {
 	const keys: Array<keyof StatsTable> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
@@ -118,78 +118,53 @@ function getEvoRoot(speciesName: string, generation?: number): string {
 	return species.id;
 }
 
-interface FlatEntry {
-	route: RouteEncounter;
-	method: string;
-	flatIndex: number;
-}
-
-/** Flattens encounters by stable method order, returning method+flatIndex alongside each route. */
-function buildFlatEntries(encounters: Record<string, RouteEncounter[]>): FlatEntry[] {
-	const result: FlatEntry[] = [];
-	let idx = 0;
-	for (const method of METHOD_ORDER) {
-		for (const route of encounters[method] ?? []) {
-			result.push({ route, method, flatIndex: idx++ });
-		}
-	}
-	return result;
-}
-
-interface RouteGroup {
-	routeName: string;
-	methods: FlatEntry[];
-}
-
-/** Deduplicates flat entries by route name, preserving all methods per route. */
-function buildRouteGroups(flatEntries: FlatEntry[]): RouteGroup[] {
-	const map = new Map<string, RouteGroup>();
-	for (const entry of flatEntries) {
-		const name = entry.route.route;
-		if (!map.has(name)) map.set(name, { routeName: name, methods: [] });
-		map.get(name)!.methods.push(entry);
-	}
-	return Array.from(map.values());
-}
 
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
 
-/** A single method's pool displayed in the detail panel. */
-function MethodPoolCard({
-	method,
-	encounter,
+/** A single zone's pool displayed in the detail panel. Clicking rolls the encounter. */
+function ZonePoolCard({
+	zone,
+	routeIndex,
+	zoneIndex,
 	ownedRoots,
-	onScout,
 	caughtSpecies,
 }: {
-	method: string;
-	encounter: RouteEncounter;
+	zone: ZoneEncounter;
+	routeIndex: number;
+	zoneIndex: number;
 	ownedRoots: Set<string>;
-	onScout: () => void;
 	caughtSpecies?: string;
 }) {
 	const resolved = caughtSpecies !== undefined;
-	const allDupes = !resolved && encounter.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)));
+	const allDupes = !resolved && zone.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)));
 	const dupeSet = new Set(
-		encounter.pokemon
+		zone.pokemon
 			.filter(e => ownedRoots.has(getEvoRoot(e.species)) && !(resolved && toID(e.species) === toID(caughtSpecies ?? '')))
 			.map(e => toID(e.species))
 	);
-	const activeTotal = encounter.pokemon
+	const activeTotal = zone.pokemon
 		.filter(e => !dupeSet.has(toID(e.species)))
 		.reduce((sum, e) => sum + e.rate, 0);
 
 	const clickable = !resolved && !allDupes;
 
+	// Build zone label: show zone name (if different from method), then method, then time
+	const zoneLabel = zone.zone || zone.method;
+	const showMethodSeparate = zone.zone && zone.zone !== zone.method;
+
 	return <div
-		class={`nz-method-pool-card${allDupes ? ' nz-method-pool-card-dupe' : ''}${clickable ? ' nz-method-pool-card-selectable' : ''}`}
-		onClick={clickable ? onScout : undefined}
+		class={`nz-zone-card${allDupes ? ' nz-zone-card-dupe' : ''}${clickable ? ' nz-zone-card-selectable' : ''}`}
+		onClick={clickable ? () => PS.send(`/nuzlocke encounter ${routeIndex} ${zoneIndex}`) : undefined}
 	>
-		<div class="nz-method-pool-label">{METHOD_LABELS[method] ?? method}</div>
+		<div class="nz-zone-label">
+			{zoneLabel}
+			{showMethodSeparate && <span class="nz-zone-method">{zone.method}</span>}
+			{zone.time && <span class="nz-zone-time">{zone.time}</span>}
+		</div>
 		<div class="nz-route-pool">
-			{encounter.pokemon.map(e => {
+			{zone.pokemon.map(e => {
 				const dupe = dupeSet.has(toID(e.species));
 				const isCaught = resolved && toID(e.species) === toID(caughtSpecies!);
 				const pct = dupe || activeTotal === 0 ? 0 : Math.round(e.rate / activeTotal * 100);
@@ -286,7 +261,7 @@ class EncounterPokemonStats extends preact.Component<{
 				{nickname !== pokemon.species &&
 					<div class="nz-encounter-stats-species">{pokemon.species}</div>
 				}
-				<div class="nz-encounter-stats-types"><NzTypeBadges species={pokemon.species} /></div>
+				<div class="nz-encounter-stats-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
 				<div class="nz-encounter-stats-meta">
 					Lv.{pokemon.level} · {pokemon.caughtRoute}
 				</div>
@@ -380,7 +355,7 @@ function GiftChoicePicker({
 			<div class="nz-gift-choice-route">{gift.route}</div>
 		</div>
 		<div class="nz-gift-choice-options">
-			{gift.pokemon.map(e => {
+			{([] as import('../types').EncounterEntry[]).concat(...gift.zones.map(z => z.pokemon)).map(e => {
 				const isDupe = ownedRoots.has(getEvoRoot(e.species, generation));
 				return <div
 					key={e.species}
@@ -393,7 +368,7 @@ function GiftChoicePicker({
 						alt={e.species}
 					/>
 					<div class="nz-gift-choice-name">{e.species}</div>
-					<NzTypeBadges species={e.species} />
+					<NzTypeBadges species={e.species} generation={generation} />
 					{isDupe && <div class="nz-gift-dupe-label">Dupe</div>}
 				</div>;
 			})}
@@ -432,23 +407,29 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		// Auto-select first unresolved route if nothing is selected yet
 		let selectedRoute = state.selectedRoute;
 		if (!selectedRoute) {
-			const flatEntries = buildFlatEntries(segment.encounters);
-			const groups = buildRouteGroups(flatEntries);
 			const ownedRoots = new Set([
 				...props.game.box.map(p => getEvoRoot(p.species)),
 				...props.game.graveyard.map(p => getEvoRoot(p.species)),
 			]);
-			const pending = groups.find(g =>
-				!props.game.resolvedRoutes.includes(g.routeName) &&
-				!g.methods.every(m => m.route.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species))))
+			const tmMoves = props.game.tmMoves;
+			const items = props.game.items;
+			const pending = (segment.encounters ?? []).find(enc =>
+				!props.game.resolvedRoutes.includes(enc.route) &&
+				enc.zones.some(z =>
+					hasZonePrereq(z, tmMoves, items) &&
+					z.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species)))
+				)
 			);
-			selectedRoute = pending?.routeName ?? null;
-			// Fall back to first unresolved choice gift, then first route
+			selectedRoute = pending?.route ?? null;
+			// Fall back to first unresolved choice gift, then first accessible route
 			if (!selectedRoute) {
 				const unresolvedChoice = (segment.gifts ?? []).find(
 					g => g.choice && !props.game.resolvedRoutes.includes(g.route)
 				);
-				selectedRoute = unresolvedChoice?.route ?? groups[0]?.routeName ?? null;
+				const firstAccessible = (segment.encounters ?? []).find(enc =>
+					enc.zones.some(z => hasZonePrereq(z, tmMoves, items))
+				);
+				selectedRoute = unresolvedChoice?.route ?? firstAccessible?.route ?? null;
 			}
 			if (selectedRoute !== state.selectedRoute) changed = true;
 		}
@@ -461,7 +442,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 	};
 
 	setNick = (uid: string, value: string) => {
-		this.setState(s => ({ nicknames: { ...s.nicknames, [uid]: value } }));
+		this.setState((s: EncountersState) => ({ nicknames: { ...s.nicknames, [uid]: value } }));
 	};
 
 	submit = () => {
@@ -482,15 +463,29 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			...game.graveyard.map(p => getEvoRoot(p.species, game.generation)),
 		]);
 
-		const flatEntries = buildFlatEntries(segment.encounters);
-		const routeGroups = buildRouteGroups(flatEntries);
+		const encounters = segment.encounters ?? [];
 		const allGifts = segment.gifts ?? [];
 		const giftRouteNames = new Set(allGifts.map(r => r.route));
 
-		// A route is pending if unresolved and not all-dupes across all its methods
-		const pendingRoutes = routeGroups.filter(g =>
-			!game.resolvedRoutes.includes(g.routeName) &&
-			!g.methods.every(m => m.route.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species))))
+		// Compute which zones within each encounter are accessible (prereq met).
+		// Result is parallel to `encounters`: encVisibleZones[i] = visible zones for encounters[i].
+		const encVisibleZones: Array<Array<{ zone: ZoneEncounter; originalIndex: number }>> =
+			encounters.map(enc =>
+				enc.zones
+					.map((zone, i) => ({ zone, originalIndex: i }))
+					.filter(({ zone }) => hasZonePrereq(zone, game.tmMoves, game.items))
+			);
+
+		// A route is shown if it's already resolved OR has at least one accessible zone.
+		const visibleEncounters = encounters.filter((enc, i) =>
+			game.resolvedRoutes.includes(enc.route) || encVisibleZones[i].length > 0
+		);
+
+		// A route is pending if visible, unresolved, and has at least one accessible non-dupe zone.
+		const pendingRoutes = encounters.filter((enc, i) =>
+			(game.resolvedRoutes.includes(enc.route) || encVisibleZones[i].length > 0) &&
+			!game.resolvedRoutes.includes(enc.route) &&
+			encVisibleZones[i].some(({ zone }) => zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species))))
 		);
 		const unresolvedChoiceGifts = allGifts.filter(g => g.choice && !game.resolvedRoutes.includes(g.route));
 		const canContinue = pendingRoutes.length === 0 && unresolvedChoiceGifts.length === 0;
@@ -498,8 +493,9 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		// Gift pokemon: resolved ones are in the box
 		const resolvedGiftPokemon = game.box.filter(p => giftRouteNames.has(p.caughtRoute));
 
-		// Detail panel content for the selected route
-		const selectedGroup = routeGroups.find(g => g.routeName === selectedRoute) ?? null;
+		// Detail panel: find selected route entry and its index
+		const selectedEncIndex = encounters.findIndex(enc => enc.route === selectedRoute);
+		const selectedEnc = selectedEncIndex >= 0 ? encounters[selectedEncIndex] : null;
 		const selectedCaught = selectedRoute
 			? game.box.find(p => p.caughtRoute === selectedRoute) ?? null
 			: null;
@@ -514,7 +510,9 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			: null;
 
 		const isResolved = selectedRoute ? game.resolvedRoutes.includes(selectedRoute) : false;
-		const isMultiMethod = (selectedGroup?.methods.length ?? 0) > 1;
+		// Visible zones for the selected encounter (with original indices for server commands)
+		const selectedVisibleZones = selectedEncIndex >= 0 ? encVisibleZones[selectedEncIndex] : [];
+		const isMultiZone = selectedVisibleZones.length > 1;
 
 		return <NzScreen>
 			<NzScreenHeader
@@ -529,62 +527,69 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			<div class="nz-encounters-layout">
 				{/* Left: route list */}
 				<div class="nz-route-list">
-					{routeGroups.length > 0 && <div class="nz-route-list-section-label">Routes</div>}
-					{routeGroups.map(group => {
-						const resolved = game.resolvedRoutes.includes(group.routeName);
-						const allDupes = !resolved && group.methods.every(m =>
-							m.route.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)))
+					{visibleEncounters.length > 0 && <div class="nz-route-list-section-label">Routes</div>}
+					{visibleEncounters.map(enc => {
+						const encIdx = encounters.indexOf(enc);
+						const visibleZones = encVisibleZones[encIdx];
+						const resolved = game.resolvedRoutes.includes(enc.route);
+						const allDupes = !resolved && visibleZones.every(({ zone }) =>
+							zone.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species)))
 						);
-						const isSelected = selectedRoute === group.routeName;
-
+						const isSelected = selectedRoute === enc.route;
 						const caughtPokemon = resolved
-							? game.box.find(p => p.caughtRoute === group.routeName)
+							? game.box.find(p => p.caughtRoute === enc.route)
 							: undefined;
 
+						// Collect unique species from accessible zones only for the sprite strip
+						const seenSids = new Set<string>();
+						const allSpecies: string[] = [];
+						for (const { zone } of visibleZones) {
+							for (const e of zone.pokemon) {
+								const sid = toID(e.species);
+								if (!seenSids.has(sid)) { seenSids.add(sid); allSpecies.push(e.species); }
+							}
+						}
+
 						return <div
-							key={group.routeName}
+							key={enc.route}
 							class={`nz-route-list-row${isSelected ? ' selected' : ''}${resolved ? ' resolved' : ''}`}
-							onClick={() => this.selectRoute(group.routeName)}
+							onClick={() => this.selectRoute(enc.route)}
 						>
 							<div class="nz-route-list-row-top">
 								<span class="nz-route-list-status">
 									{resolved ? '✓' : allDupes ? '—' : ''}
 								</span>
-								<span class="nz-route-list-name">{group.routeName}</span>
+								<span class="nz-route-list-name">{enc.route}</span>
 							</div>
 							<div class="nz-route-list-sprites">
-								{group.methods.map(entry => {
-									const uniqueSpecies = Array.from(
-										new Map(entry.route.pokemon.map(e => [toID(e.species), e.species])).values()
-									);
-									return <div key={entry.method} class="nz-route-sprite-group">
-										{uniqueSpecies.map(species => {
-											const sid = toID(species);
-											const isDupe = ownedRoots.has(getEvoRoot(species, game.generation));
-											const isCaught = caughtPokemon !== undefined && toID(caughtPokemon.species) === sid;
-											const cls = [
-												'nz-route-sprite',
-												isDupe && !isCaught ? 'nz-route-sprite-dupe' : '',
-												isCaught ? 'nz-route-sprite-caught' : '',
-											].filter(Boolean).join(' ');
-											return <img
-												key={sid}
-												class={cls}
-												src={`https://play.pokemonshowdown.com/sprites/gen5/${sid}.png`}
-												alt={species}
-												title={species}
-											/>;
-										})}
-									</div>;
-								})}
+								<div class="nz-route-sprite-group">
+									{allSpecies.map(species => {
+										const sid = toID(species);
+										const isDupe = ownedRoots.has(getEvoRoot(species, game.generation));
+										const isCaught = caughtPokemon !== undefined && toID(caughtPokemon.species) === sid;
+										const cls = [
+											'nz-route-sprite',
+											isDupe && !isCaught ? 'nz-route-sprite-dupe' : '',
+											isCaught ? 'nz-route-sprite-caught' : '',
+										].filter(Boolean).join(' ');
+										return <img
+											key={sid}
+											class={cls}
+											src={`https://play.pokemonshowdown.com/sprites/gen5/${sid}.png`}
+											alt={species}
+											title={species}
+										/>;
+									})}
+								</div>
 							</div>
 						</div>;
 					})}
 
 					{(unresolvedChoiceGifts.length > 0 || resolvedGiftPokemon.length > 0) && <>
 						<div class="nz-route-list-divider">Gifts</div>
-						{unresolvedChoiceGifts.map(g =>
-							<div
+						{unresolvedChoiceGifts.map(g => {
+							const giftPokemon = ([] as import('../types').EncounterEntry[]).concat(...g.zones.map(z => z.pokemon));
+							return <div
 								key={g.route}
 								class={`nz-route-list-row nz-route-list-row-choice${selectedRoute === g.route ? ' selected' : ''}`}
 								onClick={() => this.selectRoute(g.route)}
@@ -594,7 +599,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 									<span class="nz-route-list-name">{g.route}</span>
 								</div>
 								<div class="nz-route-list-sprites">
-									{g.pokemon.map(e =>
+									{giftPokemon.map(e =>
 										<img
 											key={toID(e.species)}
 											class="nz-route-sprite"
@@ -604,8 +609,8 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 										/>
 									)}
 								</div>
-							</div>
-						)}
+							</div>;
+						})}
 						{resolvedGiftPokemon.map(p =>
 							<div
 								key={p.uid}
@@ -662,19 +667,22 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						onNickChange={this.setNick}
 					/>}
 
-					{!selectedChoiceGift && !selectedResolvedGift && selectedGroup && <>
-						{isMultiMethod && !isResolved && <div class="nz-detail-choose-hint">
-							Choose one method — you only get one encounter here
+					{!selectedChoiceGift && !selectedResolvedGift && selectedEnc && <>
+						{isMultiZone && !isResolved && <div class="nz-detail-choose-hint">
+							Choose one zone — you only get one encounter here
 						</div>}
-						<div class="nz-method-pools">
-							{selectedGroup.methods.map(entry =>
-								<MethodPoolCard
-									key={entry.method}
-									method={entry.method}
-									encounter={entry.route}
+						<div class="nz-zone-cards">
+							{selectedVisibleZones.map(({ zone, originalIndex }) =>
+								<ZonePoolCard
+									zone={zone}
+									routeIndex={selectedEncIndex}
+									zoneIndex={originalIndex}
 									ownedRoots={ownedRoots}
-									onScout={() => PS.send(`/nuzlocke encounter ${entry.flatIndex}`)}
-									caughtSpecies={isResolved ? selectedCaught?.species : undefined}
+									caughtSpecies={isResolved
+									? (selectedCaught?.caughtZoneIndex === undefined || originalIndex === selectedCaught.caughtZoneIndex
+										? selectedCaught?.species   // caught zone (or no zone info: highlight everywhere)
+										: '')                        // other zones: resolved but nothing highlighted
+									: undefined}
 								/>
 							)}
 						</div>

@@ -175,16 +175,16 @@
 
 
 /* =============================================
-   METHOD POOL CARDS
+   ZONE CARDS
    ============================================= */
 
-.nz-method-pools {
+.nz-zone-cards {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
 }
 
-.nz-method-pool-card {
+.nz-zone-card {
   background: var(--nz-elevated);
   border: 1px solid var(--nz-border);
   padding: 10px 12px 12px;
@@ -195,27 +195,41 @@
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
 }
 
-.nz-method-pool-card-dupe {
+.nz-zone-card-dupe {
   opacity: 0.5;
 }
 
-.nz-method-pool-card-selectable {
+.nz-zone-card-selectable {
   cursor: pointer;
   transition: border-color 0.1s, background 0.1s;
 }
 
-.nz-method-pool-card-selectable:hover {
+.nz-zone-card-selectable:hover {
   border-color: var(--nz-accent);
   background: color-mix(in srgb, var(--nz-elevated) 85%, var(--nz-accent) 15%);
 }
 
-.nz-method-pool-label {
+.nz-zone-label {
   font-family: var(--nz-font-mono);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--nz-accent);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nz-zone-method {
+  font-weight: 400;
+  color: var(--nz-text-dim);
+}
+
+.nz-zone-time {
+  font-weight: 400;
+  color: var(--nz-warning);
+  font-size: 11px;
 }
 
 /* =============================================

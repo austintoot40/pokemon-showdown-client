@@ -31,6 +31,7 @@ export interface OwnedPokemon {
 	item: string;
 	gender: string;
 	caughtRoute: string;
+	caughtZoneIndex?: number;
 	alive: boolean;
 }
 
@@ -72,14 +73,21 @@ export type NuzlockeScreen =
 
 export interface EncounterEntry {
 	species: string;
-	rate: number;   // encounter weight; values in a route sum to 100
+	rate: number;   // encounter weight; values in a zone sum to 100
+}
+
+export interface ZoneEncounter {
+	zone: string;      // exact Bulbapedia zone label: "1F", "B2F", "Grass", "Surfing"
+	method: string;    // exact Bulbapedia method string: "Cave", "Grass", "Surfing", "Rock Smash"
+	time?: string;     // "Morning" | "Day" | "Night" — only present when rates differ by time of day
+	pokemon: EncounterEntry[];
+	levels?: [number, number];
 }
 
 export interface RouteEncounter {
 	route: string;
-	pokemon: EncounterEntry[];
-	levels: [number, number];
-	choice?: boolean;  // if true, player selects the species
+	zones: ZoneEncounter[];
+	choice?: boolean;  // if true, player selects the species (gifts only)
 }
 
 export interface TrainerBattle {
@@ -114,7 +122,7 @@ export interface NuzlockePanelPayload {
 		levelCap: number;
 		items: string[];
 		tmMoves: string[];
-		encounters: Record<string, RouteEncounter[]>;
+		encounters: RouteEncounter[];
 		gifts: RouteEncounter[];
 		battles: TrainerBattle[];
 	} | null;
