@@ -30,7 +30,8 @@ const METHOD_PREREQS: Record<string, { type: 'hm' | 'item'; name: string }> = {
 };
 
 function hasZonePrereq(zone: ZoneEncounter, tmMoves: string[], items: string[]): boolean {
-	const prereq = METHOD_PREREQS[zone.method];
+	// Explicit `requires` on the zone takes precedence over METHOD_PREREQS inference
+	const prereq = zone.requires ?? METHOD_PREREQS[zone.method];
 	if (!prereq) return true;
 	return prereq.type === 'hm' ? tmMoves.includes(prereq.name) : items.includes(prereq.name);
 }
