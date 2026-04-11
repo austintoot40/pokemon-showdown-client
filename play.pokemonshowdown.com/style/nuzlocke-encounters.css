@@ -614,3 +614,117 @@
   text-align: center;
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
 }
+
+/* =============================================
+   LOCKED ZONES (inaccessible prereq)
+   ============================================= */
+
+.nz-zone-card-locked {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.nz-zone-card-locked .nz-zone-label {
+  color: var(--nz-text-dim);
+}
+
+.nz-zone-prereq-label {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--nz-warning);
+  background: var(--nz-warning-dim);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+/* =============================================
+   ROUTE LIST — LOCKED / DEFERRED STATES
+   ============================================= */
+
+.nz-route-list-row-locked {
+  opacity: 0.5;
+}
+
+.nz-route-locked-badge,
+.nz-route-deferred-badge {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.nz-route-locked-badge {
+  color: var(--nz-text-dim);
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+}
+
+.nz-route-deferred-badge {
+  color: var(--nz-warning);
+  background: var(--nz-warning-dim);
+}
+
+.nz-route-status-deferred {
+  color: var(--nz-warning);
+}
+
+/* =============================================
+   DETAIL PANEL — LOCKED / DEFERRED HINTS
+   ============================================= */
+
+.nz-detail-locked-hint {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nz-text-dim);
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  padding: 8px 12px;
+}
+
+.nz-detail-deferred-hint {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nz-warning);
+  background: var(--nz-warning-dim);
+  border: 1px solid var(--nz-warning);
+  padding: 8px 12px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+
+/* =============================================
+   DEFER BUTTON
+   ============================================= */
+
+.nz-btn-defer {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--nz-warning);
+  background: transparent;
+  border: 1px solid var(--nz-warning);
+  padding: 6px 14px;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+  transition: background 0.1s, color 0.1s;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.nz-btn-defer:hover {
+  background: var(--nz-warning-dim);
+}

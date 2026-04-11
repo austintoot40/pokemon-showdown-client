@@ -133,6 +133,8 @@ export interface NuzlockePanelPayload {
 	items: string[];
 	tmMoves: string[];
 	resolvedRoutes: string[];
+	deferredRoutes: RouteEncounter[];
+	lockedRoutes: RouteEncounter[];
 	legalMoves: Record<string, LegalMove[]>;
 	availableEvolutions: Record<string, EvoOption[]>;
 	lastBattleResult: {
