@@ -118,6 +118,10 @@ export class NzMoveSelect extends preact.Component<NzMoveSelectProps, NzMoveSele
 		this.setState({ open: true, query: '' });
 	};
 
+	handleClick = () => {
+		this.setState({ open: true });
+	};
+
 	handleInput = (e: Event) => {
 		this.setState({ query: (e.target as HTMLInputElement).value });
 	};
@@ -187,7 +191,10 @@ export class NzMoveSelect extends preact.Component<NzMoveSelectProps, NzMoveSele
 								<span>{m.name}</span>
 								{suffix && <span class="nz-move-select-suffix">{suffix}</span>}
 							</span>
-							{md.exists && <span class={`nz-type nz-type-${md.type.toLowerCase()}`}>{md.type}</span>}
+							{md.exists && (() => {
+								const displayType = m.hpType ?? md.type;
+								return <span class={`nz-type nz-type-${displayType.toLowerCase()}`}>{displayType}</span>;
+							})()}
 							{md.exists && <span class={`nz-move-cat nz-move-cat-${catKey}`}>{catLabel}</span>}
 						</div>
 					);
@@ -212,6 +219,7 @@ export class NzMoveSelect extends preact.Component<NzMoveSelectProps, NzMoveSele
 					value={displayValue}
 					placeholder="(empty)"
 					onFocus={this.handleFocus}
+					onClick={this.handleClick}
 					onInput={this.handleInput}
 					onBlur={this.handleBlur}
 				/>

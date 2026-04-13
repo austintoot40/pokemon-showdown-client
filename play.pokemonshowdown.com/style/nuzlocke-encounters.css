@@ -671,6 +671,18 @@
   background: var(--nz-warning-dim);
 }
 
+.nz-route-gift-badge {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  color: var(--nz-accent);
+  background: rgba(74, 158, 255, 0.12);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+}
+
 .nz-route-status-deferred {
   color: var(--nz-warning);
 }

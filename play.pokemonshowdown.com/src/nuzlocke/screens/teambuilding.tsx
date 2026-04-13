@@ -12,6 +12,22 @@ import { NzStatPair, NzPartySlot, NzOpponentSlot } from "../components/teambuild
 import { calcIvScore, calcNatureQuality, calcCombinedPercentile } from "./encounters";
 import type { NuzlockePanelPayload } from "../types";
 
+function formatTarget(target: string | undefined): string {
+	switch (target) {
+		case 'allAdjacentFoes': return 'Spread';
+		case 'normal': case 'any': return 'Single';
+		case 'self': return 'Self';
+		case 'adjacentAlly': return 'Ally';
+		case 'adjacentAllyOrSelf': return 'Ally/Self';
+		case 'allAdjacent': return 'All adj';
+		case 'allySide': return 'Ally side';
+		case 'foeSide': return 'Foe side';
+		case 'all': return 'All';
+		case 'randomNormal': return 'Random';
+		default: return '—';
+	}
+}
+
 interface TeambuildingState {
 	moves: Record<string, string[]>;
 	heldItems: Record<string, string>;
@@ -151,17 +167,22 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 							<div class="nz-card-level">Lv. {opp.level}</div>
 							<div class="nz-card-types"><NzTypeBadges species={opp.species} generation={this.props.game.generation} /></div>
 							<div class="nz-card-nature">{opp.ability}</div>
+							{(() => {
+								const desc = Dex.forGen(this.props.game.generation).abilities.get(opp.ability).shortDesc;
+								return desc ? <div class="nz-card-subdesc">{desc}</div> : null;
+							})()}
 						</div>
 					</div>
 					<NzStatPair species={opp.species} generation={this.props.game.generation} />
 				</div>
 
-				<div class="nz-moves-grid">
+				<div class="nz-moves-grid nz-moves-grid--doubles">
 					<span class="nz-moves-col-header">Move</span>
 					<span class="nz-moves-col-header">Type</span>
 					<span class="nz-moves-col-header">Cat</span>
 					<span class="nz-moves-col-header">BP</span>
 					<span class="nz-moves-col-header">Acc</span>
+					<span class="nz-moves-col-header">Target</span>
 					<span class="nz-moves-col-header">Effect</span>
 					{opp.moves.map((moveId, i) => {
 						const move = moveId ? Dex.forGen(this.props.game.generation).moves.get(moveId) : null;
@@ -175,6 +196,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 							{ex ? <span class={`nz-move-cat nz-move-cat-${move!.category.toLowerCase()}`}>{cat}</span> : <span />}
 							<span class={ex ? 'nz-move-stat' : ''}>{power}</span>
 							<span class={ex ? 'nz-move-stat' : ''}>{acc}</span>
+							<span class="nz-move-stat">{ex ? formatTarget(move!.target) : ''}</span>
 							<span class="nz-move-grid-desc">{ex ? (move!.shortDesc ?? '') : ''}</span>
 						</preact.Fragment>;
 					})}
@@ -266,12 +288,13 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 				{error && <div class="nz-card-error" style="margin-bottom:8px;">⚠ {error}</div>}
 
-				<div class="nz-moves-grid">
+				<div class="nz-moves-grid nz-moves-grid--doubles">
 					<span class="nz-moves-col-header">Move</span>
 					<span class="nz-moves-col-header">Type</span>
 					<span class="nz-moves-col-header">Cat</span>
 					<span class="nz-moves-col-header">BP</span>
 					<span class="nz-moves-col-header">Acc</span>
+					<span class="nz-moves-col-header">Target</span>
 					<span class="nz-moves-col-header">Effect</span>
 					{[0, 1, 2, 3].map(slot => {
 						const moveId = selectedMoves[slot] ?? '';
@@ -288,10 +311,15 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 								generation={this.props.game.generation}
 								onChange={id => this.setMove(selectedPokemon.uid, slot, id)}
 							/>
-							{ex ? <span class={`nz-type nz-type-${move!.type.toLowerCase()}`}>{move!.type}</span> : <span />}
+							{ex ? (() => {
+								const hpType = legalMoves.find(m => toID(m.name) === moveId)?.hpType;
+								const displayType = hpType ?? move!.type;
+								return <span class={`nz-type nz-type-${displayType.toLowerCase()}`}>{displayType}</span>;
+							})() : <span />}
 							{ex ? <span class={`nz-move-cat nz-move-cat-${move!.category.toLowerCase()}`}>{cat}</span> : <span />}
 							<span class={ex ? 'nz-move-stat' : ''}>{power}</span>
 							<span class={ex ? 'nz-move-stat' : ''}>{acc}</span>
+							<span class="nz-move-stat">{ex ? formatTarget(move!.target) : ''}</span>
 							<span class="nz-move-grid-desc">{ex ? (move!.shortDesc ?? '') : ''}</span>
 						</preact.Fragment>;
 					})}
@@ -301,7 +329,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					<div class="nz-label" style="margin-top:12px;margin-bottom:5px;">Held Item</div>
 					<div class="nz-move-slot">
 						{(() => {
-							const itemEntries = Array.from(new Map(game.items.map(item => [toID(item), item])).entries())
+							const itemEntries = Array.from(new Map(game.holdableItems.map(item => [toID(item), item])).entries())
 								.map(([id, name]) => ({ id, name }));
 							const disabledItemIds = itemEntries
 								.filter(({ id }) => heldByOthers(selectedPokemon.uid, id) >= itemCount(id))

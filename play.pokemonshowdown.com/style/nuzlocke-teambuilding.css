@@ -492,6 +492,10 @@
   margin-bottom: 14px;
 }
 
+.nz-moves-grid--doubles {
+  grid-template-columns: 190px 68px 50px 36px 44px 52px minmax(0, 1fr);
+}
+
 /* Select and move-name fill their column */
 .nz-moves-grid .nz-tb-select,
 .nz-moves-grid .nz-tb-move-name {

@@ -118,6 +118,10 @@ handleFocus=function(){
 _this.setState({open:true,query:''});
 };_this.
 
+handleClick=function(){
+_this.setState({open:true});
+};_this.
+
 handleInput=function(e){
 _this.setState({query:e.target.value});
 };_this.
@@ -187,7 +191,10 @@ preact.h("span",{"class":"nz-move-select-name"},
 preact.h("span",null,m.name),
 suffix&&preact.h("span",{"class":"nz-move-select-suffix"},suffix)
 ),
-md.exists&&preact.h("span",{"class":"nz-type nz-type-"+md.type.toLowerCase()},md.type),
+md.exists&&function(_m$hpType){
+var displayType=(_m$hpType=m.hpType)!=null?_m$hpType:md.type;
+return preact.h("span",{"class":"nz-type nz-type-"+displayType.toLowerCase()},displayType);
+}(),
 md.exists&&preact.h("span",{"class":"nz-move-cat nz-move-cat-"+catKey},catLabel)
 ));
 
@@ -212,6 +219,7 @@ type:"text",
 value:displayValue,
 placeholder:"(empty)",
 onFocus:this.handleFocus,
+onClick:this.handleClick,
 onInput:this.handleInput,
 onBlur:this.handleBlur}
 )

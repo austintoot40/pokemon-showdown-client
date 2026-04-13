@@ -405,7 +405,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (room.side && room.request) {
 			return this.renderPlayerControls(room.request);
 		}
-		if (room.id.includes('nuzlockebattle')) return null;
+		if (room.id.includes('nuzlocke')) return null;
 		const atStart = !room.battle.started;
 		const atEnd = room.battle.atQueueEnd;
 		return <div class="controls">

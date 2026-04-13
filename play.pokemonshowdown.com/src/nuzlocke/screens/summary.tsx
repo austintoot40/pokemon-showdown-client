@@ -41,11 +41,28 @@ export function SummaryScreen({ game }: { game: NuzlockePanelPayload }) {
 			<NzProgress segments={segmentList} currentIndex={game.currentSegmentIndex} />
 		</NzSection>}
 
-		{alive.length > 0 && <NzSection title={`Survivors (${alive.length})`}>
-			<div style="display:flex;flex-wrap:wrap;gap:10px;">
-				{alive.map(p => <NzBoxCard key={p.uid} pokemon={p} generation={game.generation} />)}
-			</div>
-		</NzSection>}
+		{isVictory
+			? alive.length > 0 && <NzSection title={`Survivors (${alive.length})`}>
+				<div style="display:flex;flex-wrap:wrap;gap:10px;">
+					{alive.map(p => <NzBoxCard key={p.uid} pokemon={p} generation={game.generation} />)}
+				</div>
+			</NzSection>
+			: game.finalParty && game.finalParty.length > 0
+				? <NzSection title={`Final Team (${game.finalParty.length})`}>
+					<div style="display:flex;flex-wrap:wrap;gap:10px;">
+						{game.finalParty.map(p => {
+							const boxPokemon = game.box.find(b => b.species === p.species && b.nickname === p.nickname);
+							if (boxPokemon) return <NzBoxCard key={boxPokemon.uid} pokemon={boxPokemon} generation={game.generation} />;
+							return null;
+						})}
+					</div>
+				</NzSection>
+				: alive.length > 0 && <NzSection title={`Survivors (${alive.length})`}>
+					<div style="display:flex;flex-wrap:wrap;gap:10px;">
+						{alive.map(p => <NzBoxCard key={p.uid} pokemon={p} generation={game.generation} />)}
+					</div>
+				</NzSection>
+		}
 
 		{game.graveyard.length > 0 && <NzSection title={`Graveyard (${game.graveyard.length})`}>
 			<div style="display:flex;flex-wrap:wrap;gap:10px;">

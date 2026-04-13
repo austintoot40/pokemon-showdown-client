@@ -160,6 +160,7 @@ function ZonePoolCard({
 			.filter(e => ownedRoots.has(getEvoRoot(e.species)) && !(resolved && toID(e.species) === toID(caughtSpecies ?? '')))
 			.map(e => toID(e.species))
 	);
+	const totalRate = zone.pokemon.reduce((sum, e) => sum + e.rate, 0);
 	const activeTotal = zone.pokemon
 		.filter(e => !dupeSet.has(toID(e.species)))
 		.reduce((sum, e) => sum + e.rate, 0);
@@ -191,7 +192,8 @@ function ZonePoolCard({
 			{zone.pokemon.map(e => {
 				const dupe = !locked && dupeSet.has(toID(e.species));
 				const isCaught = resolved && toID(e.species) === toID(caughtSpecies!);
-				const pct = locked || dupe || activeTotal === 0 ? 0 : Math.round(e.rate / activeTotal * 100);
+				const pct = locked ? Math.round(e.rate / (totalRate || 1) * 100)
+					: dupe || activeTotal === 0 ? 0 : Math.round(e.rate / activeTotal * 100);
 				const slotClass = [
 					'nz-encounter-slot',
 					dupe ? 'nz-encounter-slot-dupe' : '',
@@ -200,10 +202,10 @@ function ZonePoolCard({
 				].filter(Boolean).join(' ');
 				return <div key={e.species} class={slotClass}>
 					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} />
-					{!locked && <div class="nz-encounter-rate-bar">
+					<div class="nz-encounter-rate-bar">
 						<div class="nz-encounter-rate-fill" style={`width:${pct}%`} />
-					</div>}
-					{!locked && <div class="nz-encounter-rate-label">{dupe ? 'dupe' : `${pct}%`}</div>}
+					</div>
+					<div class="nz-encounter-rate-label">{dupe ? 'dupe' : `${pct}%`}</div>
 				</div>;
 			})}
 		</div>
@@ -521,13 +523,13 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		const giftRouteNames = new Set(allGifts.map(r => r.route));
 
 		// Build a unified list of all routes to display:
-		// current segment + deferred/locked routes from previous segments (deduplicated)
+		// current segment encounters + gifts + deferred/locked routes from previous segments (deduplicated)
 		const currentRouteNames = new Set(encounters.map(e => e.route));
 		const extraDeferred = (game.deferredRoutes ?? []).filter(r => !currentRouteNames.has(r.route));
 		const extraLocked = (game.lockedRoutes ?? []).filter(
 			r => !currentRouteNames.has(r.route) && !extraDeferred.some(d => d.route === r.route)
 		);
-		const allDisplayedRoutes: RouteEncounter[] = [...encounters, ...extraDeferred, ...extraLocked];
+		const allDisplayedRoutes: RouteEncounter[] = [...encounters, ...allGifts, ...extraDeferred, ...extraLocked];
 
 		// Compute zone accessibility for each displayed route.
 		// encZones[i]: all zones with accessible flag + original index
@@ -542,17 +544,21 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		const encAccessibleZones = encZones.map(zones => zones.filter(z => z.accessible));
 
 		// A route is "pending" (blocks Continue) if:
-		// - unresolved, has accessible non-dupe zones, and NOT deferred this session
-		// All-locked routes never block (no accessible zones).
-		const pendingRoutes = allDisplayedRoutes.filter((enc, i) =>
-			!game.resolvedRoutes.includes(enc.route) &&
-			!deferredThisSession.has(enc.route) &&
-			encAccessibleZones[i].some(({ zone }) =>
-				zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
-			)
-		);
-		const unresolvedChoiceGifts = allGifts.filter(g => g.choice && !game.resolvedRoutes.includes(g.route));
-		const canContinue = pendingRoutes.length === 0 && unresolvedChoiceGifts.length === 0;
+		// - encounter route: unresolved, has accessible non-dupe zones, and NOT deferred this session
+		// - gift route: unresolved choice gift (non-choice gifts are auto-resolved by server)
+		const pendingRoutes = allDisplayedRoutes.filter((enc, i) => {
+			if (giftRouteNames.has(enc.route)) {
+				return enc.choice && !game.resolvedRoutes.includes(enc.route);
+			}
+			return (
+				!game.resolvedRoutes.includes(enc.route) &&
+				!deferredThisSession.has(enc.route) &&
+				encAccessibleZones[i].some(({ zone }) =>
+					zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+				)
+			);
+		});
+		const canContinue = pendingRoutes.length === 0;
 
 		// Gift pokemon: resolved ones are in the box
 		const resolvedGiftPokemon = game.box.filter(p => giftRouteNames.has(p.caughtRoute));
@@ -597,16 +603,66 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						const accessibleZones = encAccessibleZones[encIdx];
 						const allZones = encZones[encIdx];
 						const resolved = game.resolvedRoutes.includes(enc.route);
-						const isAllLocked = !resolved && allZones.length > 0 && accessibleZones.length === 0;
+						const isGift = giftRouteNames.has(enc.route);
+						const isSelected = selectedRoute === enc.route;
+
+						// Gift route rendering
+						if (isGift) {
+							const isChoicePending = enc.choice && !resolved;
+							const resolvedGift = resolved ? game.box.find(p => p.caughtRoute === enc.route) : undefined;
+							const giftPokemon = ([] as import('../types').EncounterEntry[]).concat(...enc.zones.map(z => z.pokemon));
+							const rowClass = [
+								'nz-route-list-row',
+								isChoicePending ? 'nz-route-list-row-choice' : '',
+								resolved ? 'resolved' : '',
+								isSelected ? 'selected' : '',
+							].filter(Boolean).join(' ');
+							return <div key={enc.route} class={rowClass} onClick={() => this.selectRoute(enc.route)}>
+								<div class="nz-route-list-row-top">
+									<span class={`nz-route-list-status${isChoicePending ? ' nz-gift-status-choose' : ''}`}>
+										{resolved ? '✓' : isChoicePending ? '!' : ''}
+									</span>
+									<span class="nz-route-list-name">{enc.route}</span>
+									<span class="nz-route-gift-badge">Gift</span>
+								</div>
+								<div class="nz-route-list-sprites">
+									{resolvedGift
+										? <img
+											class="nz-route-sprite nz-route-sprite-caught"
+											src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(resolvedGift.species)}.png`}
+											alt={resolvedGift.species} title={resolvedGift.species}
+										/>
+										: giftPokemon.map(e =>
+											<img key={toID(e.species)} class="nz-route-sprite"
+												src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`}
+												alt={e.species} title={e.species}
+											/>
+										)
+									}
+								</div>
+							</div>;
+						}
+
+						// Regular encounter route rendering
+						// isAllLocked: server says so (lockedRoutes) OR
+						// no accessible zone has a non-dupe AND at least one locked zone does
+						const isServerLocked = (game.lockedRoutes ?? []).some(r => r.route === enc.route);
+						const accessibleHasNonDupe = accessibleZones.some(({ zone }) =>
+							zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+						);
+						const lockedHasNonDupe = allZones.some(({ zone, accessible }) =>
+							!accessible && zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+						);
+						const isAllLocked = isServerLocked || (!resolved && !accessibleHasNonDupe && lockedHasNonDupe);
 						const isDeferredThisSession = deferredThisSession.has(enc.route);
 						// "Deferred" badge: carried from a previous segment, not yet re-deferred this session
-						const isPendingDeferred = !resolved && !isDeferredThisSession &&
+						// Suppressed for server-locked routes (they show "Locked" badge instead)
+						const isPendingDeferred = !resolved && !isDeferredThisSession && !isServerLocked &&
 							(game.deferredRoutes ?? []).some(r => r.route === enc.route);
 						const allDupes = !resolved && !isAllLocked && accessibleZones.length > 0 &&
 							accessibleZones.every(({ zone }) =>
 								zone.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species, game.generation)))
 							);
-						const isSelected = selectedRoute === enc.route;
 						const caughtPokemon = resolved
 							? game.box.find(p => p.caughtRoute === enc.route)
 							: undefined;
@@ -624,13 +680,13 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						let statusSymbol = '';
 						if (resolved) statusSymbol = '✓';
 						else if (allDupes) statusSymbol = '—';
-						else if (isDeferredThisSession) statusSymbol = '↩';
+						else if (isDeferredThisSession || isAllLocked) statusSymbol = '↩';
 
+						const isDeferred = isAllLocked || isDeferredThisSession || isPendingDeferred;
 						const rowClass = [
 							'nz-route-list-row',
 							isSelected ? 'selected' : '',
 							resolved ? 'resolved' : '',
-							isAllLocked ? 'nz-route-list-row-locked' : '',
 						].filter(Boolean).join(' ');
 
 						return <div
@@ -639,12 +695,11 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 							onClick={() => this.selectRoute(enc.route)}
 						>
 							<div class="nz-route-list-row-top">
-								<span class={`nz-route-list-status${isDeferredThisSession ? ' nz-route-status-deferred' : ''}`}>
+								<span class={`nz-route-list-status${isDeferred ? ' nz-route-status-deferred' : ''}`}>
 									{statusSymbol}
 								</span>
 								<span class="nz-route-list-name">{enc.route}</span>
-								{isAllLocked && <span class="nz-route-locked-badge">Locked</span>}
-								{isPendingDeferred && <span class="nz-route-deferred-badge">Deferred</span>}
+								{isDeferred && <span class="nz-route-deferred-badge">Deferred</span>}
 							</div>
 							{allSpecies.length > 0 && <div class="nz-route-list-sprites">
 								<div class="nz-route-sprite-group">
@@ -669,54 +724,6 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 							</div>}
 						</div>;
 					})}
-
-					{(unresolvedChoiceGifts.length > 0 || resolvedGiftPokemon.length > 0) && <>
-						<div class="nz-route-list-divider">Gifts</div>
-						{unresolvedChoiceGifts.map(g => {
-							const giftPokemon = ([] as import('../types').EncounterEntry[]).concat(...g.zones.map(z => z.pokemon));
-							return <div
-								key={g.route}
-								class={`nz-route-list-row nz-route-list-row-choice${selectedRoute === g.route ? ' selected' : ''}`}
-								onClick={() => this.selectRoute(g.route)}
-							>
-								<div class="nz-route-list-row-top">
-									<span class="nz-route-list-status nz-gift-status-choose">!</span>
-									<span class="nz-route-list-name">{g.route}</span>
-								</div>
-								<div class="nz-route-list-sprites">
-									{giftPokemon.map(e =>
-										<img
-											key={toID(e.species)}
-											class="nz-route-sprite"
-											src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`}
-											alt={e.species}
-											title={e.species}
-										/>
-									)}
-								</div>
-							</div>;
-						})}
-						{resolvedGiftPokemon.map(p =>
-							<div
-								key={p.uid}
-								class={`nz-route-list-row resolved${selectedRoute === p.caughtRoute ? ' selected' : ''}`}
-								onClick={() => this.selectRoute(p.caughtRoute)}
-							>
-								<div class="nz-route-list-row-top">
-									<span class="nz-route-list-status">✓</span>
-									<span class="nz-route-list-name">{p.caughtRoute}</span>
-								</div>
-								<div class="nz-route-list-sprites">
-									<img
-										class="nz-route-sprite nz-route-sprite-caught"
-										src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(p.species)}.png`}
-										alt={p.species}
-										title={p.species}
-									/>
-								</div>
-							</div>
-						)}
-					</>}
 
 					{segment.items.length > 0 && <>
 						<div class="nz-route-list-divider">Items</div>
@@ -753,20 +760,34 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 					/>}
 
 					{!selectedChoiceGift && !selectedResolvedGift && selectedEnc && (() => {
-						const isAllLockedRoute = !isResolved && selectedAllZones.length > 0 &&
-							selectedAccessibleZones.length === 0;
+						const isServerLockedRoute = (game.lockedRoutes ?? []).some(r => r.route === selectedEnc.route);
+						const detailAccessibleHasNonDupe = selectedAccessibleZones.some(({ zone }) =>
+							zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+						);
+						const detailLockedHasNonDupe = selectedAllZones.some(({ zone, accessible }) =>
+							!accessible && zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+						);
+						const isAllLockedRoute = isServerLockedRoute || (!isResolved && !detailAccessibleHasNonDupe && detailLockedHasNonDupe);
 						const isDeferredThisSession = deferredThisSession.has(selectedEnc.route);
 						const showDefer = !isResolved && !isAllLockedRoute && !isDeferredThisSession;
 						return <>
 							{isMultiZone && !isResolved && !isAllLockedRoute && <div class="nz-detail-choose-hint">
 								Choose one zone — you only get one encounter here
 							</div>}
-							{isAllLockedRoute && <div class="nz-detail-locked-hint">
-								All zones require items or moves you don't have yet. This route will carry forward automatically.
-							</div>}
-							{isDeferredThisSession && <div class="nz-detail-deferred-hint">
-								Deferred — will re-appear next segment
-							</div>}
+							{(isAllLockedRoute || isDeferredThisSession) && (() => {
+								let hint = 'Deferred — will re-appear next segment';
+								if (isAllLockedRoute) {
+									const seen = new Set<string>();
+									for (const { zone, accessible } of selectedAllZones) {
+										if (accessible) continue;
+										if (!zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))) continue;
+										const name = (zone.requires ?? METHOD_PREREQS[zone.method])?.name;
+										if (name) seen.add(name);
+									}
+									if (seen.size > 0) hint += ` (missing: ${Array.from(seen).join(', ')})`;
+								}
+								return <div class="nz-detail-deferred-hint">{hint}</div>;
+							})()}
 							<div class="nz-zone-cards">
 								{selectedAllZones.map(({ zone, originalIndex, accessible }) =>
 									<ZonePoolCard

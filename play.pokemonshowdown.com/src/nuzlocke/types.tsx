@@ -48,6 +48,7 @@ export interface LegalMove {
 	name: string;
 	fromTM: boolean;
 	fromHM: boolean;
+	hpType?: string;  // Computed Hidden Power type (gen 2+)
 }
 
 export interface EvoOption {
@@ -131,6 +132,7 @@ export interface NuzlockePanelPayload {
 	party: string[];
 	graveyard: DeadPokemon[];
 	items: string[];
+	holdableItems: string[];
 	tmMoves: string[];
 	resolvedRoutes: string[];
 	deferredRoutes: RouteEncounter[];
@@ -147,4 +149,5 @@ export interface NuzlockePanelPayload {
 	segmentNames: Record<string, string>;
 	scenarios: NuzlockeScenarioCard[];
 	battleRoomId: string | null;
+	finalParty: { species: string; nickname: string; alive: boolean }[] | null;
 }

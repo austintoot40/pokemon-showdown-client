@@ -1,4 +1,4 @@
-"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}var
+"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}
 
 
 
@@ -11,6 +11,22 @@
 
 
 
+
+function formatTarget(target){
+switch(target){
+case'allAdjacentFoes':return'Spread';
+case'normal':case'any':return'Single';
+case'self':return'Self';
+case'adjacentAlly':return'Ally';
+case'adjacentAllyOrSelf':return'Ally/Self';
+case'allAdjacent':return'All adj';
+case'allySide':return'Ally side';
+case'foeSide':return'Foe side';
+case'all':return'All';
+case'randomNormal':return'Random';
+default:return'—';
+}
+}var
 
 
 
@@ -150,18 +166,23 @@ preact.h("div",{"class":"nz-tb-detail-info"},
 preact.h("div",{"class":"nz-card-nickname"},opp.species),
 preact.h("div",{"class":"nz-card-level"},"Lv. ",opp.level),
 preact.h("div",{"class":"nz-card-types"},preact.h(NzTypeBadges,{species:opp.species,generation:this.props.game.generation})),
-preact.h("div",{"class":"nz-card-nature"},opp.ability)
+preact.h("div",{"class":"nz-card-nature"},opp.ability),
+function(){
+var desc=Dex.forGen(_this2.props.game.generation).abilities.get(opp.ability).shortDesc;
+return desc?preact.h("div",{"class":"nz-card-subdesc"},desc):null;
+}()
 )
 ),
 preact.h(NzStatPair,{species:opp.species,generation:this.props.game.generation})
 ),
 
-preact.h("div",{"class":"nz-moves-grid"},
+preact.h("div",{"class":"nz-moves-grid nz-moves-grid--doubles"},
 preact.h("span",{"class":"nz-moves-col-header"},"Move"),
 preact.h("span",{"class":"nz-moves-col-header"},"Type"),
 preact.h("span",{"class":"nz-moves-col-header"},"Cat"),
 preact.h("span",{"class":"nz-moves-col-header"},"BP"),
 preact.h("span",{"class":"nz-moves-col-header"},"Acc"),
+preact.h("span",{"class":"nz-moves-col-header"},"Target"),
 preact.h("span",{"class":"nz-moves-col-header"},"Effect"),
 opp.moves.map(function(moveId,i){var _shortDesc;
 var move=moveId?Dex.forGen(_this2.props.game.generation).moves.get(moveId):null;
@@ -175,6 +196,7 @@ ex?preact.h("span",{"class":"nz-type nz-type-"+move.type.toLowerCase()},move.typ
 ex?preact.h("span",{"class":"nz-move-cat nz-move-cat-"+move.category.toLowerCase()},cat):preact.h("span",null),
 preact.h("span",{"class":ex?'nz-move-stat':''},power),
 preact.h("span",{"class":ex?'nz-move-stat':''},acc),
+preact.h("span",{"class":"nz-move-stat"},ex?formatTarget(move.target):''),
 preact.h("span",{"class":"nz-move-grid-desc"},ex?(_shortDesc=move.shortDesc)!=null?_shortDesc:'':'')
 );
 })
@@ -266,12 +288,13 @@ preact.h(NzStatPair,{species:selectedPokemon.species,nature:selectedPokemon.natu
 
 error&&preact.h("div",{"class":"nz-card-error",style:"margin-bottom:8px;"},"\u26A0 ",error),
 
-preact.h("div",{"class":"nz-moves-grid"},
+preact.h("div",{"class":"nz-moves-grid nz-moves-grid--doubles"},
 preact.h("span",{"class":"nz-moves-col-header"},"Move"),
 preact.h("span",{"class":"nz-moves-col-header"},"Type"),
 preact.h("span",{"class":"nz-moves-col-header"},"Cat"),
 preact.h("span",{"class":"nz-moves-col-header"},"BP"),
 preact.h("span",{"class":"nz-moves-col-header"},"Acc"),
+preact.h("span",{"class":"nz-moves-col-header"},"Target"),
 preact.h("span",{"class":"nz-moves-col-header"},"Effect"),
 [0,1,2,3].map(function(slot){var _selectedMoves$slot,_shortDesc2;
 var moveId=(_selectedMoves$slot=selectedMoves[slot])!=null?_selectedMoves$slot:'';
@@ -288,10 +311,15 @@ disabledMoves:selectedMoves.filter(function(id){return id!==moveId;}),
 generation:_this2.props.game.generation,
 onChange:function(id){return _this2.setMove(selectedPokemon.uid,slot,id);}}
 ),
-ex?preact.h("span",{"class":"nz-type nz-type-"+move.type.toLowerCase()},move.type):preact.h("span",null),
+ex?function(_legalMoves$find){
+var hpType=(_legalMoves$find=legalMoves.find(function(m){return toID(m.name)===moveId;}))==null?void 0:_legalMoves$find.hpType;
+var displayType=hpType!=null?hpType:move.type;
+return preact.h("span",{"class":"nz-type nz-type-"+displayType.toLowerCase()},displayType);
+}():preact.h("span",null),
 ex?preact.h("span",{"class":"nz-move-cat nz-move-cat-"+move.category.toLowerCase()},cat):preact.h("span",null),
 preact.h("span",{"class":ex?'nz-move-stat':''},power),
 preact.h("span",{"class":ex?'nz-move-stat':''},acc),
+preact.h("span",{"class":"nz-move-stat"},ex?formatTarget(move.target):''),
 preact.h("span",{"class":"nz-move-grid-desc"},ex?(_shortDesc2=move.shortDesc)!=null?_shortDesc2:'':'')
 );
 })
@@ -301,7 +329,7 @@ isInParty&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-label",style:"margin-top:12px;margin-bottom:5px;"},"Held Item"),
 preact.h("div",{"class":"nz-move-slot"},
 function(_heldItems$selectedPo){
-var itemEntries=Array.from(new Map(game.items.map(function(item){return[toID(item),item];})).entries()).
+var itemEntries=Array.from(new Map(game.holdableItems.map(function(item){return[toID(item),item];})).entries()).
 map(function(_ref3){var id=_ref3[0],name=_ref3[1];return{id:id,name:name};});
 var disabledItemIds=itemEntries.
 filter(function(_ref4){var id=_ref4.id;return heldByOthers(selectedPokemon.uid,id)>=itemCount(id);}).

@@ -41,11 +41,28 @@ segmentList.length>0&&preact.h(NzSection,{title:"Mission Progress"},
 preact.h(NzProgress,{segments:segmentList,currentIndex:game.currentSegmentIndex})
 ),
 
+isVictory?
+alive.length>0&&preact.h(NzSection,{title:"Survivors ("+alive.length+")"},
+preact.h("div",{style:"display:flex;flex-wrap:wrap;gap:10px;"},
+alive.map(function(p){return preact.h(NzBoxCard,{key:p.uid,pokemon:p,generation:game.generation});})
+)
+):
+game.finalParty&&game.finalParty.length>0?
+preact.h(NzSection,{title:"Final Team ("+game.finalParty.length+")"},
+preact.h("div",{style:"display:flex;flex-wrap:wrap;gap:10px;"},
+game.finalParty.map(function(p){
+var boxPokemon=game.box.find(function(b){return b.species===p.species&&b.nickname===p.nickname;});
+if(boxPokemon)return preact.h(NzBoxCard,{key:boxPokemon.uid,pokemon:boxPokemon,generation:game.generation});
+return null;
+})
+)
+):
 alive.length>0&&preact.h(NzSection,{title:"Survivors ("+alive.length+")"},
 preact.h("div",{style:"display:flex;flex-wrap:wrap;gap:10px;"},
 alive.map(function(p){return preact.h(NzBoxCard,{key:p.uid,pokemon:p,generation:game.generation});})
 )
 ),
+
 
 game.graveyard.length>0&&preact.h(NzSection,{title:"Graveyard ("+game.graveyard.length+")"},
 preact.h("div",{style:"display:flex;flex-wrap:wrap;gap:10px;"},

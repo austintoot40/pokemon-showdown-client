@@ -160,6 +160,7 @@ zone.pokemon.
 filter(function(e){return ownedRoots.has(getEvoRoot(e.species))&&!(resolved&&toID(e.species)===toID(caughtSpecies!=null?caughtSpecies:''));}).
 map(function(e){return toID(e.species);})
 );
+var totalRate=zone.pokemon.reduce(function(sum,e){return sum+e.rate;},0);
 var activeTotal=zone.pokemon.
 filter(function(e){return!dupeSet.has(toID(e.species));}).
 reduce(function(sum,e){return sum+e.rate;},0);
@@ -191,7 +192,8 @@ preact.h("div",{"class":"nz-route-pool"},
 zone.pokemon.map(function(e){
 var dupe=!locked&&dupeSet.has(toID(e.species));
 var isCaught=resolved&&toID(e.species)===toID(caughtSpecies);
-var pct=locked||dupe||activeTotal===0?0:Math.round(e.rate/activeTotal*100);
+var pct=locked?Math.round(e.rate/(totalRate||1)*100):
+dupe||activeTotal===0?0:Math.round(e.rate/activeTotal*100);
 var slotClass=[
 'nz-encounter-slot',
 dupe?'nz-encounter-slot-dupe':'',
@@ -200,10 +202,10 @@ isCaught?'nz-encounter-slot-caught':''].
 filter(Boolean).join(' ');
 return preact.h("div",{key:e.species,"class":slotClass},
 preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species}),
-!locked&&preact.h("div",{"class":"nz-encounter-rate-bar"},
+preact.h("div",{"class":"nz-encounter-rate-bar"},
 preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
 ),
-!locked&&preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
+preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
 );
 })
 ),
@@ -527,7 +529,7 @@ var extraDeferred=((_game$deferredRoutes=game.deferredRoutes)!=null?_game$deferr
 var extraLocked=((_game$lockedRoutes=game.lockedRoutes)!=null?_game$lockedRoutes:[]).filter(
 function(r){return!currentRouteNames.has(r.route)&&!extraDeferred.some(function(d){return d.route===r.route;});}
 );
-var allDisplayedRoutes=[].concat(encounters,extraDeferred,extraLocked);
+var allDisplayedRoutes=[].concat(encounters,allGifts,extraDeferred,extraLocked);
 
 
 
@@ -544,15 +546,19 @@ var encAccessibleZones=encZones.map(function(zones){return zones.filter(function
 
 
 
-var pendingRoutes=allDisplayedRoutes.filter(function(enc,i){return(
+var pendingRoutes=allDisplayedRoutes.filter(function(enc,i){
+if(giftRouteNames.has(enc.route)){
+return enc.choice&&!game.resolvedRoutes.includes(enc.route);
+}
+return(
 !game.resolvedRoutes.includes(enc.route)&&
 !deferredThisSession.has(enc.route)&&
 encAccessibleZones[i].some(function(_ref6){var zone=_ref6.zone;return(
 zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
-));}
-);
-var unresolvedChoiceGifts=allGifts.filter(function(g){return g.choice&&!game.resolvedRoutes.includes(g.route);});
-var canContinue=pendingRoutes.length===0&&unresolvedChoiceGifts.length===0;
+));
+
+});
+var canContinue=pendingRoutes.length===0;
 
 
 var resolvedGiftPokemon=game.box.filter(function(p){return giftRouteNames.has(p.caughtRoute);});
@@ -592,21 +598,71 @@ preact.h("div",{"class":"nz-encounters-layout"},
 
 preact.h("div",{"class":"nz-route-list"},
 allDisplayedRoutes.length>0&&preact.h("div",{"class":"nz-route-list-section-label"},"Routes"),
-allDisplayedRoutes.map(function(enc){var _game$deferredRoutes2;
+allDisplayedRoutes.map(function(enc){var _game$lockedRoutes2,_game$deferredRoutes2;
 var encIdx=allDisplayedRoutes.indexOf(enc);
 var accessibleZones=encAccessibleZones[encIdx];
 var allZones=encZones[encIdx];
 var resolved=game.resolvedRoutes.includes(enc.route);
-var isAllLocked=!resolved&&allZones.length>0&&accessibleZones.length===0;
+var isGift=giftRouteNames.has(enc.route);
+var isSelected=selectedRoute===enc.route;
+
+
+if(isGift){var _ref7;
+var isChoicePending=enc.choice&&!resolved;
+var resolvedGift=resolved?game.box.find(function(p){return p.caughtRoute===enc.route;}):undefined;
+var giftPokemon=(_ref7=[]).concat.apply(_ref7,enc.zones.map(function(z){return z.pokemon;}));
+var _rowClass=[
+'nz-route-list-row',
+isChoicePending?'nz-route-list-row-choice':'',
+resolved?'resolved':'',
+isSelected?'selected':''].
+filter(Boolean).join(' ');
+return preact.h("div",{key:enc.route,"class":_rowClass,onClick:function(){return _this3.selectRoute(enc.route);}},
+preact.h("div",{"class":"nz-route-list-row-top"},
+preact.h("span",{"class":"nz-route-list-status"+(isChoicePending?' nz-gift-status-choose':'')},
+resolved?'✓':isChoicePending?'!':''
+),
+preact.h("span",{"class":"nz-route-list-name"},enc.route),
+preact.h("span",{"class":"nz-route-gift-badge"},"Gift")
+),
+preact.h("div",{"class":"nz-route-list-sprites"},
+resolvedGift?
+preact.h("img",{
+"class":"nz-route-sprite nz-route-sprite-caught",
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(resolvedGift.species)+".png",
+alt:resolvedGift.species,title:resolvedGift.species}
+):
+giftPokemon.map(function(e){return(
+preact.h("img",{key:toID(e.species),"class":"nz-route-sprite",
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",
+alt:e.species,title:e.species}
+));}
+)
+
+)
+);
+}
+
+
+
+
+var isServerLocked=((_game$lockedRoutes2=game.lockedRoutes)!=null?_game$lockedRoutes2:[]).some(function(r){return r.route===enc.route;});
+var accessibleHasNonDupe=accessibleZones.some(function(_ref8){var zone=_ref8.zone;return(
+zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
+);
+var lockedHasNonDupe=allZones.some(function(_ref9){var zone=_ref9.zone,accessible=_ref9.accessible;return(
+!accessible&&zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
+);
+var isAllLocked=isServerLocked||!resolved&&!accessibleHasNonDupe&&lockedHasNonDupe;
 var isDeferredThisSession=deferredThisSession.has(enc.route);
 
-var isPendingDeferred=!resolved&&!isDeferredThisSession&&
+
+var isPendingDeferred=!resolved&&!isDeferredThisSession&&!isServerLocked&&
 ((_game$deferredRoutes2=game.deferredRoutes)!=null?_game$deferredRoutes2:[]).some(function(r){return r.route===enc.route;});
 var allDupes=!resolved&&!isAllLocked&&accessibleZones.length>0&&
-accessibleZones.every(function(_ref7){var zone=_ref7.zone;return(
+accessibleZones.every(function(_ref10){var zone=_ref10.zone;return(
 zone.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
-var isSelected=selectedRoute===enc.route;
 var caughtPokemon=resolved?
 game.box.find(function(p){return p.caughtRoute===enc.route;}):
 undefined;
@@ -614,7 +670,7 @@ undefined;
 
 var seenSids=new Set();
 var allSpecies=[];for(var _i6=0;_i6<
-accessibleZones.length;_i6++){var _ref8=accessibleZones[_i6];var zone=_ref8.zone;for(var _i8=0,_zone$pokemon2=
+accessibleZones.length;_i6++){var _ref11=accessibleZones[_i6];var zone=_ref11.zone;for(var _i8=0,_zone$pokemon2=
 zone.pokemon;_i8<_zone$pokemon2.length;_i8++){var e=_zone$pokemon2[_i8];
 var sid=toID(e.species);
 if(!seenSids.has(sid)){seenSids.add(sid);allSpecies.push(e.species);}
@@ -624,13 +680,13 @@ if(!seenSids.has(sid)){seenSids.add(sid);allSpecies.push(e.species);}
 var statusSymbol='';
 if(resolved)statusSymbol='✓';else
 if(allDupes)statusSymbol='—';else
-if(isDeferredThisSession)statusSymbol='↩';
+if(isDeferredThisSession||isAllLocked)statusSymbol='↩';
 
+var isDeferred=isAllLocked||isDeferredThisSession||isPendingDeferred;
 var rowClass=[
 'nz-route-list-row',
 isSelected?'selected':'',
-resolved?'resolved':'',
-isAllLocked?'nz-route-list-row-locked':''].
+resolved?'resolved':''].
 filter(Boolean).join(' ');
 
 return preact.h("div",{
@@ -639,12 +695,11 @@ key:enc.route,
 onClick:function(){return _this3.selectRoute(enc.route);}},
 
 preact.h("div",{"class":"nz-route-list-row-top"},
-preact.h("span",{"class":"nz-route-list-status"+(isDeferredThisSession?' nz-route-status-deferred':'')},
+preact.h("span",{"class":"nz-route-list-status"+(isDeferred?' nz-route-status-deferred':'')},
 statusSymbol
 ),
 preact.h("span",{"class":"nz-route-list-name"},enc.route),
-isAllLocked&&preact.h("span",{"class":"nz-route-locked-badge"},"Locked"),
-isPendingDeferred&&preact.h("span",{"class":"nz-route-deferred-badge"},"Deferred")
+isDeferred&&preact.h("span",{"class":"nz-route-deferred-badge"},"Deferred")
 ),
 allSpecies.length>0&&preact.h("div",{"class":"nz-route-list-sprites"},
 preact.h("div",{"class":"nz-route-sprite-group"},
@@ -669,54 +724,6 @@ title:species}
 )
 );
 }),
-
-(unresolvedChoiceGifts.length>0||resolvedGiftPokemon.length>0)&&preact.h(preact.Fragment,null,
-preact.h("div",{"class":"nz-route-list-divider"},"Gifts"),
-unresolvedChoiceGifts.map(function(g){var _ref9;
-var giftPokemon=(_ref9=[]).concat.apply(_ref9,g.zones.map(function(z){return z.pokemon;}));
-return preact.h("div",{
-key:g.route,
-"class":"nz-route-list-row nz-route-list-row-choice"+(selectedRoute===g.route?' selected':''),
-onClick:function(){return _this3.selectRoute(g.route);}},
-
-preact.h("div",{"class":"nz-route-list-row-top"},
-preact.h("span",{"class":"nz-route-list-status nz-gift-status-choose"},"!"),
-preact.h("span",{"class":"nz-route-list-name"},g.route)
-),
-preact.h("div",{"class":"nz-route-list-sprites"},
-giftPokemon.map(function(e){return(
-preact.h("img",{
-key:toID(e.species),
-"class":"nz-route-sprite",
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",
-alt:e.species,
-title:e.species}
-));}
-)
-)
-);
-}),
-resolvedGiftPokemon.map(function(p){return(
-preact.h("div",{
-key:p.uid,
-"class":"nz-route-list-row resolved"+(selectedRoute===p.caughtRoute?' selected':''),
-onClick:function(){return _this3.selectRoute(p.caughtRoute);}},
-
-preact.h("div",{"class":"nz-route-list-row-top"},
-preact.h("span",{"class":"nz-route-list-status"},"\u2713"),
-preact.h("span",{"class":"nz-route-list-name"},p.caughtRoute)
-),
-preact.h("div",{"class":"nz-route-list-sprites"},
-preact.h("img",{
-"class":"nz-route-sprite nz-route-sprite-caught",
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(p.species)+".png",
-alt:p.species,
-title:p.species}
-)
-)
-));}
-)
-),
 
 segment.items.length>0&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-route-list-divider"},"Items"),
@@ -752,23 +759,37 @@ nickname:(_nicknames$selectedRe=nicknames[selectedResolvedGift.uid])!=null?_nick
 onNickChange:this.setNick}
 ),
 
-!selectedChoiceGift&&!selectedResolvedGift&&selectedEnc&&function(){
-var isAllLockedRoute=!isResolved&&selectedAllZones.length>0&&
-selectedAccessibleZones.length===0;
+!selectedChoiceGift&&!selectedResolvedGift&&selectedEnc&&function(_game$lockedRoutes3){
+var isServerLockedRoute=((_game$lockedRoutes3=game.lockedRoutes)!=null?_game$lockedRoutes3:[]).some(function(r){return r.route===selectedEnc.route;});
+var detailAccessibleHasNonDupe=selectedAccessibleZones.some(function(_ref12){var zone=_ref12.zone;return(
+zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
+);
+var detailLockedHasNonDupe=selectedAllZones.some(function(_ref13){var zone=_ref13.zone,accessible=_ref13.accessible;return(
+!accessible&&zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
+);
+var isAllLockedRoute=isServerLockedRoute||!isResolved&&!detailAccessibleHasNonDupe&&detailLockedHasNonDupe;
 var isDeferredThisSession=deferredThisSession.has(selectedEnc.route);
 var showDefer=!isResolved&&!isAllLockedRoute&&!isDeferredThisSession;
 return preact.h(preact.Fragment,null,
 isMultiZone&&!isResolved&&!isAllLockedRoute&&preact.h("div",{"class":"nz-detail-choose-hint"},"Choose one zone \u2014 you only get one encounter here"
 
 ),
-isAllLockedRoute&&preact.h("div",{"class":"nz-detail-locked-hint"},"All zones require items or moves you don't have yet. This route will carry forward automatically."
-
-),
-isDeferredThisSession&&preact.h("div",{"class":"nz-detail-deferred-hint"},"Deferred \u2014 will re-appear next segment"
-
-),
+(isAllLockedRoute||isDeferredThisSession)&&function(){
+var hint='Deferred — will re-appear next segment';
+if(isAllLockedRoute){
+var seen=new Set();for(var _i10=0;_i10<
+selectedAllZones.length;_i10++){var _ref15,_zone$requires3;var _ref14=selectedAllZones[_i10];var zone=_ref14.zone;var accessible=_ref14.accessible;
+if(accessible)continue;
+if(!zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}))continue;
+var name=(_ref15=(_zone$requires3=zone.requires)!=null?_zone$requires3:METHOD_PREREQS[zone.method])==null?void 0:_ref15.name;
+if(name)seen.add(name);
+}
+if(seen.size>0)hint+=" (missing: "+Array.from(seen).join(', ')+")";
+}
+return preact.h("div",{"class":"nz-detail-deferred-hint"},hint);
+}(),
 preact.h("div",{"class":"nz-zone-cards"},
-selectedAllZones.map(function(_ref10){var zone=_ref10.zone,originalIndex=_ref10.originalIndex,accessible=_ref10.accessible;return(
+selectedAllZones.map(function(_ref16){var zone=_ref16.zone,originalIndex=_ref16.originalIndex,accessible=_ref16.accessible;return(
 preact.h(ZonePoolCard,{
 key:originalIndex,
 zone:zone,
