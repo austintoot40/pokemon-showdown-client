@@ -134,6 +134,10 @@ declare global {
 		interface ElementClass extends preact.Component<any, any> {
 		}
 
+		interface IntrinsicAttributes {
+			key?: string | number | null;
+		}
+
 		interface ElementAttributesProperty {
 			props: any;
 		}

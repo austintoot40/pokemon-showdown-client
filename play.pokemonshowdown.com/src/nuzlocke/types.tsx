@@ -83,7 +83,7 @@ export interface ZoneEncounter {
 	time?: string;     // "Morning" | "Day" | "Night" — only present when rates differ by time of day
 	pokemon: EncounterEntry[];
 	levels?: [number, number];
-	requires?: { type: 'hm' | 'item'; name: string };  // explicit prereq; overrides METHOD_PREREQS inference
+	requires?: { type: 'hm' | 'item' | 'pokemon'; name: string };  // explicit prereq; overrides METHOD_PREREQS inference
 }
 
 export interface RouteEncounter {

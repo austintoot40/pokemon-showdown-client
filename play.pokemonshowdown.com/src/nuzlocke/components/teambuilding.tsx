@@ -215,10 +215,10 @@ export class NzStatPair extends preact.Component<{
 	ivs?: StatsTable;
 	ivsExtra?: preact.ComponentChildren;
 }, { radar: boolean }> {
-	state = { radar: getStatViewPref() };
+	override state = { radar: getStatViewPref() };
 	_onSync = () => this.setState({ radar: getStatViewPref() });
-	componentDidMount() { window.addEventListener('nzstatview', this._onSync); }
-	componentWillUnmount() { window.removeEventListener('nzstatview', this._onSync); }
+	override componentDidMount() { window.addEventListener('nzstatview', this._onSync); }
+	override componentWillUnmount() { window.removeEventListener('nzstatview', this._onSync); }
 	toggle = () => setStatViewPref(!this.state.radar);
 
 	render() {

@@ -29,14 +29,16 @@ const METHOD_PREREQS: Record<string, { type: 'hm' | 'item'; name: string }> = {
 	'Fish Super': { type: 'item', name: 'Super Rod' },
 };
 
-function hasZonePrereq(zone: ZoneEncounter, tmMoves: string[], items: string[]): boolean {
+function hasZonePrereq(zone: ZoneEncounter, tmMoves: string[], items: string[], ownedSpecies: string[]): boolean {
 	// Explicit `requires` on the zone takes precedence over METHOD_PREREQS inference
 	const prereq = zone.requires ?? METHOD_PREREQS[zone.method];
 	if (!prereq) return true;
-	return prereq.type === 'hm' ? tmMoves.includes(prereq.name) : items.includes(prereq.name);
+	if (prereq.type === 'hm') return tmMoves.includes(prereq.name);
+	if (prereq.type === 'pokemon') return ownedSpecies.includes(toID(prereq.name));
+	return items.includes(prereq.name);
 }
 
-function calcIvScore(ivs: StatsTable, baseStats: { [k: string]: number }): number {
+export function calcIvScore(ivs: StatsTable, baseStats: { [k: string]: number }): number {
 	const keys: Array<keyof StatsTable> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 	let weighted = 0;
 	let maxWeighted = 0;
@@ -47,7 +49,7 @@ function calcIvScore(ivs: StatsTable, baseStats: { [k: string]: number }): numbe
 	return maxWeighted > 0 ? weighted / maxWeighted : 0;
 }
 
-function calcNatureQuality(
+export function calcNatureQuality(
 	nature: { plus?: string; minus?: string },
 	baseStats: { [k: string]: number }
 ): 'good' | 'neutral' | 'bad' {
@@ -73,7 +75,7 @@ function normalCDF(z: number): number {
 
 // Returns the fraction of random rolls at least as good as this pokemon (IVs + nature combined).
 // Returns null if not in the top 5%.
-function calcCombinedPercentile(
+export function calcCombinedPercentile(
 	ivScore: number,
 	natureQuality: 'good' | 'neutral' | 'bad',
 	baseStats: { [k: string]: number }
@@ -133,6 +135,7 @@ function prereqLabel(zone: ZoneEncounter): string | null {
 		'Fish Good':  { name: 'Good Rod' },
 		'Fish Super': { name: 'Super Rod' },
 	};
+	if (zone.requires?.type === 'pokemon') return `own ${zone.requires.name}`;
 	const prereq = zone.requires ?? METHOD_PREREQS[zone.method];
 	return prereq ? prereq.name : null;
 }
@@ -232,7 +235,7 @@ class EncounterPokemonStats extends preact.Component<{
 	nickname: string;
 	onNickChange: (uid: string, value: string) => void;
 }, { editing: boolean }> {
-	state = { editing: false };
+	override state = { editing: false };
 	startEdit = () => this.setState({ editing: true });
 	stopEdit = () => this.setState({ editing: false });
 
@@ -275,8 +278,8 @@ class EncounterPokemonStats extends preact.Component<{
 						class="nz-encounter-stats-nick-input"
 						type="text"
 						value={nickname}
-						maxlength={12}
-						autoFocus
+						maxLength={12}
+						autofocus
 						onInput={e => onNickChange(pokemon.uid, (e.target as HTMLInputElement).value)}
 						onBlur={this.stopEdit}
 					/>
@@ -414,7 +417,7 @@ interface EncountersState {
 }
 
 export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayload }, EncountersState> {
-	state: EncountersState = {
+	override state: EncountersState = {
 		selectedRoute: null,
 		nicknames: {},
 		deferredThisSession: new Set(),
@@ -467,7 +470,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			const pending = allDisplayed.find(enc =>
 				!props.game.resolvedRoutes.includes(enc.route) &&
 				enc.zones.some(z =>
-					hasZonePrereq(z, tmMoves, items) &&
+					hasZonePrereq(z, tmMoves, items, props.game.box.map(p => toID(p.species))) &&
 					z.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species)))
 				)
 			);
@@ -475,7 +478,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			// Fall back to first unresolved choice gift, then first accessible enc
 			const fallback = !autoSelected
 				? ((segment.gifts ?? []).find(g => g.choice && !props.game.resolvedRoutes.includes(g.route))?.route ??
-					allDisplayed.find(enc => enc.zones.some(z => hasZonePrereq(z, tmMoves, items)))?.route ?? null)
+					allDisplayed.find(enc => enc.zones.some(z => hasZonePrereq(z, tmMoves, items, props.game.box.map(p => toID(p.species)))))?.route ?? null)
 				: autoSelected;
 			if (fallback !== currentSelected) updates.selectedRoute = fallback;
 		}
@@ -538,7 +541,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			enc.zones.map((zone, i) => ({
 				zone,
 				originalIndex: i,
-				accessible: hasZonePrereq(zone, game.tmMoves, game.items),
+				accessible: hasZonePrereq(zone, game.tmMoves, game.items, game.box.map(p => toID(p.species))),
 			}))
 		);
 		const encAccessibleZones = encZones.map(zones => zones.filter(z => z.accessible));

@@ -80,7 +80,7 @@ function getLocalPastRuns(): NuzlockePastRun[] {
 }
 
 function getLocalAiPreference(): string {
-    return localStorage.getItem('nuzlocke_ai_preference') ?? 'game-accurate';
+    return localStorage.getItem('nuzlocke_ai_preference') ?? 'basic';
 }
 
 function setLocalAiPreference(difficulty: string) {
@@ -108,9 +108,9 @@ function setLocalRandomizerSettings(s: RandomizerSettings) {
 }
 
 const AI_DIFFICULTIES = [
-    { id: 'game-accurate', label: 'Game' },
-    { id: 'smart', label: 'Smart' },
-    { id: 'competitive', label: 'Competitive' },
+    { id: 'basic', label: 'Basic', tooltip: 'Mirrors the official games — attacks freely, never switches. Uses a heuristic score to pick moves.' },
+    { id: 'smart', label: 'Smart', tooltip: 'Upgraded AI with richer heuristics. Properly values status moves and switches out reactively.' },
+    { id: 'competitive', label: 'Competitive', tooltip: 'Experimental and quite difficult. Uses lookahead to make long-term plans and counter yours.' },
 ];
 
 
@@ -815,6 +815,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                     key={d.id}
                                                                     class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
                                                                     onClick={() => this.setDifficulty(d.id)}
+                                                                    title={d.tooltip}
                                                                 >{d.label}</button>
                                                             ))}
                                                         </div>

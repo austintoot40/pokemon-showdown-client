@@ -57,7 +57,7 @@ export class NzRouteCardCaught extends preact.Component<{
 	nickname?: string;
 	onNickChange?: (uid: string, value: string) => void;
 }, { editing: boolean }> {
-	state = { editing: false };
+	override state = { editing: false };
 	startEdit = () => this.setState({ editing: true });
 	stopEdit = () => this.setState({ editing: false });
 	override render() {
@@ -84,8 +84,8 @@ export class NzRouteCardCaught extends preact.Component<{
 					class="nz-route-caught nz-route-caught-input"
 					type="text"
 					value={displayName}
-					maxlength={12}
-					autoFocus
+					maxLength={12}
+					autofocus
 					onInput={(e) => onNickChange(pokemon.uid, (e.target as HTMLInputElement).value)}
 					onBlur={this.stopEdit}
 				/>

@@ -93,20 +93,20 @@ interface NzMoveSelectState {
 }
 
 export class NzMoveSelect extends preact.Component<NzMoveSelectProps, NzMoveSelectState> {
-	state: NzMoveSelectState = { query: '', open: false };
+	override state: NzMoveSelectState = { query: '', open: false };
 	inputEl: HTMLInputElement | null = null;
 	portalEl: HTMLDivElement | null = null;
 
-	componentDidMount() {
+	override componentDidMount() {
 		this.portalEl = document.createElement('div');
 		document.body.appendChild(this.portalEl);
 	}
 
-	componentDidUpdate() {
+	override componentDidUpdate() {
 		this.updatePortal();
 	}
 
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.portalEl) {
 			preact.render('' as any, this.portalEl);
 			document.body.removeChild(this.portalEl);
@@ -236,20 +236,20 @@ interface NzItemSelectProps {
 }
 
 export class NzItemSelect extends preact.Component<NzItemSelectProps, NzMoveSelectState> {
-	state: NzMoveSelectState = { query: '', open: false };
+	override state: NzMoveSelectState = { query: '', open: false };
 	inputEl: HTMLInputElement | null = null;
 	portalEl: HTMLDivElement | null = null;
 
-	componentDidMount() {
+	override componentDidMount() {
 		this.portalEl = document.createElement('div');
 		document.body.appendChild(this.portalEl);
 	}
 
-	componentDidUpdate() {
+	override componentDidUpdate() {
 		this.updatePortal();
 	}
 
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.portalEl) {
 			preact.render('' as any, this.portalEl);
 			document.body.removeChild(this.portalEl);

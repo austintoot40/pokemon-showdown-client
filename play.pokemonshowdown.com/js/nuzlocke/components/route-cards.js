@@ -84,8 +84,8 @@ preact.h("input",{
 "class":"nz-route-caught nz-route-caught-input",
 type:"text",
 value:displayName,
-maxlength:12,
-autoFocus:true,
+maxLength:12,
+autofocus:true,
 onInput:function(e){return onNickChange(pokemon.uid,e.target.value);},
 onBlur:this.stopEdit}
 ):

@@ -37,7 +37,7 @@ interface TeambuildingState {
 }
 
 export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
-	state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponentIndex: null };
+	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponentIndex: null };
 
 	static getDerivedStateFromProps(
 		props: { game: NuzlockePanelPayload },
@@ -82,7 +82,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 	selectOpponent = (index: number) => this.setState({ selectedOpponentIndex: index, selectedUid: null });
 
 	setMove = (uid: string, slot: number, value: string) => {
-		this.setState(s => {
+		this.setState((s: TeambuildingState) => {
 			const moves = { ...s.moves, [uid]: [...(s.moves[uid] ?? ['', '', '', ''])] };
 			moves[uid][slot] = value;
 			return { moves };
@@ -90,7 +90,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 	};
 
 	setItem = (uid: string, value: string) => {
-		this.setState(s => ({ heldItems: { ...s.heldItems, [uid]: value } }));
+		this.setState((s: TeambuildingState) => ({ heldItems: { ...s.heldItems, [uid]: value } }));
 	};
 
 	validate(): Record<string, string> {
@@ -357,11 +357,12 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 								onClick={() => PS.send(`/nuzlocke removefromparty ${selectedPokemon.uid}`)}>
 								Remove from Party
 							</NzBtn>
-							: game.party.length < 6 &&
-								<NzBtn size="sm" variant="secondary"
+							: game.party.length < 6
+								? <NzBtn size="sm" variant="secondary"
 									onClick={() => PS.send(`/nuzlocke addtoparty ${selectedPokemon.uid}`)}>
 									Add to Party
 								</NzBtn>
+								: null
 						}
 					</div>
 					{evos.length > 0 && <div class="nz-tb-detail-evos">

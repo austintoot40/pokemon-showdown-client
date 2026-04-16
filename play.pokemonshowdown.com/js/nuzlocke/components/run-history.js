@@ -98,7 +98,7 @@ preact.h("div",{"class":"nz-run-entry-header",onClick:onToggle},
 preact.h(NzBadge,{variant:won?'active':'danger'},won?'Victory':'Wipe'),
 preact.h("span",{"class":"nz-run-entry-name"},run.scenarioName),
 preact.h("span",{"class":"nz-run-entry-meta"},
-date," \xB7 ",run.deathCount," death",run.deathCount!==1?'s':''," \xB7 ",(_run$ai=run.ai)!=null?_run$ai:'game-accurate',
+date," \xB7 ",run.deathCount," death",run.deathCount!==1?'s':''," \xB7 ",(_run$ai=run.ai)!=null?_run$ai:'basic',
 run.finalBattle?" \xB7 "+run.finalBattle:''
 ),
 preact.h("span",{"class":"nz-run-entry-chevron"},expanded?'▲':'▼')

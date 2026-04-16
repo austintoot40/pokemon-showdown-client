@@ -357,11 +357,12 @@ preact.h(NzBtn,{size:"sm",variant:"danger",
 onClick:function(){return PS.send("/nuzlocke removefromparty "+selectedPokemon.uid);}},"Remove from Party"
 
 ):
-game.party.length<6&&
+game.party.length<6?
 preact.h(NzBtn,{size:"sm",variant:"secondary",
 onClick:function(){return PS.send("/nuzlocke addtoparty "+selectedPokemon.uid);}},"Add to Party"
 
-)
+):
+null
 
 ),
 evos.length>0&&preact.h("div",{"class":"nz-tb-detail-evos"},
