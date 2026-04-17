@@ -16,6 +16,53 @@ import { ResultsScreen } from "./nuzlocke/screens/results";
 import { SummaryScreen } from "./nuzlocke/screens/summary";
 import type { NuzlockePanelPayload } from "./nuzlocke/types";
 
+// ---------------------------------------------------------------------------
+// Error reporting
+// ---------------------------------------------------------------------------
+
+// Circular buffer of the last 5 commands sent to the server.
+const recentCommands: string[] = [];
+const RECENT_COMMANDS_MAX = 5;
+
+// Keep a direct reference before patching so error reports don't pollute the buffer.
+const _origSend = PS.send.bind(PS);
+
+(PS as any).send = (msg: string, roomid?: any) => {
+	recentCommands.push(msg);
+	if (recentCommands.length > RECENT_COMMANDS_MAX) recentCommands.shift();
+	return _origSend(msg, roomid);
+};
+
+function sendNuzlockeError(err: Error, context?: Record<string, unknown>) {
+	try {
+		const payload = {
+			error: { message: err.message, stack: err.stack },
+			context: {
+				userAgent: navigator.userAgent,
+				recentCommands: [...recentCommands],
+				...context,
+			},
+		};
+		_origSend(`/nuzlocke logerror ${btoa(JSON.stringify(payload))}`);
+	} catch {}
+}
+
+window.addEventListener('error', e => {
+	sendNuzlockeError(
+		e.error instanceof Error ? e.error : new Error(e.message),
+		{ type: 'global', filename: e.filename, lineno: e.lineno }
+	);
+});
+
+window.addEventListener('unhandledrejection', e => {
+	const err = e.reason instanceof Error ? e.reason : new Error(String(e.reason));
+	sendNuzlockeError(err, { type: 'unhandledRejection' });
+});
+
+// ---------------------------------------------------------------------------
+// Components
+// ---------------------------------------------------------------------------
+
 function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | null }) {
 	if (!gameState) return <NzRoot><NzScreen><p class="nz-notice">Loading...</p></NzScreen></NzRoot>;
 
@@ -33,8 +80,17 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | nu
 	return <NzRoot>{screen}</NzRoot>;
 }
 
+class NuzlockeErrorBoundary extends preact.Component<{ gameState: NuzlockePanelPayload | null }> {
+	componentDidCatch(err: Error) {
+		sendNuzlockeError(err, { type: 'render', screen: this.props.gameState?.curScreen });
+	}
+	render() {
+		return <NuzlockeGamePanel gameState={this.props.gameState} />;
+	}
+}
+
 const PagePanel = (PS.roomTypes['html'] as any);
 if (PagePanel) {
 	PagePanel.nuzlockeRenderer = (gameState: NuzlockePanelPayload | null) =>
-		<NuzlockeGamePanel gameState={gameState} />;
+		<NuzlockeErrorBoundary gameState={gameState} />;
 }

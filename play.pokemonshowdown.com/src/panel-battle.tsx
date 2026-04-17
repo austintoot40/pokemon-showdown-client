@@ -824,9 +824,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderPlayerWaitingControls() {
 		const room = this.props.room;
 		return <div class="controls">
-			{!room.battle.hardcoreMode && <div class="whatdo">
-				<button class="nz-btn nz-btn-secondary" data-cmd="/ffto end">Skip animation <i class="fa fa-fast-forward" aria-hidden></i></button>
-			</div>}
 			{this.renderTeamList()}
 		</div>;
 	}
