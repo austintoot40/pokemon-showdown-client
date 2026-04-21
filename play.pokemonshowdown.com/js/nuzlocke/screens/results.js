@@ -11,7 +11,7 @@
 
 function ResultsScreen(_ref){var game=_ref.game;
 var result=game.lastBattleResult;
-var continueLabel=game.nextScreen==='summary'?'View Summary':
+var continueLabel=game.nextScreen==='done'?'Finish':
 game.nextScreen==='battle'?'Next Battle':
 'Continue';
 

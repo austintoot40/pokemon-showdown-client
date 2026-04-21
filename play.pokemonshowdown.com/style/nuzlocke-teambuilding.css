@@ -25,6 +25,8 @@
   align-items: stretch;
   width: 100%;
   min-width: 0;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 .nz-section-title-danger::before {
@@ -169,8 +171,9 @@
 
 .nz-tb-detail-evos {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 6px;
 }
 
@@ -455,6 +458,13 @@
   gap: 8px;
 }
 
+/* Footer action row — holds Evolve All + Battle side by side */
+.nz-tb-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 /* Opponent detail panel — danger accent instead of blue */
 .nz-tb-detail-opponent {
   border-left-color: var(--nz-danger);
@@ -480,20 +490,16 @@
    ============================================= */
 
 /* All 4 move rows share one grid — fixed column widths prevent layout
-   shifts when moves change. Type: fits "Fighting"/"Electric". Cat: fits
-   "Status". BP/Acc: fits 3-digit numbers and "100%". */
+   shifts when moves change. Type/Cat: fit badge min-width (5.5em at ~13px).
+   BP/Acc: fits 3-digit numbers and "100%". */
 .nz-moves-grid {
   display: grid;
-  grid-template-columns: 190px 68px 50px 36px 44px minmax(0, 1fr);
+  grid-template-columns: 150px 100px 100px 36px 44px 52px minmax(0, 1fr);
   align-items: center;
   justify-items: start;
   column-gap: 8px;
   row-gap: 6px;
   margin-bottom: 14px;
-}
-
-.nz-moves-grid--doubles {
-  grid-template-columns: 190px 68px 50px 36px 44px 52px minmax(0, 1fr);
 }
 
 /* Select and move-name fill their column */
@@ -631,11 +637,9 @@
 .nz-moves-grid .nz-type,
 .nz-moves-grid .nz-move-cat {
   display: block;
-  justify-self: stretch;
+  justify-self: center;
   text-align: center;
   white-space: nowrap;
-  padding-left: 4px;
-  padding-right: 4px;
 }
 
 /* Column header labels */
@@ -770,14 +774,16 @@
 
 /* Wrapper that holds either bars or radar */
 .nz-stat-view {
+  min-height: 175px;
   margin-bottom: 14px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--nz-border-subtle);
 }
 
-/* .nz-stat-bars inside .nz-stat-view inherits the outer border/spacing
-   from .nz-stat-view, so remove its own */
-.nz-stat-view .nz-stat-bars {
+/* Both .nz-stat-bars and .nz-stat-split inside .nz-stat-view inherit the
+   outer border/spacing, so remove their own to avoid double decoration */
+.nz-stat-view .nz-stat-bars,
+.nz-stat-view .nz-stat-split {
   margin-bottom: 0;
   padding-bottom: 0;
   border-bottom: none;
@@ -792,6 +798,7 @@
   font-family: var(--nz-font-mono);
   font-size: 10px;
   font-weight: 700;
+  line-height: 1.4;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: transparent;
@@ -806,22 +813,22 @@
   color: var(--nz-accent);
 }
 
-/* Flex row containing two radar columns */
+/* Two-column grid matching .nz-stat-split so Base/IVs labels stay in the same position */
 .nz-stat-radar-row {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
 }
 
 .nz-stat-radar-col {
-  flex: 1;
   min-width: 0;
-  max-width: 230px;
 }
 
-/* Radar SVG — fills its flex column */
+/* Radar SVG — fills its flex column but capped so radar view matches bars height */
 .nz-stat-radar {
   display: block;
   width: 100%;
+  max-height: 120px;
   margin: 0 0 4px;
 }
 
@@ -869,7 +876,7 @@
 /* Axis labels */
 .nz-radar-label {
   font-family: var(--nz-font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -893,11 +900,14 @@
 }
 
 .nz-move-cat {
-  padding: 1px 5px;
-  font-size: 11px;
+  display: inline-block;
+  padding: 1px 7px;
+  min-width: 5.5em;
+  text-align: center;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   border-radius: var(--nz-radius);
   border: 1px solid transparent;
 }
@@ -961,6 +971,7 @@
   background: var(--nz-success-dim);
   color: var(--nz-success);
   border: 1px solid var(--nz-success);
+  animation: nz-border-rotate-success 2s linear infinite;
 }
 
 .nz-tb-percentile-worse {

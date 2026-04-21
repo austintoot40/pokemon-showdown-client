@@ -11,7 +11,7 @@ import type { NuzlockePanelPayload } from "../types";
 
 export function ResultsScreen({ game }: { game: NuzlockePanelPayload }) {
 	const result = game.lastBattleResult;
-	const continueLabel = game.nextScreen === 'summary' ? 'View Summary'
+	const continueLabel = game.nextScreen === 'done' ? 'Finish'
 		: game.nextScreen === 'battle' ? 'Next Battle'
 		: 'Continue';
 

@@ -87,13 +87,29 @@ function setLocalAiPreference(difficulty: string) {
     localStorage.setItem('nuzlocke_ai_preference', difficulty);
 }
 
+function getLocalGenerationPreference(): string {
+    return localStorage.getItem('nuzlocke_generation_preference') ?? 'original';
+}
+
+function setLocalGenerationPreference(mode: string) {
+    localStorage.setItem('nuzlocke_generation_preference', mode);
+}
+
+function getLocalVerifiedFilter(): boolean {
+    const stored = localStorage.getItem('nuzlocke_verified_filter');
+    return stored === null ? true : stored === '1';
+}
+
+function setLocalVerifiedFilter(value: boolean) {
+    localStorage.setItem('nuzlocke_verified_filter', value ? '1' : '0');
+}
+
 interface RandomizerSettings {
     mode: 'shuffle' | 'fully-random';
     bstVariance: 'low' | 'medium' | 'high';
-    randomizeItems: boolean;
 }
 
-const DEFAULT_RANDOMIZER: RandomizerSettings = { mode: 'shuffle', bstVariance: 'medium', randomizeItems: false };
+const DEFAULT_RANDOMIZER: RandomizerSettings = { mode: 'shuffle', bstVariance: 'medium' };
 
 function getLocalRandomizerSettings(): RandomizerSettings {
     try {
@@ -111,6 +127,11 @@ const AI_DIFFICULTIES = [
     { id: 'basic', label: 'Basic', tooltip: 'Mirrors the official games — attacks freely, never switches. Uses a heuristic score to pick moves.' },
     { id: 'smart', label: 'Smart', tooltip: 'Upgraded AI with richer heuristics. Properly values status moves and switches out reactively.' },
     { id: 'competitive', label: 'Competitive', tooltip: 'Experimental and quite difficult. Uses lookahead to make long-term plans and counter yours.' },
+];
+
+const GENERATION_OPTIONS = [
+    { id: 'original', label: 'Original', tooltip: 'Use the generation defined by the scenario (e.g. Gen 3 for Emerald).' },
+    { id: 'modern', label: 'Modern', tooltip: 'Use Gen 9 mechanics for all battles regardless of scenario.' },
 ];
 
 
@@ -645,9 +666,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     selectedScenario: string | null = null;
     selectedStarter: number | null = null;
     selectedDifficulty: string = getLocalAiPreference();
+    selectedGeneration: string = getLocalGenerationPreference();
     confirmAbandon: boolean = false;
     showRandomizerModal: boolean = false;
     randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
+    showVerifiedOnly: boolean = getLocalVerifiedFilter();
 
     clickAbandon = () => {
         this.confirmAbandon = true;
@@ -667,9 +690,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         const randomizerPreview = status?.randomizerPreview ?? null;
         const hasActivePreview = !!(randomizerPreview && randomizerPreview.scenarioId === this.selectedScenario);
         if (hasActivePreview) {
-            PS.send(`/nuzlocke randomizestart ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedStarter}`);
+            PS.send(`/nuzlocke randomizestart ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedGeneration} ${this.selectedStarter}`);
         } else {
-            PS.send(`/nuzlocke start ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedStarter}`);
+            PS.send(`/nuzlocke start ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedGeneration} ${this.selectedStarter}`);
         }
     };
     clickCancelRandomizer = () => {
@@ -695,16 +718,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         setLocalRandomizerSettings(this.randomizerSettings);
         this.forceUpdate();
     };
-    setRandomizerItems = (randomizeItems: boolean) => {
-        this.randomizerSettings = { ...this.randomizerSettings, randomizeItems };
-        setLocalRandomizerSettings(this.randomizerSettings);
-        this.forceUpdate();
-    };
     clickRandomize = () => {
         if (!this.selectedScenario) return;
         this.selectedStarter = null;
-        const { mode, bstVariance, randomizeItems } = this.randomizerSettings;
-        PS.send(`/nuzlocke randomizerpreview ${this.selectedScenario} ${mode} ${bstVariance} ${randomizeItems}`);
+        const { mode, bstVariance } = this.randomizerSettings;
+        PS.send(`/nuzlocke randomizerpreview ${this.selectedScenario} ${mode} ${bstVariance}`);
         this.showRandomizerModal = false;
         this.forceUpdate();
     };
@@ -723,6 +741,24 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         PS.send(`/nuzlocke setai ${difficulty}`);
         this.forceUpdate();
     };
+    setGeneration = (mode: string) => {
+        this.selectedGeneration = mode;
+        setLocalGenerationPreference(mode);
+        this.forceUpdate();
+    };
+    toggleVerifiedFilter = () => {
+        this.showVerifiedOnly = !this.showVerifiedOnly;
+        setLocalVerifiedFilter(this.showVerifiedOnly);
+        if (this.showVerifiedOnly && this.selectedScenario) {
+            const status = this.props.room.nuzlockeMenuPayload;
+            const selected = status?.scenarios.find(s => s.id === this.selectedScenario);
+            if (selected && !selected.verified) {
+                this.selectedScenario = null;
+                this.selectedStarter = null;
+            }
+        }
+        this.forceUpdate();
+    };
     override render() {
         const status = this.props.room.nuzlockeMenuPayload;
         const activeRun = status?.activeRun ?? null;
@@ -730,6 +766,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         const currentDifficulty = activeRun?.ai ?? this.selectedDifficulty;
 
         const serverScenarios = status?.scenarios ?? [];
+        const visibleScenarios = this.showVerifiedOnly
+            ? serverScenarios.filter(s => s.verified)
+            : serverScenarios;
         const selectedScenarioData = this.selectedScenario
             ? serverScenarios.find(s => s.id === this.selectedScenario) ?? null
             : null;
@@ -808,16 +847,33 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                 </div>
                                                             </>
                                                         )}
-                                                        <div class="nz-label" style="margin-bottom:6px;margin-top:12px;">AI Difficulty</div>
-                                                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                                            {AI_DIFFICULTIES.map(d => (
-                                                                <button
-                                                                    key={d.id}
-                                                                    class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
-                                                                    onClick={() => this.setDifficulty(d.id)}
-                                                                    title={d.tooltip}
-                                                                >{d.label}</button>
-                                                            ))}
+                                                        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:12px;">
+                                                            <div>
+                                                                <div class="nz-label" style="margin-bottom:6px;">AI Difficulty</div>
+                                                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                                                    {AI_DIFFICULTIES.map(d => (
+                                                                        <button
+                                                                            key={d.id}
+                                                                            class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
+                                                                            onClick={() => this.setDifficulty(d.id)}
+                                                                            title={d.tooltip}
+                                                                        >{d.label}</button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div class="nz-label" style="margin-bottom:6px;">Generation</div>
+                                                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                                                    {GENERATION_OPTIONS.map(g => (
+                                                                        <button
+                                                                            key={g.id}
+                                                                            class={`nz-difficulty-btn${this.selectedGeneration === g.id ? ' active' : ''}`}
+                                                                            onClick={() => this.setGeneration(g.id)}
+                                                                            title={g.tooltip}
+                                                                        >{g.label}</button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <div class="nz-btn-group">
                                                             <button
@@ -963,9 +1019,17 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             <div class="nz-dashboard-scenarios">
                                 <div class="nz-scenarios-header">
                                     <div class="nz-section-title" style="margin-bottom:0;">Scenarios</div>
+                                    <label class="nz-verified-filter-btn">
+                                        <input
+                                            type="checkbox"
+                                            checked={this.showVerifiedOnly}
+                                            onChange={this.toggleVerifiedFilter}
+                                        />
+                                        Verified
+                                    </label>
                                 </div>
                                 <div class="nz-scenario-grid">
-                                    {[...serverScenarios].sort((a, b) => a.generation - b.generation).map(scenario => {
+                                    {[...visibleScenarios].sort((a, b) => a.generation - b.generation).map(scenario => {
                                         const selected = this.selectedScenario === scenario.id;
                                         return <div
                                             key={scenario.id}
@@ -1041,7 +1105,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     onConfirm={this.clickRandomize}
                     onSetMode={this.setRandomizerMode}
                     onSetBst={this.setRandomizerBst}
-                    onSetItems={this.setRandomizerItems}
                 />
             )}
         </PSPanelWrapper>;
@@ -1054,9 +1117,8 @@ function RandomizerModal(props: {
     onConfirm: () => void;
     onSetMode: (mode: 'shuffle' | 'fully-random') => void;
     onSetBst: (bst: 'low' | 'medium' | 'high') => void;
-    onSetItems: (val: boolean) => void;
 }) {
-    const { settings, onClose, onConfirm, onSetMode, onSetBst, onSetItems } = props;
+    const { settings, onClose, onConfirm, onSetMode, onSetBst } = props;
     return (
         <div class="nz-modal-overlay" onClick={onClose}>
             <div class="nz-modal" onClick={(e: Event) => e.stopPropagation()}>
@@ -1134,25 +1196,6 @@ function RandomizerModal(props: {
                             High (any)
                         </label>
                     </div>
-                </fieldset>
-
-                <fieldset class="nz-modal-fieldset">
-                    <legend class="nz-modal-legend">
-                        Items
-                        <span
-                            class="nz-tooltip"
-                            data-tooltip="Shuffles held items across segments so you get different items each run."
-                        >?</span>
-                    </legend>
-                    <label class="nz-modal-toggle">
-                        <input
-                            type="checkbox"
-                            checked={settings.randomizeItems}
-                            onChange={(e: Event) => onSetItems((e.target as HTMLInputElement).checked)}
-                        />
-                        <span class="nz-modal-toggle-track" />
-                        Randomize Items
-                    </label>
                 </fieldset>
 
                 <div class="nz-modal-actions">

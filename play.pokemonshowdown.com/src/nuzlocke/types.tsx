@@ -48,7 +48,11 @@ export interface LegalMove {
 	name: string;
 	fromTM: boolean;
 	fromHM: boolean;
-	hpType?: string;  // Computed Hidden Power type (gen 2+)
+	hpType?: string;
+	learnedLevel?: number;
+	tmRoute?: string;
+	isNew: boolean;
+	acquisitionOrder: number;
 }
 
 export interface EvoOption {
@@ -70,7 +74,7 @@ export interface TrainerPokemon {
 // ---------------------------------------------------------------------------
 
 export type NuzlockeScreen =
-	'encounters' | 'teambuilding' | 'battle' | 'results' | 'summary';
+	'encounters' | 'teambuilding' | 'battle' | 'done';
 
 export interface EncounterEntry {
 	species: string;
@@ -115,6 +119,7 @@ export interface NuzlockePanelPayload {
 	scenarioName: string | null;
 	scenarioDescription: string | null;
 	generation: number;
+	battleGeneration: number;
 	currentSegmentIndex: number;
 	totalSegments: number;
 	currentBattleIndex: number;
@@ -145,7 +150,6 @@ export interface NuzlockePanelPayload {
 		trainerName: string;
 		deaths: DeadPokemon[];
 	} | null;
-	nextScreen: NuzlockeScreen | null;
 	segmentNames: Record<string, string>;
 	scenarios: NuzlockeScenarioCard[];
 	battleRoomId: string | null;

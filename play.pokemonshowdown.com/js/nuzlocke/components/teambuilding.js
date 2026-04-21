@@ -268,7 +268,7 @@ function NzMoveInfo(_ref7){var moveId=_ref7.moveId;
 if(!moveId)return null;
 var move=Dex.moves.get(moveId);
 if(!move.exists)return null;
-var catLabel=move.category==='Physical'?'Phys':move.category==='Special'?'Spec':'Status';
+var catLabel=move.category;
 var power=move.basePower>0?move.basePower+" BP":'—';
 var acc=move.accuracy===true?'—':move.accuracy+"%";
 return preact.h("div",null,

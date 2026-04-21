@@ -7,7 +7,6 @@
 
 
 
-
 function NzTypeBadges(_ref){var species=_ref.species,generation=_ref.generation;
 var dex=generation?Dex.forGen(generation):Dex;
 var sp=dex.species.get(species);
@@ -91,8 +90,7 @@ maxHeight:Math.min(maxAllowed,spaceAbove)+"px"
 
 
 
-
-NzMoveSelect=function(_preact$Component){function NzMoveSelect(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
+NzItemSelect=function(_preact$Component){function NzItemSelect(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 state={query:'',open:false};_this.
 inputEl=null;_this.
 portalEl=null;_this.
@@ -114,21 +112,9 @@ portalEl=null;_this.
 
 
 
-handleFocus=function(){
-_this.setState({open:true,query:''});
-};_this.
-
-handleClick=function(){
-_this.setState({open:true});
-};_this.
-
-handleInput=function(e){
-_this.setState({query:e.target.value});
-};_this.
-
-handleBlur=function(){
-_this.setState({open:false,query:''});
-};return _this;}_inheritsLoose(NzMoveSelect,_preact$Component);var _proto=NzMoveSelect.prototype;_proto.componentDidMount=function componentDidMount(){this.portalEl=document.createElement('div');document.body.appendChild(this.portalEl);};_proto.componentDidUpdate=function componentDidUpdate(){this.updatePortal();};_proto.componentWillUnmount=function componentWillUnmount(){if(this.portalEl){preact.render('',this.portalEl);document.body.removeChild(this.portalEl);this.portalEl=null;}};_proto.
+handleFocus=function(){_this.setState({open:true,query:''});};_this.
+handleInput=function(e){_this.setState({query:e.target.value});};_this.
+handleBlur=function(){_this.setState({open:false,query:''});};return _this;}_inheritsLoose(NzItemSelect,_preact$Component);var _proto=NzItemSelect.prototype;_proto.componentDidMount=function componentDidMount(){this.portalEl=document.createElement('div');document.body.appendChild(this.portalEl);};_proto.componentDidUpdate=function componentDidUpdate(){this.updatePortal();};_proto.componentWillUnmount=function componentWillUnmount(){if(this.portalEl){preact.render('',this.portalEl);document.body.removeChild(this.portalEl);this.portalEl=null;}};_proto.
 
 select=function select(id){
 this.props.onChange(id);
@@ -141,139 +127,8 @@ preact.render(this.renderDropdown(),this.portalEl);
 };_proto.
 
 renderDropdown=function renderDropdown(){var _this2=this;
-var _this$props=this.props,value=_this$props.value,moves=_this$props.moves,disabledMoves=_this$props.disabledMoves,generation=_this$props.generation;
+var _this$props=this.props,value=_this$props.value,items=_this$props.items,disabledIds=_this$props.disabledIds;
 var _this$state=this.state,query=_this$state.query,open=_this$state.open;
-
-if(!open||!this.inputEl)return preact.h(preact.Fragment,null);
-
-var rect=this.inputEl.getBoundingClientRect();
-var style=dropdownStyle(rect,Math.max(rect.width,340));
-
-var genDex=Dex.forGen(generation);
-var q=query.toLowerCase();
-var filtered=!q?moves:moves.filter(function(m){
-if(m.name.toLowerCase().includes(q))return true;
-var md=genDex.moves.get(toID(m.name));
-if(!md.exists)return false;
-if(md.type.toLowerCase().includes(q))return true;
-var cat=md.category.toLowerCase();
-if(cat.includes(q))return true;
-if(q==='phys'&&cat==='physical')return true;
-if(q==='spec'&&cat==='special')return true;
-return false;
-});
-
-return(
-preact.h("div",{"class":"nz-move-select-dropdown",style:style},
-preact.h("div",{
-"class":"nz-move-select-option"+(!value?' is-selected':''),
-onMouseDown:function(e){e.preventDefault();_this2.select('');}},
-
-preact.h("span",{"class":"nz-move-select-name"},preact.h("span",null,"(empty)"))
-),
-filtered.map(function(m){
-var id=toID(m.name);
-var md=genDex.moves.get(id);
-var isDisabled=disabledMoves.includes(id);
-var isSelected=value===id;
-var catKey=md.exists?md.category.toLowerCase():'';
-var catLabel=md.exists?
-md.category==='Physical'?'Phys':md.category==='Special'?'Spec':'Status':
-'';
-var suffix=m.fromHM?'HM':m.fromTM?'TM':null;
-return(
-preact.h("div",{
-key:m.name,
-"class":['nz-move-select-option',isDisabled?'is-disabled':'',isSelected?'is-selected':''].filter(Boolean).join(' '),
-onMouseDown:function(e){e.preventDefault();if(!isDisabled)_this2.select(id);}},
-
-preact.h("span",{"class":"nz-move-select-name"},
-preact.h("span",null,m.name),
-suffix&&preact.h("span",{"class":"nz-move-select-suffix"},suffix)
-),
-md.exists&&function(_m$hpType){
-var displayType=(_m$hpType=m.hpType)!=null?_m$hpType:md.type;
-return preact.h("span",{"class":"nz-type nz-type-"+displayType.toLowerCase()},displayType);
-}(),
-md.exists&&preact.h("span",{"class":"nz-move-cat nz-move-cat-"+catKey},catLabel)
-));
-
-}),
-filtered.length===0&&
-preact.h("div",{"class":"nz-move-select-empty"},"No moves match")
-
-));
-
-};_proto.
-
-render=function render(){var _Dex$forGen$moves$get,_this3=this;
-var _this$props2=this.props,value=_this$props2.value,generation=_this$props2.generation;
-var _this$state2=this.state,query=_this$state2.query,open=_this$state2.open;
-var displayValue=open?query:value?(_Dex$forGen$moves$get=Dex.forGen(generation).moves.get(value).name)!=null?_Dex$forGen$moves$get:'':'';
-return(
-preact.h("div",{"class":"nz-move-select"},
-preact.h("input",{
-ref:function(el){_this3.inputEl=el;},
-"class":"nz-move-select-input",
-type:"text",
-value:displayValue,
-placeholder:"(empty)",
-onFocus:this.handleFocus,
-onClick:this.handleClick,
-onInput:this.handleInput,
-onBlur:this.handleBlur}
-)
-));
-
-};return NzMoveSelect;}(preact.Component);var
-
-
-
-
-
-
-
-
-
-NzItemSelect=function(_preact$Component2){function NzItemSelect(){var _this4;for(var _len2=arguments.length,args=new Array(_len2),_key2=0;_key2<_len2;_key2++){args[_key2]=arguments[_key2];}_this4=_preact$Component2.call.apply(_preact$Component2,[this].concat(args))||this;_this4.
-state={query:'',open:false};_this4.
-inputEl=null;_this4.
-portalEl=null;_this4.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-handleFocus=function(){_this4.setState({open:true,query:''});};_this4.
-handleInput=function(e){_this4.setState({query:e.target.value});};_this4.
-handleBlur=function(){_this4.setState({open:false,query:''});};return _this4;}_inheritsLoose(NzItemSelect,_preact$Component2);var _proto2=NzItemSelect.prototype;_proto2.componentDidMount=function componentDidMount(){this.portalEl=document.createElement('div');document.body.appendChild(this.portalEl);};_proto2.componentDidUpdate=function componentDidUpdate(){this.updatePortal();};_proto2.componentWillUnmount=function componentWillUnmount(){if(this.portalEl){preact.render('',this.portalEl);document.body.removeChild(this.portalEl);this.portalEl=null;}};_proto2.
-
-select=function select(id){
-this.props.onChange(id);
-this.setState({open:false,query:''});
-};_proto2.
-
-updatePortal=function updatePortal(){
-if(!this.portalEl)return;
-preact.render(this.renderDropdown(),this.portalEl);
-};_proto2.
-
-renderDropdown=function renderDropdown(){var _this5=this;
-var _this$props3=this.props,value=_this$props3.value,items=_this$props3.items,disabledIds=_this$props3.disabledIds;
-var _this$state3=this.state,query=_this$state3.query,open=_this$state3.open;
 
 if(!open||!this.inputEl)return preact.h(preact.Fragment,null);
 
@@ -287,7 +142,7 @@ return(
 preact.h("div",{"class":"nz-move-select-dropdown",style:style},
 preact.h("div",{
 "class":"nz-move-select-option nz-item-option"+(!value?' is-selected':''),
-onMouseDown:function(e){e.preventDefault();_this5.select('');}},
+onMouseDown:function(e){e.preventDefault();_this2.select('');}},
 
 preact.h("span",{"class":"nz-move-select-name"},preact.h("span",null,"(none)"))
 ),
@@ -298,7 +153,7 @@ return(
 preact.h("div",{
 key:it.id,
 "class":['nz-move-select-option nz-item-option',isDisabled?'is-disabled':'',isSelected?'is-selected':''].filter(Boolean).join(' '),
-onMouseDown:function(e){e.preventDefault();if(!isDisabled)_this5.select(it.id);}},
+onMouseDown:function(e){e.preventDefault();if(!isDisabled)_this2.select(it.id);}},
 
 preact.h("span",{"class":"itemicon",style:Dex.getItemIcon(it.name)}),
 preact.h("span",{"class":"nz-move-select-name"},preact.h("span",null,it.name))
@@ -310,16 +165,16 @@ preact.h("div",{"class":"nz-move-select-empty"},"No items match")
 
 ));
 
-};_proto2.
+};_proto.
 
-render=function render(){var _items$find$name,_items$find,_this6=this;
-var _this$props4=this.props,value=_this$props4.value,items=_this$props4.items;
-var _this$state4=this.state,query=_this$state4.query,open=_this$state4.open;
+render=function render(){var _items$find$name,_items$find,_this3=this;
+var _this$props2=this.props,value=_this$props2.value,items=_this$props2.items;
+var _this$state2=this.state,query=_this$state2.query,open=_this$state2.open;
 var displayValue=open?query:value?(_items$find$name=(_items$find=items.find(function(it){return it.id===value;}))==null?void 0:_items$find.name)!=null?_items$find$name:'':'';
 return(
 preact.h("div",{"class":"nz-move-select"},
 preact.h("input",{
-ref:function(el){_this6.inputEl=el;},
+ref:function(el){_this3.inputEl=el;},
 "class":"nz-move-select-input",
 type:"text",
 value:displayValue,

@@ -268,7 +268,7 @@ export function NzMoveInfo({ moveId }: { moveId: string }) {
 	if (!moveId) return null;
 	const move = Dex.moves.get(moveId);
 	if (!move.exists) return null;
-	const catLabel = move.category === 'Physical' ? 'Phys' : move.category === 'Special' ? 'Spec' : 'Status';
+	const catLabel = move.category;
 	const power = move.basePower > 0 ? `${move.basePower} BP` : '—';
 	const acc = move.accuracy === true ? '—' : `${move.accuracy}%`;
 	return <div>

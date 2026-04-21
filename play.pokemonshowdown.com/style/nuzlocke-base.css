@@ -249,6 +249,14 @@ body {
   color: #fff;
 }
 
+@keyframes nz-border-rotate-success {
+  0%   { border-color: #44cc88                  rgba(68,204,136,0.2) rgba(68,204,136,0.2) rgba(68,204,136,0.2); }
+  25%  { border-color: rgba(68,204,136,0.2) #44cc88                  rgba(68,204,136,0.2) rgba(68,204,136,0.2); }
+  50%  { border-color: rgba(68,204,136,0.2) rgba(68,204,136,0.2) #44cc88                  rgba(68,204,136,0.2); }
+  75%  { border-color: rgba(68,204,136,0.2) rgba(68,204,136,0.2) rgba(68,204,136,0.2) #44cc88; }
+  100% { border-color: #44cc88                  rgba(68,204,136,0.2) rgba(68,204,136,0.2) rgba(68,204,136,0.2); }
+}
+
 @keyframes nz-evolve-glow {
   0%, 100% {
     color: rgba(255, 200, 68, 0.7);
@@ -302,6 +310,8 @@ body {
 .nz-type {
   display: inline-block;
   padding: 1px 7px;
+  min-width: 5.5em;
+  text-align: center;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;

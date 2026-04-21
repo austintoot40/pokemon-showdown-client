@@ -441,6 +441,7 @@
 }
 
 .nz-encounter-stats-attr-desc {
+  display: block;
   font-size: 12px;
   color: var(--nz-text-muted);
   line-height: 1.4;
@@ -602,6 +603,7 @@
   padding: 8px 12px;
   text-align: center;
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  animation: nz-border-rotate-success 2s linear infinite;
 }
 
 .nz-encounter-bad-callout {

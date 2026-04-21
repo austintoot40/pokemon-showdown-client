@@ -1,0 +1,346 @@
+/*
+ * Nuzlocke — Move Panel
+ *
+ * Unified move selection panel used in teambuilding:
+ * 4 type-styled slot buttons + search bar + scrollable move table.
+ */
+
+/* =============================================
+   PANEL CONTAINER
+   ============================================= */
+
+.nz-move-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* =============================================
+   MOVE SLOT BUTTONS
+   ============================================= */
+
+/* Override movemenu's block/margin defaults for our flex layout */
+.nz-move-slots.movemenu {
+  display: flex;
+  gap: 10px;
+  margin-right: 0;
+  padding: 6px;
+}
+
+/* Override movebutton's float/fixed-width for flex layout */
+.nz-move-slots .movebutton {
+  flex: 1;
+  float: none;
+  width: auto;
+  min-width: 0;
+  margin-right: 0;
+  margin-top: 0;
+  clip-path: var(--nz-clip-sm);
+  border-radius: 0;
+}
+
+/* Empty move slot */
+.nz-move-slots.movemenu button.nz-move-btn--empty {
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+  color: var(--nz-text-dim);
+}
+
+.nz-move-slots.movemenu button.nz-move-btn--empty:hover {
+  background: var(--nz-elevated);
+  border-color: var(--nz-accent);
+  color: var(--nz-text-muted);
+  transform: translateY(-1px);
+}
+
+.nz-move-btn-empty-label {
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+/* Type-colored move slot buttons — override sim-types.css washed-out colors.
+   .nz-move-slots.movemenu gives specificity (0,3,1) > sim-types (0,2,1). */
+.nz-move-slots.movemenu button.type-Normal   { background: var(--type-normal);   color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Fire     { background: var(--type-fire);     color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Water    { background: var(--type-water);    color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Electric { background: var(--type-electric); color: #1a1a1a; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Grass    { background: var(--type-grass);    color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Ice      { background: var(--type-ice);      color: #1a1a1a; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Fighting { background: var(--type-fighting); color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Poison   { background: var(--type-poison);   color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Ground   { background: var(--type-ground);   color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Flying   { background: var(--type-flying);   color: #1a1a1a; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Psychic  { background: var(--type-psychic);  color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Bug      { background: var(--type-bug);      color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Rock     { background: var(--type-rock);     color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Ghost    { background: var(--type-ghost);    color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Dragon   { background: var(--type-dragon);   color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Dark     { background: var(--type-dark);     color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Steel    { background: var(--type-steel);    color: #fff; border-color: transparent; }
+.nz-move-slots.movemenu button.type-Fairy    { background: var(--type-fairy);    color: #fff; border-color: transparent; }
+
+/* Type button secondary text */
+.nz-move-slots.movemenu button[class*="type-"] small { color: rgba(255, 255, 255, 0.8); }
+.nz-move-slots.movemenu button.type-Electric small,
+.nz-move-slots.movemenu button.type-Ice small,
+.nz-move-slots.movemenu button.type-Flying small { color: rgba(0, 0, 0, 0.55); }
+
+/* Type button hover — sim-types.css re-overrides background at (0,3,1); these
+   are (0,4,1) and win. filter/transform come from the combined selector below. */
+.nz-move-slots.movemenu button.type-Normal:hover   { background: var(--type-normal);   border-color: transparent; }
+.nz-move-slots.movemenu button.type-Fire:hover     { background: var(--type-fire);     border-color: transparent; }
+.nz-move-slots.movemenu button.type-Water:hover    { background: var(--type-water);    border-color: transparent; }
+.nz-move-slots.movemenu button.type-Electric:hover { background: var(--type-electric); border-color: transparent; }
+.nz-move-slots.movemenu button.type-Grass:hover    { background: var(--type-grass);    border-color: transparent; }
+.nz-move-slots.movemenu button.type-Ice:hover      { background: var(--type-ice);      border-color: transparent; }
+.nz-move-slots.movemenu button.type-Fighting:hover { background: var(--type-fighting); border-color: transparent; }
+.nz-move-slots.movemenu button.type-Poison:hover   { background: var(--type-poison);   border-color: transparent; }
+.nz-move-slots.movemenu button.type-Ground:hover   { background: var(--type-ground);   border-color: transparent; }
+.nz-move-slots.movemenu button.type-Flying:hover   { background: var(--type-flying);   border-color: transparent; }
+.nz-move-slots.movemenu button.type-Psychic:hover  { background: var(--type-psychic);  border-color: transparent; }
+.nz-move-slots.movemenu button.type-Bug:hover      { background: var(--type-bug);      border-color: transparent; }
+.nz-move-slots.movemenu button.type-Rock:hover     { background: var(--type-rock);     border-color: transparent; }
+.nz-move-slots.movemenu button.type-Ghost:hover    { background: var(--type-ghost);    border-color: transparent; }
+.nz-move-slots.movemenu button.type-Dragon:hover   { background: var(--type-dragon);   border-color: transparent; }
+.nz-move-slots.movemenu button.type-Dark:hover     { background: var(--type-dark);     border-color: transparent; }
+.nz-move-slots.movemenu button.type-Steel:hover    { background: var(--type-steel);    border-color: transparent; }
+.nz-move-slots.movemenu button.type-Fairy:hover    { background: var(--type-fairy);    border-color: transparent; }
+
+.nz-move-slots.movemenu button[class*="type-"]:not(.disabled):not(:disabled):hover {
+  filter: brightness(1.18);
+  transform: translateY(-1px);
+}
+
+/* Active slot: full brightness — stands out naturally against dimmed siblings.
+   Suppress the hover lift so it stays visually stable while selected. */
+.nz-move-btn--active {
+  filter: brightness(1.15) !important;
+  transform: none !important;
+}
+
+/* Dimmed siblings: clearly de-emphasized, but hover lifts them to show they're clickable */
+.nz-move-btn--active-target {
+  opacity: 0.4;
+  transform: none;
+}
+
+.nz-move-btn--active-target:hover {
+  opacity: 0.75;
+  filter: brightness(1.18);
+  transform: translateY(-1px);
+}
+
+/* Selecting state: pulsing accent border on whichever section needs a click next */
+.nz-move-slots-wrap {
+  border-radius: 2px;
+}
+
+.nz-move-slots-wrap.nz-move-selecting,
+.nz-move-table-wrap.nz-move-selecting {
+  animation: nz-move-selecting-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes nz-move-selecting-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2); }
+  50%       { box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.85), 0 0 10px rgba(74, 158, 255, 0.3); }
+}
+
+
+/* =============================================
+   SEARCH BAR
+   ============================================= */
+
+.nz-move-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+  border-radius: var(--nz-radius);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+}
+
+.nz-move-search::placeholder {
+  color: var(--nz-text-dim);
+}
+
+.nz-move-search:focus {
+  outline: none;
+  border-color: var(--nz-accent);
+}
+
+/* =============================================
+   MOVE TABLE
+   ============================================= */
+
+.nz-move-table-wrap {
+  height: clamp(180px, 25vh, 260px);
+  overflow-y: auto;
+  border: 1px solid var(--nz-border);
+  border-radius: var(--nz-radius);
+}
+
+.nz-move-table-wrap::-webkit-scrollbar {
+  width: 6px;
+}
+.nz-move-table-wrap::-webkit-scrollbar-track {
+  background: var(--nz-bg);
+}
+.nz-move-table-wrap::-webkit-scrollbar-thumb {
+  background: var(--nz-border);
+  border-radius: 3px;
+}
+
+.nz-move-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+}
+
+.nz-move-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.nz-move-table th {
+  background: var(--nz-surface);
+  color: var(--nz-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 5px 8px;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 1px solid var(--nz-border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.nz-move-table th:hover {
+  color: var(--nz-text);
+}
+
+.nz-move-table th.nz-th-active {
+  color: var(--nz-accent);
+}
+
+.nz-move-table th .nz-sort-arrow {
+  margin-left: 3px;
+  opacity: 0.6;
+}
+
+.nz-move-table th.nz-th-active .nz-sort-arrow {
+  opacity: 1;
+}
+
+.nz-move-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(46, 66, 104, 0.4);
+  vertical-align: top;
+  color: var(--nz-text);
+}
+
+.nz-move-table tr:last-child td {
+  border-bottom: none;
+}
+
+.nz-move-table tbody tr {
+  background: var(--nz-bg);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.nz-move-table tbody tr:hover {
+  background: var(--nz-elevated);
+}
+
+/* New this segment: gold left border */
+.nz-move-row--new {
+  border-left: 3px solid var(--nz-warning) !important;
+}
+
+.nz-move-row--new td:first-child {
+  padding-left: 5px;
+}
+
+/* Currently active (selected) row */
+.nz-move-table tbody tr.nz-move-row--active {
+  background: rgba(74, 158, 255, 0.12);
+}
+
+.nz-move-table tbody tr.nz-move-row--active:hover {
+  background: rgba(74, 158, 255, 0.2);
+}
+
+/* Already equipped in a slot */
+.nz-move-table tbody tr.nz-move-row--equipped {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.nz-move-table tbody tr.nz-move-row--equipped:hover {
+  background: var(--nz-bg);
+  opacity: 0.65;
+}
+
+/* =============================================
+   TABLE CELL VARIANTS
+   ============================================= */
+
+.nz-move-col-name {
+  min-width: 80px;
+  font-weight: 600;
+}
+
+.nz-move-col-desc {
+  width: 220px;
+  min-width: 140px;
+}
+
+.nz-move-col-desc-inner {
+  font-size: 12px;
+  color: var(--nz-text-dim);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nz-move-col-stat {
+  width: 44px;
+  text-align: left;
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--nz-text-muted);
+  white-space: nowrap;
+}
+
+.nz-move-col-acquired-header,
+.nz-move-col-acquired {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.nz-move-col-acquired {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  color: var(--nz-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nz-move-col-acquired--new {
+  color: var(--nz-warning);
+  font-weight: 700;
+}
+

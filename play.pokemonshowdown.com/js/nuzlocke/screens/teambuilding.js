@@ -1,4 +1,4 @@
-"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}
+"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}var
 
 
 
@@ -12,21 +12,7 @@
 
 
 
-function formatTarget(target){
-switch(target){
-case'allAdjacentFoes':return'Spread';
-case'normal':case'any':return'Single';
-case'self':return'Self';
-case'adjacentAlly':return'Ally';
-case'adjacentAllyOrSelf':return'Ally/Self';
-case'allAdjacent':return'All adj';
-case'allySide':return'Ally side';
-case'foeSide':return'Foe side';
-case'all':return'All';
-case'randomNormal':return'Random';
-default:return'—';
-}
-}var
+
 
 
 
@@ -136,6 +122,11 @@ var battle=segment.battles[game.currentBattleIndex];
 var partyPokemon=game.party.map(function(uid){return game.box.find(function(p){return p.uid===uid;});}).filter(Boolean);
 var boxOnly=game.box.filter(function(p){return p.alive&&!game.party.includes(p.uid);});
 
+var evolveAllCount=game.box.filter(function(p){return p.alive;}).filter(function(p){var _game$availableEvolut;
+var evos=((_game$availableEvolut=game.availableEvolutions[p.uid])!=null?_game$availableEvolut:[]).filter(function(e){return e.item===null;});
+return evos.length===1;
+}).length;
+
 var selectedPokemon=selectedUid?(_game$box$find=game.box.find(function(p){return p.uid===selectedUid;}))!=null?_game$box$find:null:null;
 var isInParty=selectedUid?game.party.includes(selectedUid):false;
 var hasErrors=Object.keys(errors).length>0;
@@ -176,7 +167,7 @@ return desc?preact.h("div",{"class":"nz-card-subdesc"},desc):null;
 preact.h(NzStatPair,{species:opp.species,generation:this.props.game.generation})
 ),
 
-preact.h("div",{"class":"nz-moves-grid nz-moves-grid--doubles"},
+preact.h("div",{"class":"nz-moves-grid"},
 preact.h("span",{"class":"nz-moves-col-header"},"Move"),
 preact.h("span",{"class":"nz-moves-col-header"},"Type"),
 preact.h("span",{"class":"nz-moves-col-header"},"Cat"),
@@ -185,9 +176,9 @@ preact.h("span",{"class":"nz-moves-col-header"},"Acc"),
 preact.h("span",{"class":"nz-moves-col-header"},"Target"),
 preact.h("span",{"class":"nz-moves-col-header"},"Effect"),
 opp.moves.map(function(moveId,i){var _shortDesc;
-var move=moveId?Dex.forGen(_this2.props.game.generation).moves.get(moveId):null;
+var move=moveId?Dex.forGen(_this2.props.game.battleGeneration).moves.get(moveId):null;
 var ex=!!(move!=null&&move.exists);
-var cat=ex?move.category==='Physical'?'Phys':move.category==='Special'?'Spec':'Status':'';
+var cat=ex?move.category:'';
 var power=ex&&move.basePower>0?""+move.basePower:ex?'—':'';
 var acc=ex?move.accuracy===true?'—':move.accuracy+"%":'';
 return preact.h(preact.Fragment,{key:i},
@@ -217,10 +208,10 @@ item.exists&&item.shortDesc&&preact.h("div",{"class":"nz-item-desc"},item.shortD
 detailContent=preact.h("div",{"class":"nz-tb-detail-empty"},
 preact.h("p",{"class":"nz-notice"},"Select a Pok\xE9mon to edit")
 );
-}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut,_BattleNatures;
+}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut2,_BattleNatures;
 var legalMoves=(_game$legalMoves$sele=game.legalMoves[selectedPokemon.uid])!=null?_game$legalMoves$sele:[];
 var selectedMoves=(_moves$selectedPokemo=moves[selectedPokemon.uid])!=null?_moves$selectedPokemo:['','','',''];
-var evos=(_game$availableEvolut=game.availableEvolutions[selectedPokemon.uid])!=null?_game$availableEvolut:[];
+var evos=(_game$availableEvolut2=game.availableEvolutions[selectedPokemon.uid])!=null?_game$availableEvolut2:[];
 var error=isInParty?errors[selectedPokemon.uid]:undefined;
 
 var sp=Dex.forGen(this.props.game.generation).species.get(selectedPokemon.species);
@@ -288,41 +279,13 @@ preact.h(NzStatPair,{species:selectedPokemon.species,nature:selectedPokemon.natu
 
 error&&preact.h("div",{"class":"nz-card-error",style:"margin-bottom:8px;"},"\u26A0 ",error),
 
-preact.h("div",{"class":"nz-moves-grid nz-moves-grid--doubles"},
-preact.h("span",{"class":"nz-moves-col-header"},"Move"),
-preact.h("span",{"class":"nz-moves-col-header"},"Type"),
-preact.h("span",{"class":"nz-moves-col-header"},"Cat"),
-preact.h("span",{"class":"nz-moves-col-header"},"BP"),
-preact.h("span",{"class":"nz-moves-col-header"},"Acc"),
-preact.h("span",{"class":"nz-moves-col-header"},"Target"),
-preact.h("span",{"class":"nz-moves-col-header"},"Effect"),
-[0,1,2,3].map(function(slot){var _selectedMoves$slot,_shortDesc2;
-var moveId=(_selectedMoves$slot=selectedMoves[slot])!=null?_selectedMoves$slot:'';
-var move=moveId?Dex.forGen(_this2.props.game.generation).moves.get(moveId):null;
-var ex=!!(move!=null&&move.exists);
-var cat=ex?move.category==='Physical'?'Phys':move.category==='Special'?'Spec':'Status':'';
-var power=ex&&move.basePower>0?""+move.basePower:ex?'—':'';
-var acc=ex?move.accuracy===true?'—':move.accuracy+"%":'';
-return preact.h(preact.Fragment,{key:slot},
-preact.h(NzMoveSelect,{
-value:moveId,
-moves:legalMoves,
-disabledMoves:selectedMoves.filter(function(id){return id!==moveId;}),
-generation:_this2.props.game.generation,
-onChange:function(id){return _this2.setMove(selectedPokemon.uid,slot,id);}}
-),
-ex?function(_legalMoves$find){
-var hpType=(_legalMoves$find=legalMoves.find(function(m){return toID(m.name)===moveId;}))==null?void 0:_legalMoves$find.hpType;
-var displayType=hpType!=null?hpType:move.type;
-return preact.h("span",{"class":"nz-type nz-type-"+displayType.toLowerCase()},displayType);
-}():preact.h("span",null),
-ex?preact.h("span",{"class":"nz-move-cat nz-move-cat-"+move.category.toLowerCase()},cat):preact.h("span",null),
-preact.h("span",{"class":ex?'nz-move-stat':''},power),
-preact.h("span",{"class":ex?'nz-move-stat':''},acc),
-preact.h("span",{"class":"nz-move-stat"},ex?formatTarget(move.target):''),
-preact.h("span",{"class":"nz-move-grid-desc"},ex?(_shortDesc2=move.shortDesc)!=null?_shortDesc2:'':'')
-);
-})
+preact.h(NzMovePanel,{
+moves:selectedMoves,
+legalMoves:legalMoves,
+generation:this.props.game.battleGeneration,
+onChange:function(newMoves){
+newMoves.forEach(function(id,slot){return _this2.setMove(selectedPokemon.uid,slot,id);});
+}}
 ),
 
 isInParty&&preact.h(preact.Fragment,null,
@@ -370,7 +333,9 @@ evos.map(function(evo){return(
 preact.h(NzBtn,{key:evo.species,size:"sm",variant:"evolve",
 onClick:function(){return PS.send("/nuzlocke evolve "+selectedPokemon.uid+" "+toID(evo.species));}},
 evo.type==='item'?"Evolve \u2192 "+
-evo.species+" ("+evo.item+")":"Evolve \u2192 "+
+evo.species+" ("+evo.item+")":
+selectedPokemon.species==='Nincada'&&evo.species==='Ninjask'?
+'Evolve → Ninjask (+Shedinja)':"Evolve \u2192 "+
 evo.species
 ));}
 )
@@ -401,7 +366,7 @@ preact.h("div",{"class":"nz-tb-columns"},
 preact.h("div",{"class":"nz-section-title"},"Party (",partyPokemon.length,"/6)",preact.h("span",{"class":"nz-tb-hint"},"double-click to move to box")),
 preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
 preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer2=battle==null?void 0:battle.trainer)!=null?_battle$trainer2:'Opponent'),
-[0,1,2,3,4,5].map(function(i){var _game$availableEvolut2;
+[0,1,2,3,4,5].map(function(i){var _game$availableEvolut3;
 var pok=partyPokemon[i];
 var opp=battle==null?void 0:battle.team[i];
 var chunk=boxOnly.slice(i*3,i*3+3);
@@ -419,15 +384,15 @@ onDoubleClick:function(){return PS.send("/nuzlocke removefromparty "+pok.uid);},
 onMoveUp:function(){return PS.send("/nuzlocke partymove "+pok.uid+" left");},
 onMoveDown:function(){return PS.send("/nuzlocke partymove "+pok.uid+" right");},
 hasError:!!errors[pok.uid],
-canEvolve:!!((_game$availableEvolut2=game.availableEvolutions[pok.uid])!=null&&_game$availableEvolut2.length)}
+canEvolve:!!((_game$availableEvolut3=game.availableEvolutions[pok.uid])!=null&&_game$availableEvolut3.length)}
 ):
 preact.h("div",{"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty \u2014"),
 
 preact.h("div",{"class":"nz-box-row-cell"},
-[0,1,2].map(function(j){var _game$availableEvolut3;return chunk[j]?
+[0,1,2].map(function(j){var _game$availableEvolut4;return chunk[j]?
 preact.h("div",{
 key:chunk[j].uid,
-"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut3=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut3.length?' nz-tb-box-card-evolve':''),
+"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':''),
 onClick:function(){return _this2.select(chunk[j].uid);},
 onDblClick:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+chunk[j].uid);}},
 
@@ -456,10 +421,10 @@ var chunk=boxOnly.slice(18+i*3,21+i*3);
 return preact.h(preact.Fragment,{key:"overflow-"+i},
 preact.h("div",null),
 preact.h("div",{"class":"nz-box-row-cell"},
-[0,1,2].map(function(j){var _game$availableEvolut4;return chunk[j]?
+[0,1,2].map(function(j){var _game$availableEvolut5;return chunk[j]?
 preact.h("div",{
 key:chunk[j].uid,
-"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':''),
+"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut5=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut5.length?' nz-tb-box-card-evolve':''),
 onClick:function(){return _this2.select(chunk[j].uid);},
 onDblClick:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+chunk[j].uid);}},
 
@@ -482,12 +447,22 @@ preact.h("div",null)
 
 preact.h("div",{"class":"nz-tb-battle-footer"},
 hasErrors&&preact.h("p",{"class":"nz-error"},"\u26A0 Fix errors before battling."),
+preact.h("div",{"class":"nz-tb-footer-row"},
+evolveAllCount>0&&preact.h(NzBtn,{
+size:"sm",
+variant:"evolve",
+onClick:function(){return PS.send('/nuzlocke evolveall');},
+title:"Evolves all Pok\xE9mon with exactly one available evolution that uses no items. Level-up and trade evolutions qualify; stone evolutions and branching choices (e.g. Wurmple) are skipped."},
+"Evolve All (",
+evolveAllCount,")"
+),
 preact.h(NzBtn,{
 onClick:this.clickBattle,
 disabled:partyPokemon.length===0,
 title:partyPokemon.length===0?'Add Pokémon to party first':''},
 "Battle!"
 
+)
 )
 )
 );

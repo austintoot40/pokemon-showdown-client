@@ -11,7 +11,7 @@ import { toID, Dex } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
-import { NzIvBars } from "../components/teambuilding";
+import { NzStatPair } from "../components/teambuilding";
 import { NzRouteCardCaught } from "../components/route-cards";
 import type { NuzlockePanelPayload, RouteEncounter, ZoneEncounter, StatsTable } from "../types";
 
@@ -220,14 +220,6 @@ function ZonePoolCard({
 // Pokemon stats panel (right column)
 // ---------------------------------------------------------------------------
 
-const STAT_KEYS: Array<{ label: string; key: keyof StatsTable }> = [
-	{ label: 'HP',  key: 'hp'  },
-	{ label: 'Atk', key: 'atk' },
-	{ label: 'Def', key: 'def' },
-	{ label: 'SpA', key: 'spa' },
-	{ label: 'SpD', key: 'spd' },
-	{ label: 'Spe', key: 'spe' },
-];
 
 class EncounterPokemonStats extends preact.Component<{
 	pokemon: import('../types').OwnedPokemon | null;
@@ -325,30 +317,13 @@ class EncounterPokemonStats extends preact.Component<{
 			</div>
 		</div>
 
-		{/* Base stats */}
-		<div class="nz-encounter-stats-section-label">Base Stats</div>
-		<div class="nz-stat-bars" style="margin-bottom:8px">
-			{STAT_KEYS.map(({ label, key }) => {
-				const val = sp.baseStats[key as keyof typeof sp.baseStats] as number;
-				const pct = Math.round((val / 255) * 100);
-				const tier = val >= 100 ? 'high' : val >= 70 ? 'mid' : val >= 50 ? 'low' : 'poor';
-				const mod = key === boostedStat ? ' nz-stat-nature-up' : key === reducedStat ? ' nz-stat-nature-down' : '';
-				return <div key={key} class="nz-stat-row">
-					<div class={`nz-stat-label${mod}`}>{label}</div>
-					<div class="nz-stat-bar-track">
-						<div class={`nz-stat-bar-fill nz-stat-${tier}`} style={`width:${pct}%`} />
-					</div>
-					<div class={`nz-stat-value${mod}`}>{val}</div>
-				</div>;
-			})}
-		</div>
-
-		{/* IVs */}
-		<div class="nz-encounter-stats-section-label">
-			IVs
-			<span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span>
-		</div>
-		<NzIvBars ivs={pokemon.ivs} />
+		<NzStatPair
+			species={pokemon.species}
+			nature={pokemon.nature}
+			generation={generation}
+			ivs={pokemon.ivs}
+			ivsExtra={<span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span>}
+		/>
 		{topPercentile !== null &&
 			<div class="nz-encounter-top-callout">
 				This {pokemon.species} is in the top {formatTopPct(topPercentile)} of {pokemon.species}s!
@@ -774,9 +749,6 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						const isDeferredThisSession = deferredThisSession.has(selectedEnc.route);
 						const showDefer = !isResolved && !isAllLockedRoute && !isDeferredThisSession;
 						return <>
-							{isMultiZone && !isResolved && !isAllLockedRoute && <div class="nz-detail-choose-hint">
-								Choose one zone — you only get one encounter here
-							</div>}
 							{(isAllLockedRoute || isDeferredThisSession) && (() => {
 								let hint = 'Deferred — will re-appear next segment';
 								if (isAllLockedRoute) {

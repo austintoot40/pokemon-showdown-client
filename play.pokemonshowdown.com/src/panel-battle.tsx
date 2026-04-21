@@ -822,10 +822,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return buf;
 	}
 	renderPlayerWaitingControls() {
-		const room = this.props.room;
-		return <div class="controls">
-			{this.renderTeamList()}
-		</div>;
+		return <div class="controls"></div>;
 	}
 	renderPlayerControls(request: BattleRequest) {
 		const room = this.props.room;

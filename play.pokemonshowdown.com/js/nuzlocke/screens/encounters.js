@@ -214,19 +214,11 @@ preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
 ),
 !locked&&allDupes&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
 );
-}
+}var
 
 
 
 
-
-var STAT_KEYS=[
-{label:'HP',key:'hp'},
-{label:'Atk',key:'atk'},
-{label:'Def',key:'def'},
-{label:'SpA',key:'spa'},
-{label:'SpD',key:'spd'},
-{label:'Spe',key:'spe'}];var
 
 
 EncounterPokemonStats=function(_preact$Component){function EncounterPokemonStats(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
@@ -325,30 +317,13 @@ return desc?preact.h("span",{"class":"nz-encounter-stats-attr-desc"},desc):null;
 )
 ),
 
-
-preact.h("div",{"class":"nz-encounter-stats-section-label"},"Base Stats"),
-preact.h("div",{"class":"nz-stat-bars",style:"margin-bottom:8px"},
-STAT_KEYS.map(function(_ref2){var label=_ref2.label,key=_ref2.key;
-var val=sp.baseStats[key];
-var pct=Math.round(val/255*100);
-var tier=val>=100?'high':val>=70?'mid':val>=50?'low':'poor';
-var mod=key===boostedStat?' nz-stat-nature-up':key===reducedStat?' nz-stat-nature-down':'';
-return preact.h("div",{key:key,"class":"nz-stat-row"},
-preact.h("div",{"class":"nz-stat-label"+mod},label),
-preact.h("div",{"class":"nz-stat-bar-track"},
-preact.h("div",{"class":"nz-stat-bar-fill nz-stat-"+tier,style:"width:"+pct+"%"})
+preact.h(NzStatPair,{
+species:pokemon.species,
+nature:pokemon.nature,
+generation:generation,
+ivs:pokemon.ivs,
+ivsExtra:preact.h("span",{"class":"nz-iv-score nz-iv-score-"+ivTier},ivLabel)}
 ),
-preact.h("div",{"class":"nz-stat-value"+mod},val)
-);
-})
-),
-
-
-preact.h("div",{"class":"nz-encounter-stats-section-label"},"IVs",
-
-preact.h("span",{"class":"nz-iv-score nz-iv-score-"+ivTier},ivLabel)
-),
-preact.h(NzIvBars,{ivs:pokemon.ivs}),
 topPercentile!==null&&
 preact.h("div",{"class":"nz-encounter-top-callout"},"This ",
 pokemon.species," is in the top ",formatTopPct(topPercentile)," of ",pokemon.species,"s!"
@@ -367,7 +342,7 @@ pokemon.species," is worse than ",formatTopPct(worsePercentile)," of ",pokemon.s
 
 
 
-function GiftChoicePicker(_ref3)
+function GiftChoicePicker(_ref2)
 
 
 
@@ -377,14 +352,14 @@ function GiftChoicePicker(_ref3)
 
 
 
-{var _ref4;var gift=_ref3.gift,giftIndex=_ref3.giftIndex,ownedRoots=_ref3.ownedRoots,generation=_ref3.generation;
+{var _ref3;var gift=_ref2.gift,giftIndex=_ref2.giftIndex,ownedRoots=_ref2.ownedRoots,generation=_ref2.generation;
 return preact.h("div",{"class":"nz-gift-choice-picker"},
 preact.h("div",{"class":"nz-gift-choice-header"},
 preact.h("div",{"class":"nz-gift-choice-label"},"Choose one to receive"),
 preact.h("div",{"class":"nz-gift-choice-route"},gift.route)
 ),
 preact.h("div",{"class":"nz-gift-choice-options"},
-(_ref4=[]).concat.apply(_ref4,gift.zones.map(function(z){return z.pokemon;})).map(function(e){
+(_ref3=[]).concat.apply(_ref3,gift.zones.map(function(z){return z.pokemon;})).map(function(e){
 var isDupe=ownedRoots.has(getEvoRoot(e.species,generation));
 return preact.h("div",{
 key:e.species,
@@ -509,7 +484,7 @@ var parts=game.box.
 map(function(p){var _this2$state$nickname;return p.uid+" "+((_this2$state$nickname=_this2.state.nicknames[p.uid])!=null?_this2$state$nickname:p.nickname).replace(/\s+/g,'_');}).
 join(' ');
 PS.send("/nuzlocke setnicks "+parts);
-};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updates={};var segIdx=props.game.currentSegmentIndex;if(segIdx!==state.lastSegmentIndex){updates.lastSegmentIndex=segIdx;updates.deferredThisSession=new Set();updates.selectedRoute=null;}var nicknames=Object.assign({},state.nicknames);var nicksChanged=false;props.game.box.forEach(function(p){if(!(p.uid in nicknames)){nicknames[p.uid]=p.nickname;nicksChanged=true;}});if(nicksChanged)updates.nicknames=nicknames;var currentSelected=updates.selectedRoute!==undefined?updates.selectedRoute:state.selectedRoute;if(!currentSelected){var _segment$encounters,_segment$encounters2,_props$game$deferredR,_props$game$lockedRou,_pending$route,_ref5,_find$route,_find,_segment$gifts,_allDisplayed$find;var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var tmMoves=props.game.tmMoves;var items=props.game.items;var currentRouteNames=new Set(((_segment$encounters=segment.encounters)!=null?_segment$encounters:[]).map(function(e){return e.route;}));var allDisplayed=[].concat((_segment$encounters2=segment.encounters)!=null?_segment$encounters2:[],((_props$game$deferredR=props.game.deferredRoutes)!=null?_props$game$deferredR:[]).filter(function(r){return!currentRouteNames.has(r.route);}),((_props$game$lockedRou=props.game.lockedRoutes)!=null?_props$game$lockedRou:[]).filter(function(r){return!currentRouteNames.has(r.route);}));var pending=allDisplayed.find(function(enc){return!props.game.resolvedRoutes.includes(enc.route)&&enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}))&&z.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species));});});});var autoSelected=(_pending$route=pending==null?void 0:pending.route)!=null?_pending$route:null;var fallback=!autoSelected?(_ref5=(_find$route=(_find=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);}))==null?void 0:_find.route)!=null?_find$route:(_allDisplayed$find=allDisplayed.find(function(enc){return enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}));});}))==null?void 0:_allDisplayed$find.route)!=null?_ref5:null:autoSelected;if(fallback!==currentSelected)updates.selectedRoute=fallback;}return Object.keys(updates).length>0?updates:null;};var _proto2=EncountersScreen.prototype;_proto2.
+};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updates={};var segIdx=props.game.currentSegmentIndex;if(segIdx!==state.lastSegmentIndex){updates.lastSegmentIndex=segIdx;updates.deferredThisSession=new Set();updates.selectedRoute=null;}var nicknames=Object.assign({},state.nicknames);var nicksChanged=false;props.game.box.forEach(function(p){if(!(p.uid in nicknames)){nicknames[p.uid]=p.nickname;nicksChanged=true;}});if(nicksChanged)updates.nicknames=nicknames;var currentSelected=updates.selectedRoute!==undefined?updates.selectedRoute:state.selectedRoute;if(!currentSelected){var _segment$encounters,_segment$encounters2,_props$game$deferredR,_props$game$lockedRou,_pending$route,_ref4,_find$route,_find,_segment$gifts,_allDisplayed$find;var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var tmMoves=props.game.tmMoves;var items=props.game.items;var currentRouteNames=new Set(((_segment$encounters=segment.encounters)!=null?_segment$encounters:[]).map(function(e){return e.route;}));var allDisplayed=[].concat((_segment$encounters2=segment.encounters)!=null?_segment$encounters2:[],((_props$game$deferredR=props.game.deferredRoutes)!=null?_props$game$deferredR:[]).filter(function(r){return!currentRouteNames.has(r.route);}),((_props$game$lockedRou=props.game.lockedRoutes)!=null?_props$game$lockedRou:[]).filter(function(r){return!currentRouteNames.has(r.route);}));var pending=allDisplayed.find(function(enc){return!props.game.resolvedRoutes.includes(enc.route)&&enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}))&&z.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species));});});});var autoSelected=(_pending$route=pending==null?void 0:pending.route)!=null?_pending$route:null;var fallback=!autoSelected?(_ref4=(_find$route=(_find=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);}))==null?void 0:_find.route)!=null?_find$route:(_allDisplayed$find=allDisplayed.find(function(enc){return enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}));});}))==null?void 0:_allDisplayed$find.route)!=null?_ref4:null:autoSelected;if(fallback!==currentSelected)updates.selectedRoute=fallback;}return Object.keys(updates).length>0?updates:null;};var _proto2=EncountersScreen.prototype;_proto2.
 
 render=function render(){var _segment$encounters3,_segment$gifts2,_game$deferredRoutes,_game$lockedRoutes,_game$box$find,_allGifts$find,_game$box$find2,_segment$battles$0$tr,_segment$battles$,_this3=this,_nicknames$selectedRe;
 var game=this.props.game;
@@ -556,7 +531,7 @@ return enc.choice&&!game.resolvedRoutes.includes(enc.route);
 return(
 !game.resolvedRoutes.includes(enc.route)&&
 !deferredThisSession.has(enc.route)&&
-encAccessibleZones[i].some(function(_ref6){var zone=_ref6.zone;return(
+encAccessibleZones[i].some(function(_ref5){var zone=_ref5.zone;return(
 zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 ));
 
@@ -610,10 +585,10 @@ var isGift=giftRouteNames.has(enc.route);
 var isSelected=selectedRoute===enc.route;
 
 
-if(isGift){var _ref7;
+if(isGift){var _ref6;
 var isChoicePending=enc.choice&&!resolved;
 var resolvedGift=resolved?game.box.find(function(p){return p.caughtRoute===enc.route;}):undefined;
-var giftPokemon=(_ref7=[]).concat.apply(_ref7,enc.zones.map(function(z){return z.pokemon;}));
+var giftPokemon=(_ref6=[]).concat.apply(_ref6,enc.zones.map(function(z){return z.pokemon;}));
 var _rowClass=[
 'nz-route-list-row',
 isChoicePending?'nz-route-list-row-choice':'',
@@ -650,10 +625,10 @@ alt:e.species,title:e.species}
 
 
 var isServerLocked=((_game$lockedRoutes2=game.lockedRoutes)!=null?_game$lockedRoutes2:[]).some(function(r){return r.route===enc.route;});
-var accessibleHasNonDupe=accessibleZones.some(function(_ref8){var zone=_ref8.zone;return(
+var accessibleHasNonDupe=accessibleZones.some(function(_ref7){var zone=_ref7.zone;return(
 zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
-var lockedHasNonDupe=allZones.some(function(_ref9){var zone=_ref9.zone,accessible=_ref9.accessible;return(
+var lockedHasNonDupe=allZones.some(function(_ref8){var zone=_ref8.zone,accessible=_ref8.accessible;return(
 !accessible&&zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
 var isAllLocked=isServerLocked||!resolved&&!accessibleHasNonDupe&&lockedHasNonDupe;
@@ -663,7 +638,7 @@ var isDeferredThisSession=deferredThisSession.has(enc.route);
 var isPendingDeferred=!resolved&&!isDeferredThisSession&&!isServerLocked&&
 ((_game$deferredRoutes2=game.deferredRoutes)!=null?_game$deferredRoutes2:[]).some(function(r){return r.route===enc.route;});
 var allDupes=!resolved&&!isAllLocked&&accessibleZones.length>0&&
-accessibleZones.every(function(_ref10){var zone=_ref10.zone;return(
+accessibleZones.every(function(_ref9){var zone=_ref9.zone;return(
 zone.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
 var caughtPokemon=resolved?
@@ -673,7 +648,7 @@ undefined;
 
 var seenSids=new Set();
 var allSpecies=[];for(var _i6=0;_i6<
-accessibleZones.length;_i6++){var _ref11=accessibleZones[_i6];var zone=_ref11.zone;for(var _i8=0,_zone$pokemon2=
+accessibleZones.length;_i6++){var _ref10=accessibleZones[_i6];var zone=_ref10.zone;for(var _i8=0,_zone$pokemon2=
 zone.pokemon;_i8<_zone$pokemon2.length;_i8++){var e=_zone$pokemon2[_i8];
 var sid=toID(e.species);
 if(!seenSids.has(sid)){seenSids.add(sid);allSpecies.push(e.species);}
@@ -764,27 +739,24 @@ onNickChange:this.setNick}
 
 !selectedChoiceGift&&!selectedResolvedGift&&selectedEnc&&function(_game$lockedRoutes3){
 var isServerLockedRoute=((_game$lockedRoutes3=game.lockedRoutes)!=null?_game$lockedRoutes3:[]).some(function(r){return r.route===selectedEnc.route;});
-var detailAccessibleHasNonDupe=selectedAccessibleZones.some(function(_ref12){var zone=_ref12.zone;return(
+var detailAccessibleHasNonDupe=selectedAccessibleZones.some(function(_ref11){var zone=_ref11.zone;return(
 zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
-var detailLockedHasNonDupe=selectedAllZones.some(function(_ref13){var zone=_ref13.zone,accessible=_ref13.accessible;return(
+var detailLockedHasNonDupe=selectedAllZones.some(function(_ref12){var zone=_ref12.zone,accessible=_ref12.accessible;return(
 !accessible&&zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
 var isAllLockedRoute=isServerLockedRoute||!isResolved&&!detailAccessibleHasNonDupe&&detailLockedHasNonDupe;
 var isDeferredThisSession=deferredThisSession.has(selectedEnc.route);
 var showDefer=!isResolved&&!isAllLockedRoute&&!isDeferredThisSession;
 return preact.h(preact.Fragment,null,
-isMultiZone&&!isResolved&&!isAllLockedRoute&&preact.h("div",{"class":"nz-detail-choose-hint"},"Choose one zone \u2014 you only get one encounter here"
-
-),
 (isAllLockedRoute||isDeferredThisSession)&&function(){
 var hint='Deferred — will re-appear next segment';
 if(isAllLockedRoute){
 var seen=new Set();for(var _i10=0;_i10<
-selectedAllZones.length;_i10++){var _ref15,_zone$requires4;var _ref14=selectedAllZones[_i10];var zone=_ref14.zone;var accessible=_ref14.accessible;
+selectedAllZones.length;_i10++){var _ref14,_zone$requires4;var _ref13=selectedAllZones[_i10];var zone=_ref13.zone;var accessible=_ref13.accessible;
 if(accessible)continue;
 if(!zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}))continue;
-var name=(_ref15=(_zone$requires4=zone.requires)!=null?_zone$requires4:METHOD_PREREQS[zone.method])==null?void 0:_ref15.name;
+var name=(_ref14=(_zone$requires4=zone.requires)!=null?_zone$requires4:METHOD_PREREQS[zone.method])==null?void 0:_ref14.name;
 if(name)seen.add(name);
 }
 if(seen.size>0)hint+=" (missing: "+Array.from(seen).join(', ')+")";
@@ -792,7 +764,7 @@ if(seen.size>0)hint+=" (missing: "+Array.from(seen).join(', ')+")";
 return preact.h("div",{"class":"nz-detail-deferred-hint"},hint);
 }(),
 preact.h("div",{"class":"nz-zone-cards"},
-selectedAllZones.map(function(_ref16){var zone=_ref16.zone,originalIndex=_ref16.originalIndex,accessible=_ref16.accessible;return(
+selectedAllZones.map(function(_ref15){var zone=_ref15.zone,originalIndex=_ref15.originalIndex,accessible=_ref15.accessible;return(
 preact.h(ZonePoolCard,{
 key:originalIndex,
 zone:zone,

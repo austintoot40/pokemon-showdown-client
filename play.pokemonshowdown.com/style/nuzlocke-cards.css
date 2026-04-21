@@ -76,6 +76,7 @@
 }
 
 .nz-card-subdesc {
+  min-height: calc(3 * 1.4em + 2px);
   font-size: 12px;
   color: var(--nz-text-muted);
   line-height: 1.4;

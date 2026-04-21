@@ -6,7 +6,6 @@
 
 import preact from "../../../js/lib/preact";
 import { Dex, toID } from "../../battle-dex";
-import type { LegalMove } from "../types";
 
 export function NzTypeBadges({ species, generation }: { species: string; generation?: number }) {
 	const dex = generation ? Dex.forGen(generation) : Dex;
@@ -79,153 +78,9 @@ function dropdownStyle(rect: DOMRect, minWidth: number): Record<string, string> 
 	};
 }
 
-interface NzMoveSelectProps {
-	value: string;
-	moves: LegalMove[];
-	disabledMoves: string[];
-	generation: number;
-	onChange: (moveId: string) => void;
-}
-
-interface NzMoveSelectState {
+interface DropdownState {
 	query: string;
 	open: boolean;
-}
-
-export class NzMoveSelect extends preact.Component<NzMoveSelectProps, NzMoveSelectState> {
-	override state: NzMoveSelectState = { query: '', open: false };
-	inputEl: HTMLInputElement | null = null;
-	portalEl: HTMLDivElement | null = null;
-
-	override componentDidMount() {
-		this.portalEl = document.createElement('div');
-		document.body.appendChild(this.portalEl);
-	}
-
-	override componentDidUpdate() {
-		this.updatePortal();
-	}
-
-	override componentWillUnmount() {
-		if (this.portalEl) {
-			preact.render('' as any, this.portalEl);
-			document.body.removeChild(this.portalEl);
-			this.portalEl = null;
-		}
-	}
-
-	handleFocus = () => {
-		this.setState({ open: true, query: '' });
-	};
-
-	handleClick = () => {
-		this.setState({ open: true });
-	};
-
-	handleInput = (e: Event) => {
-		this.setState({ query: (e.target as HTMLInputElement).value });
-	};
-
-	handleBlur = () => {
-		this.setState({ open: false, query: '' });
-	};
-
-	select(id: string) {
-		this.props.onChange(id);
-		this.setState({ open: false, query: '' });
-	}
-
-	updatePortal() {
-		if (!this.portalEl) return;
-		preact.render(this.renderDropdown(), this.portalEl);
-	}
-
-	renderDropdown(): preact.VNode {
-		const { value, moves, disabledMoves, generation } = this.props;
-		const { query, open } = this.state;
-
-		if (!open || !this.inputEl) return <></>;
-
-		const rect = this.inputEl.getBoundingClientRect();
-		const style = dropdownStyle(rect, Math.max(rect.width, 340));
-
-		const genDex = Dex.forGen(generation);
-		const q = query.toLowerCase();
-		const filtered = !q ? moves : moves.filter(m => {
-			if (m.name.toLowerCase().includes(q)) return true;
-			const md = genDex.moves.get(toID(m.name));
-			if (!md.exists) return false;
-			if (md.type.toLowerCase().includes(q)) return true;
-			const cat = md.category.toLowerCase();
-			if (cat.includes(q)) return true;
-			if (q === 'phys' && cat === 'physical') return true;
-			if (q === 'spec' && cat === 'special') return true;
-			return false;
-		});
-
-		return (
-			<div class="nz-move-select-dropdown" style={style}>
-				<div
-					class={`nz-move-select-option${!value ? ' is-selected' : ''}`}
-					onMouseDown={(e: MouseEvent) => { e.preventDefault(); this.select(''); }}
-				>
-					<span class="nz-move-select-name"><span>(empty)</span></span>
-				</div>
-				{filtered.map(m => {
-					const id = toID(m.name);
-					const md = genDex.moves.get(id);
-					const isDisabled = disabledMoves.includes(id);
-					const isSelected = value === id;
-					const catKey = md.exists ? md.category.toLowerCase() : '';
-					const catLabel = md.exists
-						? (md.category === 'Physical' ? 'Phys' : md.category === 'Special' ? 'Spec' : 'Status')
-						: '';
-					const suffix = m.fromHM ? 'HM' : m.fromTM ? 'TM' : null;
-					return (
-						<div
-							key={m.name}
-							class={['nz-move-select-option', isDisabled ? 'is-disabled' : '', isSelected ? 'is-selected' : ''].filter(Boolean).join(' ')}
-							onMouseDown={(e: MouseEvent) => { e.preventDefault(); if (!isDisabled) this.select(id); }}
-						>
-							<span class="nz-move-select-name">
-								<span>{m.name}</span>
-								{suffix && <span class="nz-move-select-suffix">{suffix}</span>}
-							</span>
-							{md.exists && (() => {
-								const displayType = m.hpType ?? md.type;
-								return <span class={`nz-type nz-type-${displayType.toLowerCase()}`}>{displayType}</span>;
-							})()}
-							{md.exists && <span class={`nz-move-cat nz-move-cat-${catKey}`}>{catLabel}</span>}
-						</div>
-					);
-				})}
-				{filtered.length === 0 && (
-					<div class="nz-move-select-empty">No moves match</div>
-				)}
-			</div>
-		);
-	}
-
-	render() {
-		const { value, generation } = this.props;
-		const { query, open } = this.state;
-		const displayValue = open ? query : (value ? (Dex.forGen(generation).moves.get(value).name ?? '') : '');
-		return (
-			<div class="nz-move-select">
-				<input
-					ref={(el: any) => { this.inputEl = el; }}
-					class="nz-move-select-input"
-					type="text"
-					value={displayValue}
-					placeholder="(empty)"
-					onFocus={this.handleFocus}
-					onClick={this.handleClick}
-					onInput={this.handleInput}
-					onBlur={this.handleBlur}
-				/>
-			</div>
-		);
-	}
 }
 
 interface NzItemSelectProps {
@@ -235,8 +90,8 @@ interface NzItemSelectProps {
 	onChange: (itemId: string) => void;
 }
 
-export class NzItemSelect extends preact.Component<NzItemSelectProps, NzMoveSelectState> {
-	override state: NzMoveSelectState = { query: '', open: false };
+export class NzItemSelect extends preact.Component<NzItemSelectProps, DropdownState> {
+	override state: DropdownState = { query: '', open: false };
 	inputEl: HTMLInputElement | null = null;
 	portalEl: HTMLDivElement | null = null;
 
