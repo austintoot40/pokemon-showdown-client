@@ -618,6 +618,70 @@
 }
 
 /* =============================================
+   GIFT ZONE CARD — inline choice picker
+   ============================================= */
+
+.nz-gift-zone-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nz-gift-zone-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  cursor: default;
+  min-width: 72px;
+  transition: border-color 0.1s, background 0.1s;
+}
+
+.nz-gift-zone-option img {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.nz-gift-zone-option-name {
+  font-size: 12px;
+  color: var(--nz-text-muted);
+  text-align: center;
+}
+
+.nz-gift-zone-option-selectable {
+  cursor: pointer;
+}
+
+.nz-gift-zone-option-selectable:hover {
+  border-color: var(--nz-warning);
+  background: color-mix(in srgb, var(--nz-surface) 85%, var(--nz-warning) 15%);
+}
+
+.nz-gift-zone-option-dupe img {
+  opacity: 0.25;
+}
+
+.nz-gift-zone-option-dupe .nz-gift-zone-option-name {
+  color: var(--nz-text-dim);
+}
+
+.nz-gift-zone-option-dimmed img {
+  opacity: 0.15;
+}
+
+.nz-gift-zone-option-dimmed .nz-gift-zone-option-name {
+  color: var(--nz-text-dim);
+}
+
+.nz-gift-zone-option-caught img {
+  filter: drop-shadow(0 0 4px var(--nz-accent));
+}
+
+/* =============================================
    LOCKED ZONES (inaccessible prereq)
    ============================================= */
 

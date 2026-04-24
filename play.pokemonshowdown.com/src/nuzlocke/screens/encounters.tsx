@@ -140,6 +140,62 @@ function prereqLabel(zone: ZoneEncounter): string | null {
 	return prereq ? prereq.name : null;
 }
 
+/** A Gift zone embedded in an encounter route. Each pokemon is individually selectable. */
+function GiftZoneCard({
+	zone,
+	routeName,
+	zoneIndex,
+	accessible,
+	ownedRoots,
+	caughtSpecies,
+}: {
+	zone: ZoneEncounter;
+	routeName: string;
+	zoneIndex: number;
+	accessible: boolean;
+	ownedRoots: Set<string>;
+	caughtSpecies?: string;
+}) {
+	const resolvedElsewhere = caughtSpecies === '';
+	const caughtHere = caughtSpecies !== undefined && caughtSpecies !== '';
+	const locked = !accessible;
+	const req = locked ? prereqLabel(zone) : null;
+	const zoneLabel = zone.zone || zone.method;
+
+	return <div class={[
+		'nz-zone-card',
+		locked ? 'nz-zone-card-locked' : '',
+		resolvedElsewhere ? 'nz-zone-card-dupe' : '',
+	].filter(Boolean).join(' ')}>
+		<div class="nz-zone-label">
+			{zoneLabel}
+			{locked && req && <span class="nz-zone-prereq-label">Requires {req}</span>}
+		</div>
+		<div class="nz-gift-zone-options">
+			{zone.pokemon.map(e => {
+				const isDupe = !locked && ownedRoots.has(getEvoRoot(e.species));
+				const isCaught = caughtHere && toID(e.species) === toID(caughtSpecies);
+				const clickable = accessible && !resolvedElsewhere && !caughtHere && !isDupe;
+				const dimmed = (caughtHere && !isCaught) || resolvedElsewhere;
+				return <div
+					key={e.species}
+					class={[
+						'nz-gift-zone-option',
+						isDupe ? 'nz-gift-zone-option-dupe' : '',
+						isCaught ? 'nz-gift-zone-option-caught' : '',
+						dimmed && !isDupe ? 'nz-gift-zone-option-dimmed' : '',
+						clickable ? 'nz-gift-zone-option-selectable' : '',
+					].filter(Boolean).join(' ')}
+					onClick={clickable ? () => PS.send(`/nuzlocke encounterchoice ${routeName} ${zoneIndex} ${toID(e.species)}`) : undefined}
+				>
+					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} />
+					<div class="nz-gift-zone-option-name">{e.species}</div>
+				</div>;
+			})}
+		</div>
+	</div>;
+}
+
 /** A single zone's pool displayed in the detail panel. Clicking rolls the encounter. */
 function ZonePoolCard({
 	zone,
@@ -764,21 +820,33 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 								return <div class="nz-detail-deferred-hint">{hint}</div>;
 							})()}
 							<div class="nz-zone-cards">
-								{selectedAllZones.map(({ zone, originalIndex, accessible }) =>
-									<ZonePoolCard
+								{selectedAllZones.map(({ zone, originalIndex, accessible }) => {
+									const caughtSpeciesForZone = isResolved
+										? (selectedCaught?.caughtZoneIndex === undefined || originalIndex === selectedCaught.caughtZoneIndex
+											? selectedCaught?.species
+											: '')
+										: undefined;
+									if (zone.method === 'Gift' && zone.pokemon.length > 1) {
+										return <GiftZoneCard
+											key={originalIndex}
+											zone={zone}
+											routeName={selectedEnc.route}
+											zoneIndex={originalIndex}
+											accessible={accessible}
+											ownedRoots={ownedRoots}
+											caughtSpecies={caughtSpeciesForZone}
+										/>;
+									}
+									return <ZonePoolCard
 										key={originalIndex}
 										zone={zone}
 										routeName={selectedEnc.route}
 										zoneIndex={originalIndex}
 										accessible={accessible}
 										ownedRoots={ownedRoots}
-										caughtSpecies={isResolved
-										? (selectedCaught?.caughtZoneIndex === undefined || originalIndex === selectedCaught.caughtZoneIndex
-											? selectedCaught?.species
-											: '')
-										: undefined}
-									/>
-								)}
+										caughtSpecies={caughtSpeciesForZone}
+									/>;
+								})}
 							</div>
 							{showDefer && (
 								<button class="nz-btn-defer" onClick={() => this.handleDefer(selectedEnc.route)}>
