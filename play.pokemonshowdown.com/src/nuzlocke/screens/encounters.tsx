@@ -160,7 +160,7 @@ function ZoneCardBase({
 		<div class="nz-zone-label">
 			{zoneLabel}
 			{showMethodSeparate && <span class="nz-zone-method">{zone.method}</span>}
-			{zone.time && <span class="nz-zone-time">{zone.time}</span>}
+
 			{locked && req && <span class="nz-zone-prereq-label">Requires {req}</span>}
 		</div>
 		{children}

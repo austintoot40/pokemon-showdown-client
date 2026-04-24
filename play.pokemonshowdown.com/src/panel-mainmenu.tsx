@@ -23,21 +23,6 @@ export type RoomInfo = {
     spotlight?: string, subRooms?: string[],
 };
 
-interface NuzlockePastRun {
-    id: string;
-    scenarioId: string;
-    scenarioName: string;
-    outcome: 'victory' | 'wipe';
-    date: string;
-    deathCount: number;
-    graveyard: Array<{ uid: string; species: string; nickname: string; caughtRoute: string; killedBy: string; segment: string }>;
-    survivors: Array<{ species: string; nickname: string }>;
-    finalParty: Array<{ species: string; alive: boolean }>;
-    finalBattle: string;
-    segmentIndex: number;
-    ai: string;
-}
-
 interface NuzlockeScenarioCard {
     id: string;
     name: string;
@@ -68,15 +53,8 @@ interface NuzlockeMenuPayload {
     } | null;
     generation: number;
     scenarios: NuzlockeScenarioCard[];
+    beatenScenarios: string[];
     randomizerPreview: { scenarioId: string; starters: string[] } | null;
-}
-
-function getLocalPastRuns(): NuzlockePastRun[] {
-    try {
-        return JSON.parse(localStorage.getItem('nuzlocke_past_runs') ?? '[]');
-    } catch {
-        return [];
-    }
 }
 
 function getLocalAiPreference(): string {
@@ -672,6 +650,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
     showVerifiedOnly: boolean = getLocalVerifiedFilter();
 
+    get effectiveSelectedScenario(): string | null {
+        if (this.selectedScenario) return this.selectedScenario;
+        const status = this.props.room.nuzlockeMenuPayload;
+        if (!status || status.activeRun) return null;
+        const visible = this.showVerifiedOnly ? status.scenarios.filter(s => s.verified) : status.scenarios;
+        return [...visible].sort((a, b) => a.generation - b.generation)[0]?.id ?? null;
+    }
     clickAbandon = () => {
         this.confirmAbandon = true;
         this.forceUpdate();
@@ -679,6 +664,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     clickConfirmAbandon = () => {
         this.confirmAbandon = false;
         this.selectedStarter = null;
+        this.selectedScenario = this.props.room.nuzlockeMenuPayload?.activeRun?.scenarioId ?? null;
         PS.send('/nuzlocke abandon');
     };
     clickCancelAbandon = () => {
@@ -686,13 +672,15 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         this.forceUpdate();
     };
     clickStartRun = () => {
+        const scenarioId = this.effectiveSelectedScenario;
+        if (!scenarioId) return;
         const status = this.props.room.nuzlockeMenuPayload;
         const randomizerPreview = status?.randomizerPreview ?? null;
-        const hasActivePreview = !!(randomizerPreview && randomizerPreview.scenarioId === this.selectedScenario);
+        const hasActivePreview = !!(randomizerPreview && randomizerPreview.scenarioId === scenarioId);
         if (hasActivePreview) {
-            PS.send(`/nuzlocke randomizestart ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedGeneration} ${this.selectedStarter}`);
+            PS.send(`/nuzlocke randomizestart ${scenarioId} ${this.selectedDifficulty} ${this.selectedGeneration} ${this.selectedStarter}`);
         } else {
-            PS.send(`/nuzlocke start ${this.selectedScenario} ${this.selectedDifficulty} ${this.selectedGeneration} ${this.selectedStarter}`);
+            PS.send(`/nuzlocke start ${scenarioId} ${this.selectedDifficulty} ${this.selectedGeneration} ${this.selectedStarter}`);
         }
     };
     clickCancelRandomizer = () => {
@@ -719,10 +707,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         this.forceUpdate();
     };
     clickRandomize = () => {
-        if (!this.selectedScenario) return;
+        const scenarioId = this.effectiveSelectedScenario;
+        if (!scenarioId) return;
         this.selectedStarter = null;
         const { mode, bstVariance } = this.randomizerSettings;
-        PS.send(`/nuzlocke randomizerpreview ${this.selectedScenario} ${mode} ${bstVariance}`);
+        PS.send(`/nuzlocke randomizerpreview ${scenarioId} ${mode} ${bstVariance}`);
         this.showRandomizerModal = false;
         this.forceUpdate();
     };
@@ -762,28 +751,22 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     override render() {
         const status = this.props.room.nuzlockeMenuPayload;
         const activeRun = status?.activeRun ?? null;
-        const pastRuns = getLocalPastRuns();
         const currentDifficulty = activeRun?.ai ?? this.selectedDifficulty;
+        const beatenScenarios = status?.beatenScenarios ?? [];
 
         const serverScenarios = status?.scenarios ?? [];
         const visibleScenarios = this.showVerifiedOnly
             ? serverScenarios.filter(s => s.verified)
             : serverScenarios;
-        const selectedScenarioData = this.selectedScenario
-            ? serverScenarios.find(s => s.id === this.selectedScenario) ?? null
+        const effectiveSelectedId = this.effectiveSelectedScenario;
+        const selectedScenarioData = effectiveSelectedId
+            ? serverScenarios.find(s => s.id === effectiveSelectedId) ?? null
             : null;
         const randomizerPreview = status?.randomizerPreview ?? null;
-        const hasActivePreview = !!(randomizerPreview && randomizerPreview.scenarioId === this.selectedScenario);
+        const hasActivePreview = !!(randomizerPreview && randomizerPreview.scenarioId === effectiveSelectedId);
         const displayedStarters: string[] = hasActivePreview
             ? randomizerPreview!.starters
             : (selectedScenarioData?.starters ?? []);
-        const scenarioRuns = selectedScenarioData
-            ? pastRuns.filter(r => r.scenarioId === selectedScenarioData.id)
-            : [];
-        const scenarioVictories = scenarioRuns.filter(r => r.outcome === 'victory').length;
-        const scenarioWipes = scenarioRuns.filter(r => r.outcome === 'wipe').length;
-        const lastWipe = [...scenarioRuns].reverse().find(r => r.outcome === 'wipe') ?? null;
-        const lastWipeTeam = lastWipe?.finalParty ?? null;
 
         return <PSPanelWrapper room={this.props.room}>
             <div class="mainmenu">
@@ -897,46 +880,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
                                                 </div>
 
-                                                {/* Right column: Stats */}
-                                                <div class="nz-panel-col-side">
-                                                    <div class="nz-label" style="margin-bottom:10px;">Your Stats</div>
-                                                    {scenarioRuns.length > 0 ? (
-                                                        <>
-                                                            <div class="nz-stat-chips">
-                                                                <div class="nz-stat-chip">
-                                                                    <div class="nz-stat-chip-value wins">{scenarioVictories}</div>
-                                                                    <div class="nz-stat-chip-label">Wins</div>
-                                                                </div>
-                                                                <div class="nz-stat-chip">
-                                                                    <div class="nz-stat-chip-value losses">{scenarioWipes}</div>
-                                                                    <div class="nz-stat-chip-label">Losses</div>
-                                                                </div>
-                                                            </div>
-                                                            {lastWipeTeam && lastWipeTeam.length > 0 && (
-                                                                <div class="nz-stat-last-run">
-                                                                    <div class="nz-label" style="margin-bottom:8px;">Last Loss</div>
-                                                                    <div class="nz-active-run-segment" style="margin-bottom:8px;">
-                                                                        {lastWipe!.finalBattle || `Segment ${lastWipe!.segmentIndex + 1}`}
-                                                                        {' · '}{lastWipe!.deathCount} death{lastWipe!.deathCount !== 1 ? 's' : ''}
-                                                                    </div>
-                                                                    <div class="nz-stat-last-team">
-                                                                        {lastWipeTeam.map((p, i) => (
-                                                                            <img
-                                                                                key={i}
-                                                                                src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(p.species)}.png`}
-                                                                                alt={p.species}
-                                                                                style={p.alive ? '' : 'opacity:0.3;filter:grayscale(1)'}
-                                                                            />
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </>
-                                                    ) : (
-                                                        <div class="nz-active-run-segment">No previous attempts</div>
-                                                    )}
-                                                </div>
-
                                             </div>
                                         </div>
                                     ) : (
@@ -1030,7 +973,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                 </div>
                                 <div class="nz-scenario-grid">
                                     {[...visibleScenarios].sort((a, b) => a.generation - b.generation).map(scenario => {
-                                        const selected = this.selectedScenario === scenario.id;
+                                        const selected = effectiveSelectedId === scenario.id;
                                         return <div
                                             key={scenario.id}
                                             class={`nz-scenario-card${selected ? ' nz-scenario-card-selected' : ''}`}
@@ -1047,6 +990,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                 <div class="nz-scenario-card-title">
                                                     {scenario.name}
                                                     {scenario.verified && <span class="nz-verified-badge">Verified</span>}
+                                                    {beatenScenarios.includes(scenario.id) && (
+                                                        <span class="nz-badge nz-badge-active nz-scenario-cleared-badge">Cleared</span>
+                                                    )}
                                                 </div>
                                                 <div class="nz-scenario-card-meta">Gen {scenario.generation}</div>
                                             </div>
@@ -1054,45 +1000,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                     })}
                                 </div>
                             </div>
-
-                            {(status === null || pastRuns.length > 0) && <div class="nz-dashboard-history">
-                                <div class="nz-section-title" style="margin-bottom:12px;">
-                                    {status === null ? 'Past Runs' : `Past Runs (${pastRuns.length})`}
-                                </div>
-                                {status === null ? (
-                                    <div class="nz-run-list nz-run-list-loading" aria-busy="true">
-                                        {[0,1,2].map(i => (
-                                            <div key={i} class="nz-run-entry">
-                                                <div class="nz-loading-skel" style="width:52px;height:20px;border-radius:2px;flex-shrink:0;" />
-                                                <div class="nz-loading-skel nz-loading-skel-run-name" />
-                                                <div class="nz-loading-skel nz-loading-skel-run-meta" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                <div class="nz-run-list">
-                                    {[...pastRuns].reverse().map(run => {
-                                        const date = new Date(run.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-                                        const won = run.outcome === 'victory';
-                                        return <div key={run.id} class="nz-run-entry">
-                                            <span class={`nz-badge ${won ? 'nz-badge-active' : 'nz-badge-danger'}`}>{won ? 'Victory' : 'Wipe'}</span>
-                                            <span class="nz-run-entry-name">{run.scenarioName}</span>
-                                            {(run.finalParty ?? run.survivors).length > 0 && <span class="nz-run-entry-sprites">
-                                                {(run.finalParty ?? run.survivors.map(s => ({ ...s, alive: true }))).map((p, i) =>
-                                                    <span key={i}>
-                                                        <PSIcon pokemon={toID(p.species)} />
-                                                    </span>
-                                                )}
-                                            </span>}
-                                            <span class="nz-run-entry-meta">
-                                                {date} · {run.deathCount} death{run.deathCount !== 1 ? 's' : ''}
-                                                {run.finalBattle ? ` · ${run.finalBattle}` : ''}
-                                            </span>
-                                        </div>;
-                                    })}
-                                </div>
-                                )}
-                            </div>}
 
                         </div>
                     </div>

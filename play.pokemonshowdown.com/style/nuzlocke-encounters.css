@@ -227,12 +227,6 @@
   color: var(--nz-text-dim);
 }
 
-.nz-zone-time {
-  font-weight: 400;
-  color: var(--nz-warning);
-  font-size: 11px;
-}
-
 /* =============================================
    POOL CARD — container for encounter slots
    ============================================= */

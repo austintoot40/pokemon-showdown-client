@@ -142,15 +142,6 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 		case 'nuzlockestate': {
 			const state = JSON.parse(args[1]);
 			room.nuzlockeState = state;
-			if (state.completedRun) {
-				const key = 'nuzlocke_past_runs';
-				let runs: any[] = [];
-				try { runs = JSON.parse(localStorage.getItem(key) ?? '[]'); } catch {}
-				if (!runs.some((r: any) => r.id === state.completedRun.id)) {
-					runs.push(state.completedRun);
-					localStorage.setItem(key, JSON.stringify(runs));
-				}
-			}
 			room.update(null);
 			return true;
 		}

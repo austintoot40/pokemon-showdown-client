@@ -160,7 +160,7 @@ onClick:onClick},
 preact.h("div",{"class":"nz-zone-label"},
 zoneLabel,
 showMethodSeparate&&preact.h("span",{"class":"nz-zone-method"},zone.method),
-zone.time&&preact.h("span",{"class":"nz-zone-time"},zone.time),
+
 locked&&req&&preact.h("span",{"class":"nz-zone-prereq-label"},"Requires ",req)
 ),
 children

@@ -84,7 +84,6 @@ export interface EncounterEntry {
 export interface ZoneEncounter {
 	zone: string;      // exact Bulbapedia zone label: "1F", "B2F", "Grass", "Surfing"
 	method: string;    // 'Standard' | 'Gift' | 'Trade'
-	time?: string;     // "Morning" | "Day" | "Night" — only present when rates differ by time of day
 	pokemon: EncounterEntry[];
 	levels?: [number, number];
 	requires?: { type: 'hm' | 'move' | 'item' | 'pokemon'; name: string };
