@@ -19,23 +19,19 @@
 
 
 
-
-
-var METHOD_PREREQS={
-'Surf':{type:'hm',name:'Surf'},
-'Rock Smash':{type:'hm',name:'Rock Smash'},
-'Fish Old':{type:'item',name:'Old Rod'},
-'Fish Good':{type:'item',name:'Good Rod'},
-'Fish Super':{type:'item',name:'Super Rod'}
-};
-
-function hasZonePrereq(zone,tmMoves,items,ownedSpecies){var _zone$requires;
-
-var prereq=(_zone$requires=zone.requires)!=null?_zone$requires:METHOD_PREREQS[zone.method];
+function hasZonePrereq(zone,tmMoves,items,ownedSpecies){
+var prereq=zone.requires;
 if(!prereq)return true;
-if(prereq.type==='hm')return tmMoves.includes(prereq.name);
+if(prereq.type==='hm'||prereq.type==='move')return tmMoves.includes(prereq.name);
 if(prereq.type==='pokemon')return ownedSpecies.includes(toID(prereq.name));
 return items.includes(prereq.name);
+}
+
+
+function prereqLabel(zone){var _zone$requires;
+if(((_zone$requires=zone.requires)==null?void 0:_zone$requires.type)==='pokemon')return"own "+zone.requires.name;
+var prereq=zone.requires;
+return prereq?prereq.name:null;
 }
 
 function calcIvScore(ivs,baseStats){
@@ -121,27 +117,16 @@ species=dex.species.get(species.prevo);
 return species.id;
 }
 
-
-
-
-
-
-
-function prereqLabel(zone){var _zone$requires2,_zone$requires3;
-var METHOD_PREREQS={
-'Surf':{name:'Surf'},
-'Rock Smash':{name:'Rock Smash'},
-'Fish Old':{name:'Old Rod'},
-'Fish Good':{name:'Good Rod'},
-'Fish Super':{name:'Super Rod'}
-};
-if(((_zone$requires2=zone.requires)==null?void 0:_zone$requires2.type)==='pokemon')return"own "+zone.requires.name;
-var prereq=(_zone$requires3=zone.requires)!=null?_zone$requires3:METHOD_PREREQS[zone.method];
-return prereq?prereq.name:null;
+function cls(){for(var _len=arguments.length,parts=new Array(_len),_key=0;_key<_len;_key++){parts[_key]=arguments[_key];}
+return parts.filter(Boolean).join(' ');
 }
 
 
-function GiftZoneCard(_ref)
+
+
+
+
+function ZoneCardBase(_ref)
 
 
 
@@ -155,49 +140,40 @@ function GiftZoneCard(_ref)
 
 
 
-{var zone=_ref.zone,routeName=_ref.routeName,zoneIndex=_ref.zoneIndex,accessible=_ref.accessible,ownedRoots=_ref.ownedRoots,caughtSpecies=_ref.caughtSpecies;
-var resolvedElsewhere=caughtSpecies==='';
-var caughtHere=caughtSpecies!==undefined&&caughtSpecies!=='';
+
+
+{var zone=_ref.zone,accessible=_ref.accessible,_ref$allDupes=_ref.allDupes,allDupes=_ref$allDupes===void 0?false:_ref$allDupes,_ref$resolvedElsewher=_ref.resolvedElsewhere,resolvedElsewhere=_ref$resolvedElsewher===void 0?false:_ref$resolvedElsewher,_ref$selectable=_ref.selectable,selectable=_ref$selectable===void 0?false:_ref$selectable,onClick=_ref.onClick,children=_ref.children;
 var locked=!accessible;
 var req=locked?prereqLabel(zone):null;
 var zoneLabel=zone.zone||zone.method;
+var showMethodSeparate=zone.zone&&zone.zone!==zone.method&&zone.method!=='Standard';
 
-return preact.h("div",{"class":[
+return preact.h("div",{
+"class":cls(
 'nz-zone-card',
-locked?'nz-zone-card-locked':'',
-resolvedElsewhere?'nz-zone-card-dupe':''].
-filter(Boolean).join(' ')},
+locked&&'nz-zone-card-locked',
+(allDupes||resolvedElsewhere)&&'nz-zone-card-dupe',
+selectable&&'nz-zone-card-selectable'
+),
+onClick:onClick},
+
 preact.h("div",{"class":"nz-zone-label"},
 zoneLabel,
+showMethodSeparate&&preact.h("span",{"class":"nz-zone-method"},zone.method),
+zone.time&&preact.h("span",{"class":"nz-zone-time"},zone.time),
 locked&&req&&preact.h("span",{"class":"nz-zone-prereq-label"},"Requires ",req)
 ),
-preact.h("div",{"class":"nz-gift-zone-options"},
-zone.pokemon.map(function(e){
-var isDupe=!locked&&ownedRoots.has(getEvoRoot(e.species));
-var isCaught=caughtHere&&toID(e.species)===toID(caughtSpecies);
-var clickable=accessible&&!resolvedElsewhere&&!caughtHere&&!isDupe;
-var dimmed=caughtHere&&!isCaught||resolvedElsewhere;
-return preact.h("div",{
-key:e.species,
-"class":[
-'nz-gift-zone-option',
-isDupe?'nz-gift-zone-option-dupe':'',
-isCaught?'nz-gift-zone-option-caught':'',
-dimmed&&!isDupe?'nz-gift-zone-option-dimmed':'',
-clickable?'nz-gift-zone-option-selectable':''].
-filter(Boolean).join(' '),
-onClick:clickable?function(){return PS.send("/nuzlocke encounterchoice "+routeName+" "+zoneIndex+" "+toID(e.species));}:undefined},
-
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species}),
-preact.h("div",{"class":"nz-gift-zone-option-name"},e.species)
-);
-})
-)
+children
 );
 }
 
 
-function ZonePoolCard(_ref2)
+
+
+
+
+
+function StandardZoneCard(_ref2)
 
 
 
@@ -220,46 +196,28 @@ filter(function(e){return ownedRoots.has(getEvoRoot(e.species))&&!(resolved&&toI
 map(function(e){return toID(e.species);})
 );
 var totalRate=zone.pokemon.reduce(function(sum,e){return sum+e.rate;},0);
-var activeTotal=zone.pokemon.
-filter(function(e){return!dupeSet.has(toID(e.species));}).
-reduce(function(sum,e){return sum+e.rate;},0);
-
+var activeTotal=zone.pokemon.filter(function(e){return!dupeSet.has(toID(e.species));}).reduce(function(sum,e){return sum+e.rate;},0);
 var clickable=accessible&&!resolved&&!allDupes;
-var locked=!accessible;
-var req=locked?prereqLabel(zone):null;
 
-
-var zoneLabel=zone.zone||zone.method;
-var showMethodSeparate=zone.zone&&zone.zone!==zone.method;
-
-return preact.h("div",{
-"class":[
-'nz-zone-card',
-locked?'nz-zone-card-locked':'',
-!locked&&allDupes?'nz-zone-card-dupe':'',
-clickable?'nz-zone-card-selectable':''].
-filter(Boolean).join(' '),
+return preact.h(ZoneCardBase,{
+zone:zone,
+accessible:accessible,
+allDupes:allDupes,
+selectable:clickable,
 onClick:clickable?function(){return PS.send("/nuzlocke encounter "+routeName+" "+zoneIndex);}:undefined},
 
-preact.h("div",{"class":"nz-zone-label"},
-zoneLabel,
-showMethodSeparate&&preact.h("span",{"class":"nz-zone-method"},zone.method),
-zone.time&&preact.h("span",{"class":"nz-zone-time"},zone.time),
-locked&&req&&preact.h("span",{"class":"nz-zone-prereq-label"},"Requires ",req)
-),
 preact.h("div",{"class":"nz-route-pool"},
 zone.pokemon.map(function(e){
-var dupe=!locked&&dupeSet.has(toID(e.species));
+var dupe=accessible&&dupeSet.has(toID(e.species));
 var isCaught=resolved&&toID(e.species)===toID(caughtSpecies);
-var pct=locked?Math.round(e.rate/(totalRate||1)*100):
+var pct=!accessible?Math.round(e.rate/(totalRate||1)*100):
 dupe||activeTotal===0?0:Math.round(e.rate/activeTotal*100);
-var slotClass=[
+return preact.h("div",{key:e.species,"class":cls(
 'nz-encounter-slot',
-dupe?'nz-encounter-slot-dupe':'',
-resolved&&!isCaught?'nz-encounter-slot-dimmed':'',
-isCaught?'nz-encounter-slot-caught':''].
-filter(Boolean).join(' ');
-return preact.h("div",{key:e.species,"class":slotClass},
+dupe&&'nz-encounter-slot-dupe',
+resolved&&!isCaught&&'nz-encounter-slot-dimmed',
+isCaught&&'nz-encounter-slot-caught'
+)},
 preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species}),
 preact.h("div",{"class":"nz-encounter-rate-bar"},
 preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
@@ -268,7 +226,213 @@ preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
 );
 })
 ),
-!locked&&allDupes&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+accessible&&allDupes&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+);
+}
+
+
+
+
+
+
+function GiftZoneCard(_ref3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+{var zone=_ref3.zone,routeName=_ref3.routeName,zoneIndex=_ref3.zoneIndex,accessible=_ref3.accessible,ownedRoots=_ref3.ownedRoots,caughtSpecies=_ref3.caughtSpecies;
+var resolvedElsewhere=caughtSpecies==='';
+var caughtHere=caughtSpecies!==undefined&&caughtSpecies!=='';
+var resolved=caughtSpecies!==undefined;
+var allDupes=accessible&&!resolved&&zone.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species));});
+var isMulti=zone.pokemon.length>1;
+
+return preact.h(ZoneCardBase,{
+zone:zone,
+accessible:accessible,
+allDupes:allDupes,
+resolvedElsewhere:resolvedElsewhere},
+
+preact.h("div",{"class":"nz-gift-zone-options"},
+zone.pokemon.map(function(e){
+var isCaught=caughtHere&&toID(e.species)===toID(caughtSpecies);
+var isDupe=accessible&&!isCaught&&ownedRoots.has(getEvoRoot(e.species));
+var clickable=accessible&&!resolvedElsewhere&&!caughtHere&&!isDupe;
+var dimmed=caughtHere&&!isCaught||resolvedElsewhere;
+var sendCmd=isMulti?
+function(){return PS.send("/nuzlocke encounterchoice "+routeName+" "+zoneIndex+" "+toID(e.species));}:
+function(){return PS.send("/nuzlocke encounter "+routeName+" "+zoneIndex);};
+return preact.h("div",{
+key:e.species,
+"class":cls(
+'nz-gift-zone-option',
+isDupe&&'nz-gift-zone-option-dupe',
+isCaught&&'nz-gift-zone-option-caught',
+dimmed&&!isDupe&&'nz-gift-zone-option-dimmed',
+clickable&&'nz-gift-zone-option-selectable'
+),
+onClick:clickable?sendCmd:undefined},
+
+preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species})
+);
+})
+),
+accessible&&allDupes&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+);
+}
+
+
+
+
+
+
+function TradeZoneCard(_ref4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+{var _zone$requires2;var zone=_ref4.zone,routeName=_ref4.routeName,zoneIndex=_ref4.zoneIndex,accessible=_ref4.accessible,ownedRoots=_ref4.ownedRoots,caughtSpecies=_ref4.caughtSpecies;
+var newPokemon=zone.pokemon[0];
+var requiredName=((_zone$requires2=zone.requires)==null?void 0:_zone$requires2.type)==='pokemon'?zone.requires.name:null;
+var resolved=caughtSpecies!==undefined;
+var caughtHere=resolved&&caughtSpecies!=='';
+var resolvedElsewhere=caughtSpecies==='';
+var isDupe=accessible&&!resolved&&!!newPokemon&&ownedRoots.has(getEvoRoot(newPokemon.species));
+var clickable=accessible&&!resolved&&!isDupe;
+
+return preact.h(ZoneCardBase,{
+zone:zone,
+accessible:accessible||resolved,
+allDupes:isDupe,
+resolvedElsewhere:resolvedElsewhere,
+selectable:clickable,
+onClick:clickable?function(){return PS.send("/nuzlocke encounter "+routeName+" "+zoneIndex);}:undefined},
+
+preact.h("div",{"class":"nz-trade-zone-row"},
+requiredName&&preact.h(preact.Fragment,null,
+preact.h("div",{"class":cls('nz-trade-zone-pokemon',caughtHere&&'nz-trade-zone-pokemon-traded')},
+preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(requiredName)+".png",alt:requiredName})
+),
+preact.h("div",{"class":"nz-trade-zone-arrow"},"\u2192")
+),
+newPokemon&&
+preact.h("div",{"class":cls('nz-trade-zone-pokemon',caughtHere&&'nz-trade-zone-pokemon-received')},
+preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(newPokemon.species)+".png",alt:newPokemon.species})
+)
+
+),
+isDupe&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function RouteListItem(_ref5)
+
+{var enc=_ref5.enc,isSelected=_ref5.isSelected,isResolved=_ref5.isResolved,isDeferred=_ref5.isDeferred,statusSymbol=_ref5.statusSymbol,sprites=_ref5.sprites,onSelect=_ref5.onSelect;
+return preact.h("div",{
+"class":cls(
+'nz-route-list-row',
+isSelected&&'selected',
+isResolved&&'resolved'
+),
+onClick:onSelect},
+
+preact.h("div",{"class":"nz-route-list-row-top"},
+preact.h("span",{"class":cls(
+'nz-route-list-status',
+isDeferred&&'nz-route-status-deferred'
+)},
+statusSymbol
+),
+preact.h("span",{"class":"nz-route-list-name"},enc.route),
+isDeferred&&preact.h("span",{"class":"nz-route-deferred-badge"},"Deferred")
+),
+sprites.length>0&&
+preact.h("div",{"class":"nz-route-list-sprites"},
+preact.h("div",{"class":"nz-route-sprite-group"},
+sprites.map(function(_ref6){var species=_ref6.species,isDupe=_ref6.isDupe,isCaught=_ref6.isCaught;return(
+preact.h("img",{
+key:toID(species),
+"class":cls(
+'nz-route-sprite',
+isDupe&&!isCaught&&'nz-route-sprite-dupe',
+isCaught&&'nz-route-sprite-caught'
+),
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(species)+".png",
+alt:species,
+title:species}
+));}
+)
+)
+)
+
+);
+}
+
+
+
+
+
+
+function GiftChoicePicker(_ref7)
+
+
+
+
+
+
+
+
+
+{var gift=_ref7.gift,giftIndex=_ref7.giftIndex,ownedRoots=_ref7.ownedRoots,generation=_ref7.generation;
+var allPokemon=gift.zones.flatMap(function(z){return z.pokemon;});
+
+return preact.h("div",{"class":"nz-zone-card"},
+preact.h("div",{"class":"nz-zone-label"},gift.route),
+preact.h("div",{"class":"nz-gift-zone-options"},
+allPokemon.map(function(e){
+var isDupe=ownedRoots.has(getEvoRoot(e.species,generation));
+return preact.h("div",{
+key:e.species,
+"class":cls('nz-gift-zone-option','nz-gift-zone-option-selectable',isDupe&&'nz-gift-zone-option-dupe'),
+onClick:function(){return PS.send("/nuzlocke choosegift "+giftIndex+" "+toID(e.species));}},
+
+preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species})
+);
+})
+)
 );
 }var
 
@@ -277,7 +441,7 @@ preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
 
 
 
-EncounterPokemonStats=function(_preact$Component){function EncounterPokemonStats(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
+EncounterPokemonStats=function(_preact$Component){function EncounterPokemonStats(){var _this;for(var _len2=arguments.length,args=new Array(_len2),_key2=0;_key2<_len2;_key2++){args[_key2]=arguments[_key2];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 
 
 
@@ -391,50 +555,7 @@ pokemon.species," is worse than ",formatTopPct(worsePercentile)," of ",pokemon.s
 )
 
 );
-};return EncounterPokemonStats;}(preact.Component);
-
-
-
-
-
-
-function GiftChoicePicker(_ref3)
-
-
-
-
-
-
-
-
-
-{var _ref4;var gift=_ref3.gift,giftIndex=_ref3.giftIndex,ownedRoots=_ref3.ownedRoots,generation=_ref3.generation;
-return preact.h("div",{"class":"nz-gift-choice-picker"},
-preact.h("div",{"class":"nz-gift-choice-header"},
-preact.h("div",{"class":"nz-gift-choice-label"},"Choose one to receive"),
-preact.h("div",{"class":"nz-gift-choice-route"},gift.route)
-),
-preact.h("div",{"class":"nz-gift-choice-options"},
-(_ref4=[]).concat.apply(_ref4,gift.zones.map(function(z){return z.pokemon;})).map(function(e){
-var isDupe=ownedRoots.has(getEvoRoot(e.species,generation));
-return preact.h("div",{
-key:e.species,
-"class":"nz-gift-choice-option"+(isDupe?' nz-gift-choice-option-dupe':''),
-onClick:function(){return PS.send("/nuzlocke choosegift "+giftIndex+" "+toID(e.species));}},
-
-preact.h("img",{
-"class":"nz-gift-choice-sprite",
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",
-alt:e.species}
-),
-preact.h("div",{"class":"nz-gift-choice-name"},e.species),
-preact.h(NzTypeBadges,{species:e.species,generation:generation}),
-isDupe&&preact.h("div",{"class":"nz-gift-dupe-label"},"Dupe")
-);
-})
-)
-);
-}var
+};return EncounterPokemonStats;}(preact.Component);var
 
 
 
@@ -447,7 +568,9 @@ isDupe&&preact.h("div",{"class":"nz-gift-dupe-label"},"Dupe")
 
 
 
-EncountersScreen=function(_preact$Component2){function EncountersScreen(){var _this2;for(var _len2=arguments.length,args=new Array(_len2),_key2=0;_key2<_len2;_key2++){args[_key2]=arguments[_key2];}_this2=_preact$Component2.call.apply(_preact$Component2,[this].concat(args))||this;_this2.
+
+
+EncountersScreen=function(_preact$Component2){function EncountersScreen(){var _this2;for(var _len3=arguments.length,args=new Array(_len3),_key3=0;_key3<_len3;_key3++){args[_key3]=arguments[_key3];}_this2=_preact$Component2.call.apply(_preact$Component2,[this].concat(args))||this;_this2.
 state={
 selectedRoute:null,
 nicknames:{},
@@ -540,9 +663,9 @@ var parts=game.box.
 map(function(p){var _this2$state$nickname;return p.uid+" "+((_this2$state$nickname=_this2.state.nicknames[p.uid])!=null?_this2$state$nickname:p.nickname).replace(/\s+/g,'_');}).
 join(' ');
 PS.send("/nuzlocke setnicks "+parts);
-};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updates={};var segIdx=props.game.currentSegmentIndex;if(segIdx!==state.lastSegmentIndex){updates.lastSegmentIndex=segIdx;updates.deferredThisSession=new Set();updates.selectedRoute=null;}var nicknames=Object.assign({},state.nicknames);var nicksChanged=false;props.game.box.forEach(function(p){if(!(p.uid in nicknames)){nicknames[p.uid]=p.nickname;nicksChanged=true;}});if(nicksChanged)updates.nicknames=nicknames;var currentSelected=updates.selectedRoute!==undefined?updates.selectedRoute:state.selectedRoute;if(!currentSelected){var _segment$encounters,_segment$encounters2,_props$game$deferredR,_props$game$lockedRou,_pending$route,_ref5,_find$route,_find,_segment$gifts,_allDisplayed$find;var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var tmMoves=props.game.tmMoves;var items=props.game.items;var currentRouteNames=new Set(((_segment$encounters=segment.encounters)!=null?_segment$encounters:[]).map(function(e){return e.route;}));var allDisplayed=[].concat((_segment$encounters2=segment.encounters)!=null?_segment$encounters2:[],((_props$game$deferredR=props.game.deferredRoutes)!=null?_props$game$deferredR:[]).filter(function(r){return!currentRouteNames.has(r.route);}),((_props$game$lockedRou=props.game.lockedRoutes)!=null?_props$game$lockedRou:[]).filter(function(r){return!currentRouteNames.has(r.route);}));var pending=allDisplayed.find(function(enc){return!props.game.resolvedRoutes.includes(enc.route)&&enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}))&&z.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species));});});});var autoSelected=(_pending$route=pending==null?void 0:pending.route)!=null?_pending$route:null;var fallback=!autoSelected?(_ref5=(_find$route=(_find=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);}))==null?void 0:_find.route)!=null?_find$route:(_allDisplayed$find=allDisplayed.find(function(enc){return enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}));});}))==null?void 0:_allDisplayed$find.route)!=null?_ref5:null:autoSelected;if(fallback!==currentSelected)updates.selectedRoute=fallback;}return Object.keys(updates).length>0?updates:null;};var _proto2=EncountersScreen.prototype;_proto2.
+};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updates={};var segIdx=props.game.currentSegmentIndex;if(segIdx!==state.lastSegmentIndex){updates.lastSegmentIndex=segIdx;updates.deferredThisSession=new Set();updates.selectedRoute=null;}var nicknames=Object.assign({},state.nicknames);var nicksChanged=false;props.game.box.forEach(function(p){if(!(p.uid in nicknames)){nicknames[p.uid]=p.nickname;nicksChanged=true;}});if(nicksChanged)updates.nicknames=nicknames;var currentSelected=updates.selectedRoute!==undefined?updates.selectedRoute:state.selectedRoute;if(!currentSelected){var _segment$encounters,_segment$encounters2,_props$game$deferredR,_props$game$lockedRou,_pending$route,_ref8,_find$route,_find,_segment$gifts,_allDisplayed$find;var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var tmMoves=props.game.tmMoves;var items=props.game.items;var currentRouteNames=new Set(((_segment$encounters=segment.encounters)!=null?_segment$encounters:[]).map(function(e){return e.route;}));var allDisplayed=[].concat((_segment$encounters2=segment.encounters)!=null?_segment$encounters2:[],((_props$game$deferredR=props.game.deferredRoutes)!=null?_props$game$deferredR:[]).filter(function(r){return!currentRouteNames.has(r.route);}),((_props$game$lockedRou=props.game.lockedRoutes)!=null?_props$game$lockedRou:[]).filter(function(r){return!currentRouteNames.has(r.route);}));var pending=allDisplayed.find(function(enc){return!props.game.resolvedRoutes.includes(enc.route)&&enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}))&&z.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species));});});});var autoSelected=(_pending$route=pending==null?void 0:pending.route)!=null?_pending$route:null;var fallback=!autoSelected?(_ref8=(_find$route=(_find=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);}))==null?void 0:_find.route)!=null?_find$route:(_allDisplayed$find=allDisplayed.find(function(enc){return enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}));});}))==null?void 0:_allDisplayed$find.route)!=null?_ref8:null:autoSelected;if(fallback!==currentSelected)updates.selectedRoute=fallback;}return Object.keys(updates).length>0?updates:null;};var _proto2=EncountersScreen.prototype;_proto2.
 
-render=function render(){var _segment$encounters3,_segment$gifts2,_game$deferredRoutes,_game$lockedRoutes,_game$box$find,_allGifts$find,_game$box$find2,_segment$battles$0$tr,_segment$battles$,_this3=this,_nicknames$selectedRe;
+render=function render(){var _segment$encounters3,_segment$gifts2,_game$deferredRoutes,_game$lockedRoutes,_game$box$find,_allGifts$find,_segment$battles$0$tr,_segment$battles$,_this3=this;
 var game=this.props.game;
 var _this$state=this.state,nicknames=_this$state.nicknames,selectedRoute=_this$state.selectedRoute,deferredThisSession=_this$state.deferredThisSession;
 var segment=game.segment;
@@ -587,7 +710,7 @@ return enc.choice&&!game.resolvedRoutes.includes(enc.route);
 return(
 !game.resolvedRoutes.includes(enc.route)&&
 !deferredThisSession.has(enc.route)&&
-encAccessibleZones[i].some(function(_ref6){var zone=_ref6.zone;return(
+encAccessibleZones[i].some(function(_ref9){var zone=_ref9.zone;return(
 zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 ));
 
@@ -595,28 +718,20 @@ zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.ge
 var canContinue=pendingRoutes.length===0;
 
 
-var resolvedGiftPokemon=game.box.filter(function(p){return giftRouteNames.has(p.caughtRoute);});
-
-
 var selectedEncIdx=allDisplayedRoutes.findIndex(function(enc){return enc.route===selectedRoute;});
 var selectedEnc=selectedEncIdx>=0?allDisplayedRoutes[selectedEncIdx]:null;
 var selectedCaught=selectedRoute?(_game$box$find=
 game.box.find(function(p){return p.caughtRoute===selectedRoute;}))!=null?_game$box$find:null:
 null;
-var selectedGiftDef=selectedRoute?(_allGifts$find=
-allGifts.find(function(g){return g.route===selectedRoute;}))!=null?_allGifts$find:null:
-null;
-var selectedResolvedGift=selectedGiftDef&&game.resolvedRoutes.includes(selectedRoute)?(_game$box$find2=
-game.box.find(function(p){return p.caughtRoute===selectedRoute;}))!=null?_game$box$find2:null:
-null;
+var selectedGiftDef=selectedRoute?(_allGifts$find=allGifts.find(function(g){return g.route===selectedRoute;}))!=null?_allGifts$find:null:null;
 var selectedChoiceGift=selectedGiftDef!=null&&selectedGiftDef.choice&&!game.resolvedRoutes.includes(selectedRoute)?
 selectedGiftDef:
 null;
 
 var isResolved=selectedRoute?game.resolvedRoutes.includes(selectedRoute):false;
+var isSelectedGift=selectedRoute?giftRouteNames.has(selectedRoute):false;
 var selectedAllZones=selectedEncIdx>=0?encZones[selectedEncIdx]:[];
 var selectedAccessibleZones=selectedEncIdx>=0?encAccessibleZones[selectedEncIdx]:[];
-var isMultiZone=selectedAccessibleZones.length>1;
 
 return preact.h(NzScreen,null,
 preact.h(NzScreenHeader,{
@@ -632,130 +747,77 @@ preact.h("div",{"class":"nz-encounters-layout"},
 
 preact.h("div",{"class":"nz-route-list"},
 allDisplayedRoutes.length>0&&preact.h("div",{"class":"nz-route-list-section-label"},"Routes"),
-allDisplayedRoutes.map(function(enc){var _game$lockedRoutes2,_game$deferredRoutes2;
-var encIdx=allDisplayedRoutes.indexOf(enc);
+allDisplayedRoutes.map(function(enc,encIdx){
 var accessibleZones=encAccessibleZones[encIdx];
 var allZones=encZones[encIdx];
-var resolved=game.resolvedRoutes.includes(enc.route);
+var isResolvedRow=game.resolvedRoutes.includes(enc.route);
 var isGift=giftRouteNames.has(enc.route);
 var isSelected=selectedRoute===enc.route;
 
+var statusSymbol='';
+var isDeferred=false;
+var sprites;
 
-if(isGift){var _ref7;
-var isChoicePending=enc.choice&&!resolved;
-var resolvedGift=resolved?game.box.find(function(p){return p.caughtRoute===enc.route;}):undefined;
-var giftPokemon=(_ref7=[]).concat.apply(_ref7,enc.zones.map(function(z){return z.pokemon;}));
-var _rowClass=[
-'nz-route-list-row',
-isChoicePending?'nz-route-list-row-choice':'',
-resolved?'resolved':'',
-isSelected?'selected':''].
-filter(Boolean).join(' ');
-return preact.h("div",{key:enc.route,"class":_rowClass,onClick:function(){return _this3.selectRoute(enc.route);}},
-preact.h("div",{"class":"nz-route-list-row-top"},
-preact.h("span",{"class":"nz-route-list-status"+(isChoicePending?' nz-gift-status-choose':'')},
-resolved?'✓':isChoicePending?'!':''
-),
-preact.h("span",{"class":"nz-route-list-name"},enc.route),
-preact.h("span",{"class":"nz-route-gift-badge"},"Gift")
-),
-preact.h("div",{"class":"nz-route-list-sprites"},
-resolvedGift?
-preact.h("img",{
-"class":"nz-route-sprite nz-route-sprite-caught",
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(resolvedGift.species)+".png",
-alt:resolvedGift.species,title:resolvedGift.species}
-):
-giftPokemon.map(function(e){return(
-preact.h("img",{key:toID(e.species),"class":"nz-route-sprite",
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",
-alt:e.species,title:e.species}
-));}
-)
-
-)
-);
-}
-
-
-
-
+if(isGift){
+statusSymbol=isResolvedRow?'✓':'';
+var resolvedGift=isResolvedRow?game.box.find(function(p){return p.caughtRoute===enc.route;}):undefined;
+var giftPokemon=enc.zones.flatMap(function(z){return z.pokemon;});
+sprites=resolvedGift?
+[{species:resolvedGift.species,isDupe:false,isCaught:true}]:
+giftPokemon.map(function(e){return{
+species:e.species,
+isDupe:ownedRoots.has(getEvoRoot(e.species,game.generation)),
+isCaught:false
+};});
+}else{var _game$lockedRoutes2,_game$deferredRoutes2;
 var isServerLocked=((_game$lockedRoutes2=game.lockedRoutes)!=null?_game$lockedRoutes2:[]).some(function(r){return r.route===enc.route;});
-var accessibleHasNonDupe=accessibleZones.some(function(_ref8){var zone=_ref8.zone;return(
+var accessibleHasNonDupe=accessibleZones.some(function(_ref10){var zone=_ref10.zone;return(
 zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
-var lockedHasNonDupe=allZones.some(function(_ref9){var zone=_ref9.zone,accessible=_ref9.accessible;return(
+var lockedHasNonDupe=allZones.some(function(_ref11){var zone=_ref11.zone,accessible=_ref11.accessible;return(
 !accessible&&zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
-var isAllLocked=isServerLocked||!resolved&&!accessibleHasNonDupe&&lockedHasNonDupe;
+var isAllLocked=isServerLocked||!isResolvedRow&&!accessibleHasNonDupe&&lockedHasNonDupe;
 var isDeferredThisSession=deferredThisSession.has(enc.route);
 
 
-var isPendingDeferred=!resolved&&!isDeferredThisSession&&!isServerLocked&&
+var isPendingDeferred=!isResolvedRow&&!isDeferredThisSession&&!isServerLocked&&
 ((_game$deferredRoutes2=game.deferredRoutes)!=null?_game$deferredRoutes2:[]).some(function(r){return r.route===enc.route;});
-var allDupes=!resolved&&!isAllLocked&&accessibleZones.length>0&&
-accessibleZones.every(function(_ref10){var zone=_ref10.zone;return(
+var allDupes=!isResolvedRow&&!isAllLocked&&accessibleZones.length>0&&
+accessibleZones.every(function(_ref12){var zone=_ref12.zone;return(
 zone.pokemon.every(function(e){return ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
-var caughtPokemon=resolved?
-game.box.find(function(p){return p.caughtRoute===enc.route;}):
-undefined;
+isDeferred=isAllLocked||isDeferredThisSession||isPendingDeferred;
 
+if(isResolvedRow)statusSymbol='✓';else
+if(allDupes)statusSymbol='—';else
+if(isDeferredThisSession||isAllLocked)statusSymbol='↩';
 
+var caughtPokemon=isResolvedRow?game.box.find(function(p){return p.caughtRoute===enc.route;}):undefined;
 var seenSids=new Set();
 var allSpecies=[];for(var _i6=0;_i6<
-accessibleZones.length;_i6++){var _ref11=accessibleZones[_i6];var zone=_ref11.zone;for(var _i8=0,_zone$pokemon2=
+accessibleZones.length;_i6++){var _ref13=accessibleZones[_i6];var zone=_ref13.zone;for(var _i8=0,_zone$pokemon2=
 zone.pokemon;_i8<_zone$pokemon2.length;_i8++){var e=_zone$pokemon2[_i8];
 var sid=toID(e.species);
 if(!seenSids.has(sid)){seenSids.add(sid);allSpecies.push(e.species);}
 }
 }
+sprites=allSpecies.map(function(species){return{
+species:species,
+isDupe:ownedRoots.has(getEvoRoot(species,game.generation)),
+isCaught:caughtPokemon!==undefined&&toID(caughtPokemon.species)===toID(species)
+};});
+}
 
-var statusSymbol='';
-if(resolved)statusSymbol='✓';else
-if(allDupes)statusSymbol='—';else
-if(isDeferredThisSession||isAllLocked)statusSymbol='↩';
-
-var isDeferred=isAllLocked||isDeferredThisSession||isPendingDeferred;
-var rowClass=[
-'nz-route-list-row',
-isSelected?'selected':'',
-resolved?'resolved':''].
-filter(Boolean).join(' ');
-
-return preact.h("div",{
+return preact.h(RouteListItem,{
 key:enc.route,
-"class":rowClass,
-onClick:function(){return _this3.selectRoute(enc.route);}},
-
-preact.h("div",{"class":"nz-route-list-row-top"},
-preact.h("span",{"class":"nz-route-list-status"+(isDeferred?' nz-route-status-deferred':'')},
-statusSymbol
-),
-preact.h("span",{"class":"nz-route-list-name"},enc.route),
-isDeferred&&preact.h("span",{"class":"nz-route-deferred-badge"},"Deferred")
-),
-allSpecies.length>0&&preact.h("div",{"class":"nz-route-list-sprites"},
-preact.h("div",{"class":"nz-route-sprite-group"},
-allSpecies.map(function(species){
-var sid=toID(species);
-var isDupe=ownedRoots.has(getEvoRoot(species,game.generation));
-var isCaught=caughtPokemon!==undefined&&toID(caughtPokemon.species)===sid;
-var cls=[
-'nz-route-sprite',
-isDupe&&!isCaught?'nz-route-sprite-dupe':'',
-isCaught?'nz-route-sprite-caught':''].
-filter(Boolean).join(' ');
-return preact.h("img",{
-key:sid,
-"class":cls,
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+sid+".png",
-alt:species,
-title:species}
-);
-})
-)
-)
+enc:enc,
+isSelected:isSelected,
+isResolved:isResolvedRow,
+isDeferred:isDeferred,
+statusSymbol:statusSymbol,
+sprites:sprites,
+onSelect:function(){return _this3.selectRoute(enc.route);}}
 );
 }),
 
@@ -787,32 +849,26 @@ ownedRoots:ownedRoots,
 generation:game.generation}
 ),
 
-!selectedChoiceGift&&selectedResolvedGift&&preact.h(NzRouteCardCaught,{
-pokemon:selectedResolvedGift,
-nickname:(_nicknames$selectedRe=nicknames[selectedResolvedGift.uid])!=null?_nicknames$selectedRe:selectedResolvedGift.nickname,
-onNickChange:this.setNick}
-),
-
-!selectedChoiceGift&&!selectedResolvedGift&&selectedEnc&&function(_game$lockedRoutes3){
+!selectedChoiceGift&&selectedEnc&&function(_game$lockedRoutes3){
 var isServerLockedRoute=((_game$lockedRoutes3=game.lockedRoutes)!=null?_game$lockedRoutes3:[]).some(function(r){return r.route===selectedEnc.route;});
-var detailAccessibleHasNonDupe=selectedAccessibleZones.some(function(_ref12){var zone=_ref12.zone;return(
+var detailAccessibleHasNonDupe=selectedAccessibleZones.some(function(_ref14){var zone=_ref14.zone;return(
 zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
-var detailLockedHasNonDupe=selectedAllZones.some(function(_ref13){var zone=_ref13.zone,accessible=_ref13.accessible;return(
+var detailLockedHasNonDupe=selectedAllZones.some(function(_ref15){var zone=_ref15.zone,accessible=_ref15.accessible;return(
 !accessible&&zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}));}
 );
 var isAllLockedRoute=isServerLockedRoute||!isResolved&&!detailAccessibleHasNonDupe&&detailLockedHasNonDupe;
 var isDeferredThisSession=deferredThisSession.has(selectedEnc.route);
-var showDefer=!isResolved&&!isAllLockedRoute&&!isDeferredThisSession;
+var showDefer=!isResolved&&!isAllLockedRoute&&!isDeferredThisSession&&!isSelectedGift;
 return preact.h(preact.Fragment,null,
-(isAllLockedRoute||isDeferredThisSession)&&function(){
+!isSelectedGift&&(isAllLockedRoute||isDeferredThisSession)&&function(){
 var hint='Deferred — will re-appear next segment';
 if(isAllLockedRoute){
 var seen=new Set();for(var _i10=0;_i10<
-selectedAllZones.length;_i10++){var _ref15,_zone$requires4;var _ref14=selectedAllZones[_i10];var zone=_ref14.zone;var accessible=_ref14.accessible;
+selectedAllZones.length;_i10++){var _zone$requires3;var _ref16=selectedAllZones[_i10];var zone=_ref16.zone;var accessible=_ref16.accessible;
 if(accessible)continue;
 if(!zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.generation));}))continue;
-var name=(_ref15=(_zone$requires4=zone.requires)!=null?_zone$requires4:METHOD_PREREQS[zone.method])==null?void 0:_ref15.name;
+var name=(_zone$requires3=zone.requires)==null?void 0:_zone$requires3.name;
 if(name)seen.add(name);
 }
 if(seen.size>0)hint+=" (missing: "+Array.from(seen).join(', ')+")";
@@ -820,32 +876,26 @@ if(seen.size>0)hint+=" (missing: "+Array.from(seen).join(', ')+")";
 return preact.h("div",{"class":"nz-detail-deferred-hint"},hint);
 }(),
 preact.h("div",{"class":"nz-zone-cards"},
-selectedAllZones.map(function(_ref16){var zone=_ref16.zone,originalIndex=_ref16.originalIndex,accessible=_ref16.accessible;
-var caughtSpeciesForZone=isResolved?
-(selectedCaught==null?void 0:selectedCaught.caughtZoneIndex)===undefined||originalIndex===selectedCaught.caughtZoneIndex?
-selectedCaught==null?void 0:selectedCaught.species:
+selectedAllZones.map(function(_ref17){var zone=_ref17.zone,originalIndex=_ref17.originalIndex,accessible=_ref17.accessible;
+var caughtSpeciesForZone=!isResolved?
+undefined:
+!selectedCaught?
 '':
-undefined;
-if(zone.method==='Gift'&&zone.pokemon.length>1){
-return preact.h(GiftZoneCard,{
+selectedCaught.caughtZoneIndex===undefined||originalIndex===selectedCaught.caughtZoneIndex?
+selectedCaught.species:
+'';
+var zoneProps={
 key:originalIndex,
 zone:zone,
 routeName:selectedEnc.route,
 zoneIndex:originalIndex,
 accessible:accessible,
 ownedRoots:ownedRoots,
-caughtSpecies:caughtSpeciesForZone}
-);
-}
-return preact.h(ZonePoolCard,{
-key:originalIndex,
-zone:zone,
-routeName:selectedEnc.route,
-zoneIndex:originalIndex,
-accessible:accessible,
-ownedRoots:ownedRoots,
-caughtSpecies:caughtSpeciesForZone}
-);
+caughtSpecies:caughtSpeciesForZone
+};
+if(zone.method==='Trade')return preact.h(TradeZoneCard,zoneProps);
+if(zone.method==='Gift')return preact.h(GiftZoneCard,zoneProps);
+return preact.h(StandardZoneCard,zoneProps);
 })
 ),
 showDefer&&
