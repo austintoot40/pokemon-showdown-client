@@ -936,6 +936,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 
 	renderAfterBattleControls() {
+		const room = this.props.room;
 		return <div class="controls">
 			<p>
 				<button class="nz-btn nz-btn-primary" data-cmd="/closeand /join view-nuzlocke">Continue</button>

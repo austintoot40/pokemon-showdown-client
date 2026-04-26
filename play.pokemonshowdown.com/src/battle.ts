@@ -1105,6 +1105,7 @@ export class Battle {
 	 * (Affects whether BGM is playing)
 	 */
 	ended = false;
+	winnerName: string | null = null;
 	isReplay = false;
 	usesUpkeep = false;
 	weather = '' as ID;
@@ -1301,6 +1302,7 @@ export class Battle {
 		this.turn = -1;
 		this.started = !this.paused;
 		this.ended = false;
+		this.winnerName = null;
 		this.atQueueEnd = false;
 		this.weather = '' as ID;
 		this.weatherTimeLeft = 0;
@@ -1386,6 +1388,7 @@ export class Battle {
 		this.resetTurnsSinceMoved();
 	}
 	winner(winner?: string) {
+		this.winnerName = winner || null;
 		this.log(['win', winner || '']);
 		this.ended = true;
 		this.subscription?.('ended');
