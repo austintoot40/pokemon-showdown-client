@@ -363,16 +363,15 @@ detailContent
 
 
 preact.h("div",{"class":"nz-tb-columns"},
+
+preact.h("div",{"class":"nz-tb-party-col"},
 preact.h("div",{"class":"nz-section-title"},"Party (",partyPokemon.length,"/6)",preact.h("span",{"class":"nz-tb-hint"},"double-click to move to box")),
-preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
-preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer2=battle==null?void 0:battle.trainer)!=null?_battle$trainer2:'Opponent'),
+preact.h("div",{"class":"nz-tb-col-scroll"},
 [0,1,2,3,4,5].map(function(i){var _game$availableEvolut3;
 var pok=partyPokemon[i];
-var opp=battle==null?void 0:battle.team[i];
-var chunk=boxOnly.slice(i*3,i*3+3);
-return preact.h(preact.Fragment,{key:i},
-pok?
+return pok?
 preact.h(NzPartySlot,{
+key:pok.uid,
 pokemon:pok,
 levelCap:segment.levelCap,
 generation:_this2.props.game.generation,
@@ -386,9 +385,17 @@ onMoveDown:function(){return PS.send("/nuzlocke partymove "+pok.uid+" right");},
 hasError:!!errors[pok.uid],
 canEvolve:!!((_game$availableEvolut3=game.availableEvolutions[pok.uid])!=null&&_game$availableEvolut3.length)}
 ):
-preact.h("div",{"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty \u2014"),
+preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty \u2014");
+})
+)
+),
 
-preact.h("div",{"class":"nz-box-row-cell"},
+preact.h("div",{"class":"nz-tb-box-col"},
+preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
+preact.h("div",{"class":"nz-tb-col-scroll"},
+Array.from({length:Math.ceil(boxOnly.length/3)},function(_,i){
+var chunk=boxOnly.slice(i*3,i*3+3);
+return preact.h("div",{key:i,"class":"nz-box-row-cell"},
 [0,1,2].map(function(j){var _game$availableEvolut4;return chunk[j]?
 preact.h("div",{
 key:chunk[j].uid,
@@ -404,42 +411,29 @@ preact.h("div",{"class":"nz-tb-box-card-name"},chunk[j].nickname)
 ):
 null;}
 )
+);
+})
+)
 ),
-opp?
+
+preact.h("div",{"class":"nz-tb-opponent-col"},
+preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer2=battle==null?void 0:battle.trainer)!=null?_battle$trainer2:'Opponent'),
+preact.h("div",{"class":"nz-tb-col-scroll"},
+[0,1,2,3,4,5].map(function(i){
+var opp=battle==null?void 0:battle.team[i];
+return opp?
 preact.h(NzOpponentSlot,{
+key:i,
 pokemon:opp,
 generation:_this2.props.game.generation,
 selected:selectedOpponentIndex===i,
 onSelect:function(){return _this2.selectOpponent(i);}}
 ):
-preact.h("div",{"class":"nz-party-slot nz-party-slot-empty"})
-
-);
-}),
-boxOnly.length>18&&Array.from({length:Math.ceil((boxOnly.length-18)/3)},function(_,i){
-var chunk=boxOnly.slice(18+i*3,21+i*3);
-return preact.h(preact.Fragment,{key:"overflow-"+i},
-preact.h("div",null),
-preact.h("div",{"class":"nz-box-row-cell"},
-[0,1,2].map(function(j){var _game$availableEvolut5;return chunk[j]?
-preact.h("div",{
-key:chunk[j].uid,
-"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut5=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut5.length?' nz-tb-box-card-evolve':''),
-onClick:function(){return _this2.select(chunk[j].uid);},
-onDblClick:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+chunk[j].uid);}},
-
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(chunk[j].species)+".png",
-alt:chunk[j].species}
-),
-preact.h("div",{"class":"nz-tb-box-card-name"},chunk[j].nickname)
-):
-null;}
-)
-),
-preact.h("div",null)
-);
+preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"});
 })
+)
+)
+
 )
 
 ),

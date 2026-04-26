@@ -361,85 +361,79 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					{detailContent}
 				</div>
 
-				{/* Col 2: party + opponent + box (shared grid — rows size together) */}
+				{/* Col 2: party + box + opponent — three independently-scrolling columns */}
 				<div class="nz-tb-columns">
-					<div class="nz-section-title">Party ({partyPokemon.length}/6)<span class="nz-tb-hint">double-click to move to box</span></div>
-					<div class="nz-section-title">Box ({boxOnly.length})<span class="nz-tb-hint">double-click to add to party</span></div>
-					<div class="nz-section-title nz-section-title-danger">vs. {battle?.trainer ?? 'Opponent'}</div>
-					{([0, 1, 2, 3, 4, 5] as const).map(i => {
-						const pok = partyPokemon[i];
-						const opp = battle?.team[i];
-						const chunk = boxOnly.slice(i * 3, i * 3 + 3);
-						return <preact.Fragment key={i}>
-							{pok
-								? <NzPartySlot
-									pokemon={pok}
-									levelCap={segment.levelCap}
-									generation={this.props.game.generation}
-									selected={selectedUid === pok.uid}
-									isFirst={i === 0}
-									isLast={i === partyPokemon.length - 1}
-									onSelect={() => this.select(pok.uid)}
-									onDoubleClick={() => PS.send(`/nuzlocke removefromparty ${pok.uid}`)}
-									onMoveUp={() => PS.send(`/nuzlocke partymove ${pok.uid} left`)}
-									onMoveDown={() => PS.send(`/nuzlocke partymove ${pok.uid} right`)}
-									hasError={!!errors[pok.uid]}
-									canEvolve={!!(game.availableEvolutions[pok.uid]?.length)}
-								/>
-								: <div class="nz-party-slot nz-party-slot-empty">— empty —</div>
-							}
-							<div class="nz-box-row-cell">
-								{[0, 1, 2].map(j => chunk[j]
-									? <div
-										key={chunk[j].uid}
-										class={`nz-tb-box-card${selectedUid === chunk[j].uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[chunk[j].uid]?.length ? ' nz-tb-box-card-evolve' : ''}`}
-										onClick={() => this.select(chunk[j].uid)}
-										onDblClick={() => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${chunk[j].uid}`)}
-									>
-										<img
-											src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(chunk[j].species)}.png`}
-											alt={chunk[j].species}
-										/>
-										<div class="nz-tb-box-card-name">{chunk[j].nickname}</div>
-									</div>
-									: null
-								)}
-							</div>
-							{opp
-								? <NzOpponentSlot
-									pokemon={opp}
-									generation={this.props.game.generation}
-									selected={selectedOpponentIndex === i}
-									onSelect={() => this.selectOpponent(i)}
-								/>
-								: <div class="nz-party-slot nz-party-slot-empty" />
-							}
-						</preact.Fragment>;
-					})}
-					{boxOnly.length > 18 && Array.from({ length: Math.ceil((boxOnly.length - 18) / 3) }, (_, i) => {
-						const chunk = boxOnly.slice(18 + i * 3, 21 + i * 3);
-						return <preact.Fragment key={`overflow-${i}`}>
-							<div />
-							<div class="nz-box-row-cell">
-								{[0, 1, 2].map(j => chunk[j]
-									? <div
-										key={chunk[j].uid}
-										class={`nz-tb-box-card${selectedUid === chunk[j].uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[chunk[j].uid]?.length ? ' nz-tb-box-card-evolve' : ''}`}
-										onClick={() => this.select(chunk[j].uid)}
-										onDblClick={() => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${chunk[j].uid}`)}
-									>
-										<img
-											src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(chunk[j].species)}.png`}
-											alt={chunk[j].species}
-										/>
-										<div class="nz-tb-box-card-name">{chunk[j].nickname}</div>
-									</div>
-									: null
-								)}
-							</div>
-							<div />
-						</preact.Fragment>;
-					})}
+
+					<div class="nz-tb-party-col">
+						<div class="nz-section-title">Party ({partyPokemon.length}/6)<span class="nz-tb-hint">double-click to move to box</span></div>
+						<div class="nz-tb-col-scroll">
+							{([0, 1, 2, 3, 4, 5] as const).map(i => {
+								const pok = partyPokemon[i];
+								return pok
+									? <NzPartySlot
+										key={pok.uid}
+										pokemon={pok}
+										levelCap={segment.levelCap}
+										generation={this.props.game.generation}
+										selected={selectedUid === pok.uid}
+										isFirst={i === 0}
+										isLast={i === partyPokemon.length - 1}
+										onSelect={() => this.select(pok.uid)}
+										onDoubleClick={() => PS.send(`/nuzlocke removefromparty ${pok.uid}`)}
+										onMoveUp={() => PS.send(`/nuzlocke partymove ${pok.uid} left`)}
+										onMoveDown={() => PS.send(`/nuzlocke partymove ${pok.uid} right`)}
+										hasError={!!errors[pok.uid]}
+										canEvolve={!!(game.availableEvolutions[pok.uid]?.length)}
+									/>
+									: <div key={i} class="nz-party-slot nz-party-slot-empty">— empty —</div>;
+							})}
+						</div>
+					</div>
+
+					<div class="nz-tb-box-col">
+						<div class="nz-section-title">Box ({boxOnly.length})<span class="nz-tb-hint">double-click to add to party</span></div>
+						<div class="nz-tb-col-scroll">
+							{Array.from({ length: Math.ceil(boxOnly.length / 3) }, (_, i) => {
+								const chunk = boxOnly.slice(i * 3, i * 3 + 3);
+								return <div key={i} class="nz-box-row-cell">
+									{[0, 1, 2].map(j => chunk[j]
+										? <div
+											key={chunk[j].uid}
+											class={`nz-tb-box-card${selectedUid === chunk[j].uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[chunk[j].uid]?.length ? ' nz-tb-box-card-evolve' : ''}`}
+											onClick={() => this.select(chunk[j].uid)}
+											onDblClick={() => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${chunk[j].uid}`)}
+										>
+											<img
+												src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(chunk[j].species)}.png`}
+												alt={chunk[j].species}
+											/>
+											<div class="nz-tb-box-card-name">{chunk[j].nickname}</div>
+										</div>
+										: null
+									)}
+								</div>;
+							})}
+						</div>
+					</div>
+
+					<div class="nz-tb-opponent-col">
+						<div class="nz-section-title nz-section-title-danger">vs. {battle?.trainer ?? 'Opponent'}</div>
+						<div class="nz-tb-col-scroll">
+							{([0, 1, 2, 3, 4, 5] as const).map(i => {
+								const opp = battle?.team[i];
+								return opp
+									? <NzOpponentSlot
+										key={i}
+										pokemon={opp}
+										generation={this.props.game.generation}
+										selected={selectedOpponentIndex === i}
+										onSelect={() => this.selectOpponent(i)}
+									/>
+									: <div key={i} class="nz-party-slot nz-party-slot-empty" />;
+							})}
+						</div>
+					</div>
+
 				</div>
 
 			</div>

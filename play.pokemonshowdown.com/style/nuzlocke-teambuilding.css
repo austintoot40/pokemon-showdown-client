@@ -17,16 +17,23 @@
   width: 100%;
 }
 
-/* Party + opponent + box share one grid so rows size together */
+/* Three independently-scrolling columns */
 .nz-tb-columns {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 3px 16px;
-  align-items: stretch;
+  gap: 0 16px;
+  align-items: start;
   width: 100%;
   min-width: 0;
-  max-height: 500px;
+}
+
+/* Scrollable content area within each column — height matches detail panel */
+.nz-tb-col-scroll {
   overflow-y: auto;
+  max-height: 660px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .nz-section-title-danger::before {
@@ -198,11 +205,13 @@
   border-color: var(--nz-accent);
 }
 
-/* Right columns: party and opponent */
+/* Each column: title + scrollable body */
 .nz-tb-party-col,
+.nz-tb-box-col,
 .nz-tb-opponent-col {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 /* =============================================
