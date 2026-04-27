@@ -23,7 +23,7 @@
 
 
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
-state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponentIndex:null};_this.
+state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null};_this.
 
 
 
@@ -64,8 +64,8 @@ state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponentIndex:nu
 
 
 
-select=function(uid){return _this.setState({selectedUid:uid,selectedOpponentIndex:null});};_this.
-selectOpponent=function(index){return _this.setState({selectedOpponentIndex:index,selectedUid:null});};_this.
+select=function(uid){return _this.setState({selectedUid:uid,selectedOpponent:null});};_this.
+selectOpponent=function(battleIdx,slotIdx){return _this.setState({selectedOpponent:{battleIdx:battleIdx,slotIdx:slotIdx},selectedUid:null});};_this.
 
 setMove=function(uid,slot,value){
 _this.setState(function(s){var _s$moves$uid,_Object$assign;
@@ -114,11 +114,12 @@ return uid+" "+m+" "+item;
 PS.send("/nuzlocke battlewithmoves "+parts);
 };return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref,_props$game$party$,_props$game$box$find;var defaultUid=(_ref=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};var _proto=TeambuildingScreen.prototype;_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
 
-render=function render(){var _game$box$find,_this2=this,_battle$trainer,_battle$trainer2;
+render=function render(){var _game$box$find,_remainingBattles$sel,_this2=this,_battle$trainer,_battle$trainer2;
 var game=this.props.game;
-var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponentIndex=_this$state2.selectedOpponentIndex;
+var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponent=_this$state2.selectedOpponent;
 var segment=game.segment;
 var battle=segment.battles[game.currentBattleIndex];
+var remainingBattles=segment.battles.slice(game.currentBattleIndex);
 var partyPokemon=game.party.map(function(uid){return game.box.find(function(p){return p.uid===uid;});}).filter(Boolean);
 var boxOnly=game.box.filter(function(p){return p.alive&&!game.party.includes(p.uid);});
 
@@ -139,11 +140,15 @@ filter(function(pid){return pid!==uid;}).
 filter(function(pid){var _ref2,_heldItems$pid,_game$box$find2;return toID((_ref2=(_heldItems$pid=heldItems[pid])!=null?_heldItems$pid:(_game$box$find2=game.box.find(function(p){return p.uid===pid;}))==null?void 0:_game$box$find2.item)!=null?_ref2:'')===id;}).
 length);};
 
+var selectedOppPokemon=selectedOpponent!==null?(_remainingBattles$sel=
+remainingBattles[selectedOpponent.battleIdx])==null?void 0:_remainingBattles$sel.team[selectedOpponent.slotIdx]:
+null;
+
 
 var detailContent;
-if(selectedOpponentIndex!==null&&battle!=null&&battle.team[selectedOpponentIndex]){
+if(selectedOppPokemon){
 
-var opp=battle.team[selectedOpponentIndex];
+var opp=selectedOppPokemon;
 detailContent=preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-tb-info-stats"},
 preact.h("div",{"class":"nz-tb-detail-header"},
@@ -357,7 +362,7 @@ meta:[
 preact.h("div",{"class":"nz-tb-layout"},
 
 
-preact.h("div",{"class":"nz-tb-detail"+(selectedOpponentIndex!==null?' nz-tb-detail-opponent':'')},
+preact.h("div",{"class":"nz-tb-detail"+(selectedOpponent!==null?' nz-tb-detail-opponent':'')},
 detailContent
 ),
 
@@ -419,18 +424,18 @@ null;}
 preact.h("div",{"class":"nz-tb-opponent-col"},
 preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer2=battle==null?void 0:battle.trainer)!=null?_battle$trainer2:'Opponent'),
 preact.h("div",{"class":"nz-tb-col-scroll"},
-[0,1,2,3,4,5].map(function(i){
-var opp=battle==null?void 0:battle.team[i];
-return opp?
+remainingBattles.map(function(b,bi){return preact.h(preact.Fragment,{key:bi},
+bi>0&&preact.h("div",{"class":"nz-section-title nz-section-title-danger",style:"margin-top:12px;"},"vs. ",b.trainer),
+b.team.map(function(opp,i){return(
 preact.h(NzOpponentSlot,{
-key:i,
+key:bi+"-"+i,
 pokemon:opp,
 generation:_this2.props.game.generation,
-selected:selectedOpponentIndex===i,
-onSelect:function(){return _this2.selectOpponent(i);}}
-):
-preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"});
-})
+selected:(selectedOpponent==null?void 0:selectedOpponent.battleIdx)===bi&&(selectedOpponent==null?void 0:selectedOpponent.slotIdx)===i,
+onSelect:function(){return _this2.selectOpponent(bi,i);}}
+));}
+)
+);})
 )
 )
 

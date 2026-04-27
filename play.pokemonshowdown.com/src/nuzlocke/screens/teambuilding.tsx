@@ -19,11 +19,11 @@ interface TeambuildingState {
 	heldItems: Record<string, string>;
 	errors: Record<string, string>;
 	selectedUid: string | null;
-	selectedOpponentIndex: number | null;
+	selectedOpponent: { battleIdx: number; slotIdx: number } | null;
 }
 
 export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
-	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponentIndex: null };
+	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null };
 
 	static getDerivedStateFromProps(
 		props: { game: NuzlockePanelPayload },
@@ -64,8 +64,8 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 		return changed ? { moves, heldItems, selectedUid } : null;
 	}
 
-	select = (uid: string) => this.setState({ selectedUid: uid, selectedOpponentIndex: null });
-	selectOpponent = (index: number) => this.setState({ selectedOpponentIndex: index, selectedUid: null });
+	select = (uid: string) => this.setState({ selectedUid: uid, selectedOpponent: null });
+	selectOpponent = (battleIdx: number, slotIdx: number) => this.setState({ selectedOpponent: { battleIdx, slotIdx }, selectedUid: null });
 
 	setMove = (uid: string, slot: number, value: string) => {
 		this.setState((s: TeambuildingState) => {
@@ -116,9 +116,10 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 	render() {
 		const { game } = this.props;
-		const { moves, heldItems, errors, selectedUid, selectedOpponentIndex } = this.state;
+		const { moves, heldItems, errors, selectedUid, selectedOpponent } = this.state;
 		const segment = game.segment!;
 		const battle = segment.battles[game.currentBattleIndex];
+		const remainingBattles = segment.battles.slice(game.currentBattleIndex);
 		const partyPokemon = game.party.map(uid => game.box.find(p => p.uid === uid)!).filter(Boolean);
 		const boxOnly = game.box.filter(p => p.alive && !game.party.includes(p.uid));
 
@@ -139,11 +140,15 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				.filter(pid => toID(heldItems[pid] ?? game.box.find(p => p.uid === pid)?.item ?? '') === id)
 				.length;
 
+		const selectedOppPokemon = selectedOpponent !== null
+			? remainingBattles[selectedOpponent.battleIdx]?.team[selectedOpponent.slotIdx]
+			: null;
+
 		// ---- Detail panel ----
 		let detailContent: preact.VNode;
-		if (selectedOpponentIndex !== null && battle?.team[selectedOpponentIndex]) {
+		if (selectedOppPokemon) {
 			// Opponent read-only detail
-			const opp = battle.team[selectedOpponentIndex];
+			const opp = selectedOppPokemon;
 			detailContent = <>
 				<div class="nz-tb-info-stats">
 					<div class="nz-tb-detail-header">
@@ -357,7 +362,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			<div class="nz-tb-layout">
 
 				{/* Col 1: detail panel */}
-				<div class={`nz-tb-detail${selectedOpponentIndex !== null ? ' nz-tb-detail-opponent' : ''}`}>
+				<div class={`nz-tb-detail${selectedOpponent !== null ? ' nz-tb-detail-opponent' : ''}`}>
 					{detailContent}
 				</div>
 
@@ -419,18 +424,18 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					<div class="nz-tb-opponent-col">
 						<div class="nz-section-title nz-section-title-danger">vs. {battle?.trainer ?? 'Opponent'}</div>
 						<div class="nz-tb-col-scroll">
-							{([0, 1, 2, 3, 4, 5] as const).map(i => {
-								const opp = battle?.team[i];
-								return opp
-									? <NzOpponentSlot
-										key={i}
+							{remainingBattles.map((b, bi) => <preact.Fragment key={bi}>
+								{bi > 0 && <div class="nz-section-title nz-section-title-danger" style="margin-top:12px;">vs. {b.trainer}</div>}
+								{b.team.map((opp, i) =>
+									<NzOpponentSlot
+										key={`${bi}-${i}`}
 										pokemon={opp}
 										generation={this.props.game.generation}
-										selected={selectedOpponentIndex === i}
-										onSelect={() => this.selectOpponent(i)}
+										selected={selectedOpponent?.battleIdx === bi && selectedOpponent?.slotIdx === i}
+										onSelect={() => this.selectOpponent(bi, i)}
 									/>
-									: <div key={i} class="nz-party-slot nz-party-slot-empty" />;
-							})}
+								)}
+							</preact.Fragment>)}
 						</div>
 					</div>
 
