@@ -147,6 +147,8 @@ export class BattleRoom extends ChatRoom {
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
+	/** Set when a chained nuzlocke battle is pending after this one ends. */
+	nuzlockeChainPending: boolean = false;
 
 	loadReplay() {
 		const replayid = this.id.slice(7);
@@ -340,6 +342,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'win': case 'tie':
 			this.receiveRequest(null);
 			break;
+		case 'nuzlockechain':
+			room.nuzlockeChainPending = true;
+			room.update(null);
+			return;
 		case 'c': case 'c:': case 'chat': case 'chatmsg': case 'inactive':
 			room.battle.instantAdd('|' + args.join('|'));
 			return;
@@ -937,9 +943,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 	renderAfterBattleControls() {
 		const room = this.props.room;
+		const continueCmd = room.nuzlockeChainPending
+			? '/closeand /nuzlocke battle'
+			: '/closeand /join view-nuzlocke';
 		return <div class="controls">
 			<p>
-				<button class="nz-btn nz-btn-primary" data-cmd="/closeand /join view-nuzlocke">Continue</button>
+				<button class="nz-btn nz-btn-primary" data-cmd={continueCmd}>Continue</button>
 			</p>
 		</div>;
 	}

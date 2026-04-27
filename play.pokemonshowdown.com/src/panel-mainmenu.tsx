@@ -830,7 +830,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                 </div>
                                                             </>
                                                         )}
-                                                        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:12px;">
+                                                        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;">
                                                             <div>
                                                                 <div class="nz-label" style="margin-bottom:6px;">AI Difficulty</div>
                                                                 <div style="display:flex;gap:6px;flex-wrap:wrap;">

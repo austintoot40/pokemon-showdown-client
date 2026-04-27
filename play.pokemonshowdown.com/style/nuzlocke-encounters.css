@@ -467,6 +467,7 @@
   flex-direction: column;
   align-items: center;
   gap: 3px;
+  padding-bottom: 26px;
 }
 
 .nz-trade-zone-pokemon img {
@@ -581,6 +582,7 @@
   align-items: center;
   gap: 2px;
   cursor: default;
+  padding-bottom: 26px;
 }
 
 .nz-gift-zone-option img {
