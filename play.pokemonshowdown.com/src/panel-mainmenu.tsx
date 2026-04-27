@@ -809,7 +809,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                 </div>
                                                                 <div class="nz-starter-picker">
                                                                     {displayedStarters.map((species, i) => {
-                                                                        const types = Dex.species.get(species)?.types ?? [];
+                                                                        const types = Dex.forGen(selectedScenarioData.generation).species.get(species)?.types ?? [];
                                                                         return <div
                                                                             key={i}
                                                                             class={`nz-starter-pick${this.selectedStarter === i ? ' nz-starter-pick-selected' : ''}`}
@@ -925,7 +925,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                         <div class="nz-label" style="margin-bottom:8px;">Party</div>
                                         <div class="nz-team-grid">
                                             {activeRun.partySpecies.map((species, i) => {
-                                                const types = Dex.species.get(species)?.types ?? [];
+                                                const types = Dex.forGen(status!.generation).species.get(species)?.types ?? [];
                                                 return <div key={i} class="nz-team-slot">
                                                     <img
                                                         src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(species)}.png`}
