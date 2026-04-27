@@ -3,7 +3,8 @@ export as namespace preact;
 
 declare namespace preact {
 	type Key = string | number;
-	type Ref<T> = (instance: T) => void;
+	interface RefObject<T> { current: T | null; }
+	type Ref<T> = RefObject<T> | ((instance: T) => void);
 	type ComponentChild = VNode<any> | string | number | null;
 	type ComponentChildren = ComponentChild[] | ComponentChild | object | string | number | null;
 
@@ -115,6 +116,7 @@ declare namespace preact {
 	function render(node: ComponentChild, parent: Element | Document | ShadowRoot | DocumentFragment, mergeWith?: Element): Element;
 	function rerender(): void;
 	function cloneElement(element: JSX.Element, props: any): JSX.Element;
+	function createRef<T>(): RefObject<T>;
 
 	var options: {
 		syncComponentUpdates?: boolean;
@@ -136,6 +138,7 @@ declare global {
 
 		interface IntrinsicAttributes {
 			key?: string | number | null;
+			children?: preact.ComponentChildren;
 		}
 
 		interface ElementAttributesProperty {

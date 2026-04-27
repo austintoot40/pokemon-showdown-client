@@ -8,7 +8,7 @@ import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges, NzItemSelect } from "../components/primitives";
-import { NzMovePanel } from "../components/move-panel";
+import { NzMovePanel, formatTarget } from "../components/move-panel";
 import { NzStatPair, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
 import { calcIvScore, calcNatureQuality, calcCombinedPercentile } from "./encounters";
 import type { NuzlockePanelPayload } from "../types";

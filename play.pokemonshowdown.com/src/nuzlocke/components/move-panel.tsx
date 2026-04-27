@@ -38,7 +38,7 @@ const TYPES = new Set([
 
 const CATEGORIES = new Set(['physical', 'special', 'status']);
 
-function formatTarget(target: string | undefined): string {
+export function formatTarget(target: string | undefined): string {
 	switch (target) {
 		case 'allAdjacentFoes': return 'Spread';
 		case 'normal': case 'any': return 'Single';
@@ -134,7 +134,7 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 	};
 
 	setSort = (col: SortCol) => {
-		this.setState(s => ({
+		this.setState((s: MovePanelState) => ({
 			sortCol: col,
 			sortDir: s.sortCol === col ? (s.sortDir === 'asc' ? 'desc' : 'asc') : 'desc',
 		}));

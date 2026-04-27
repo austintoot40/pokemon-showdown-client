@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "lib": ["dom", "dom.iterable", "es6", "es2016.array.include", "es2017.object"],
+        "lib": ["dom", "dom.iterable", "es6", "es2016.array.include", "es2017.object", "es2019.array"],
         "noEmit": true,
         "target": "esnext",
         "module": "None",
@@ -9,13 +9,16 @@
         "verbatimModuleSyntax": true,
         "forceConsistentCasingInFileNames": true,
         "jsx": "preserve",
+        "jsxFactory": "preact.h",
+        "jsxFragmentFactory": "preact.Fragment",
+        "moduleResolution": "node",
         "strict": true,
         "noImplicitOverride": true
     },
     "types": [],
     "include": [
         "./play.pokemonshowdown.com/js/lib/preact.d.ts",
-        "./play.pokemonshowdown.com/src/*",
+        "./play.pokemonshowdown.com/src/**/*",
         "./replay.pokemonshowdown.com/src/*",
         "./teams.pokemonshowdown.com/src/*"
     ]

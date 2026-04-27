@@ -452,109 +452,109 @@ class EncounterPokemonStats extends preact.Component<{
 	stopEdit = () => this.setState({ editing: false });
 
 	render() {
-	const { pokemon, generation, nickname, onNickChange } = this.props;
-	const { editing } = this.state;
-	const dex = Dex.forGen(generation);
+		const { pokemon, generation, nickname, onNickChange } = this.props;
+		const { editing } = this.state;
+		const dex = Dex.forGen(generation);
 
-	if (!pokemon) {
+		if (!pokemon) {
+			return <div class="nz-encounter-stats">
+				<div class="nz-detail-empty" style="margin:auto">No pokemon caught yet</div>
+			</div>;
+		}
+
+		const sp = dex.species.get(pokemon.species);
+		const nature = BattleNatures[pokemon.nature as keyof typeof BattleNatures] ?? {};
+		const boostedStat = nature.plus as keyof StatsTable | undefined;
+		const reducedStat = nature.minus as keyof StatsTable | undefined;
+
+		const ivScore = calcIvScore(pokemon.ivs, sp.baseStats);
+		const ivPct = Math.round(ivScore * 100);
+		const ivTier = ivPct >= 62 ? 'high' : ivPct >= 50 ? 'mid' : ivPct >= 38 ? 'low' : 'poor';
+		const ivLabel = ivTier === 'high' ? 'Great' : ivTier === 'mid' ? 'Good' : ivTier === 'low' ? 'Fair' : 'Poor';
+		const natureQuality = calcNatureQuality(nature, sp.baseStats);
+		const combinedPct = calcCombinedPercentile(ivScore, natureQuality, sp.baseStats);
+		const topPercentile = combinedPct !== null && combinedPct <= 0.05 ? combinedPct : null;
+		const worsePercentile = combinedPct !== null && combinedPct >= 0.95 ? combinedPct : null;
+
 		return <div class="nz-encounter-stats">
-			<div class="nz-detail-empty" style="margin:auto">No pokemon caught yet</div>
-		</div>;
-	}
-
-	const sp = dex.species.get(pokemon.species);
-	const nature = BattleNatures[pokemon.nature as keyof typeof BattleNatures] ?? {};
-	const boostedStat = nature.plus as keyof StatsTable | undefined;
-	const reducedStat = nature.minus as keyof StatsTable | undefined;
-
-	const ivScore = calcIvScore(pokemon.ivs, sp.baseStats);
-	const ivPct = Math.round(ivScore * 100);
-	const ivTier = ivPct >= 62 ? 'high' : ivPct >= 50 ? 'mid' : ivPct >= 38 ? 'low' : 'poor';
-	const ivLabel = ivTier === 'high' ? 'Great' : ivTier === 'mid' ? 'Good' : ivTier === 'low' ? 'Fair' : 'Poor';
-	const natureQuality = calcNatureQuality(nature, sp.baseStats);
-	const combinedPct = calcCombinedPercentile(ivScore, natureQuality, sp.baseStats);
-	const topPercentile = combinedPct !== null && combinedPct <= 0.05 ? combinedPct : null;
-	const worsePercentile = combinedPct !== null && combinedPct >= 0.95 ? combinedPct : null;
-
-	return <div class="nz-encounter-stats">
-		{/* Header: sprite + identity */}
-		<div class="nz-encounter-stats-header">
-			<img
-				class="nz-encounter-stats-sprite"
-				src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(pokemon.species)}.png`}
-				alt={pokemon.species}
-			/>
-			<div class="nz-encounter-stats-identity">
-				{editing
-					? <input
-						class="nz-encounter-stats-nick-input"
-						type="text"
-						value={nickname}
-						maxLength={12}
-						autofocus
-						onInput={e => onNickChange(pokemon.uid, (e.target as HTMLInputElement).value)}
-						onBlur={this.stopEdit}
-					/>
-					: <div class="nz-encounter-stats-nick nz-encounter-stats-nick-editable" onClick={this.startEdit}>
-						{nickname}
+			{/* Header: sprite + identity */}
+			<div class="nz-encounter-stats-header">
+				<img
+					class="nz-encounter-stats-sprite"
+					src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(pokemon.species)}.png`}
+					alt={pokemon.species}
+				/>
+				<div class="nz-encounter-stats-identity">
+					{editing
+						? <input
+							class="nz-encounter-stats-nick-input"
+							type="text"
+							value={nickname}
+							maxLength={12}
+							autofocus
+							onInput={e => onNickChange(pokemon.uid, (e.target as HTMLInputElement).value)}
+							onBlur={this.stopEdit}
+						/>
+						: <div class="nz-encounter-stats-nick nz-encounter-stats-nick-editable" onClick={this.startEdit}>
+							{nickname}
+						</div>
+					}
+					{nickname !== pokemon.species &&
+						<div class="nz-encounter-stats-species">{pokemon.species}</div>
+					}
+					<div class="nz-encounter-stats-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
+					<div class="nz-encounter-stats-meta">
+						Lv.{pokemon.level} · {pokemon.caughtRoute}
 					</div>
-				}
-				{nickname !== pokemon.species &&
-					<div class="nz-encounter-stats-species">{pokemon.species}</div>
-				}
-				<div class="nz-encounter-stats-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
-				<div class="nz-encounter-stats-meta">
-					Lv.{pokemon.level} · {pokemon.caughtRoute}
 				</div>
 			</div>
-		</div>
 
-		{/* Nature + Ability */}
-		<div class="nz-encounter-stats-attrs">
-			<div class="nz-encounter-stats-attr">
-				<span class="nz-encounter-stats-attr-label">Nature</span>
-				<div class="nz-encounter-stats-attr-value-row">
-					<span class="nz-encounter-stats-attr-value">{pokemon.nature}</span>
-					{natureQuality !== 'neutral' &&
-						<span class={`nz-nature-quality nz-nature-quality-${natureQuality}`}>
-							{natureQuality}
+			{/* Nature + Ability */}
+			<div class="nz-encounter-stats-attrs">
+				<div class="nz-encounter-stats-attr">
+					<span class="nz-encounter-stats-attr-label">Nature</span>
+					<div class="nz-encounter-stats-attr-value-row">
+						<span class="nz-encounter-stats-attr-value">{pokemon.nature}</span>
+						{natureQuality !== 'neutral' &&
+							<span class={`nz-nature-quality nz-nature-quality-${natureQuality}`}>
+								{natureQuality}
+							</span>
+						}
+					</div>
+					{boostedStat && reducedStat &&
+						<span class="nz-encounter-stats-attr-desc">
+							+{boostedStat.toUpperCase()} −{reducedStat.toUpperCase()}
 						</span>
 					}
 				</div>
-				{boostedStat && reducedStat &&
-					<span class="nz-encounter-stats-attr-desc">
-						+{boostedStat.toUpperCase()} −{reducedStat.toUpperCase()}
-					</span>
-				}
+				<div class="nz-encounter-stats-attr">
+					<span class="nz-encounter-stats-attr-label">Ability</span>
+					<span class="nz-encounter-stats-attr-value">{pokemon.ability}</span>
+					{(() => {
+						const desc = dex.abilities.get(pokemon.ability).shortDesc;
+						return desc ? <span class="nz-encounter-stats-attr-desc">{desc}</span> : null;
+					})()}
+				</div>
 			</div>
-			<div class="nz-encounter-stats-attr">
-				<span class="nz-encounter-stats-attr-label">Ability</span>
-				<span class="nz-encounter-stats-attr-value">{pokemon.ability}</span>
-				{(() => {
-					const desc = dex.abilities.get(pokemon.ability).shortDesc;
-					return desc ? <span class="nz-encounter-stats-attr-desc">{desc}</span> : null;
-				})()}
-			</div>
-		</div>
 
-		<NzStatPair
-			species={pokemon.species}
-			nature={pokemon.nature}
-			generation={generation}
-			ivs={pokemon.ivs}
-			ivsExtra={<span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span>}
-		/>
-		{topPercentile !== null &&
-			<div class="nz-encounter-top-callout">
-				This {pokemon.species} is in the top {formatTopPct(topPercentile)} of {pokemon.species}s!
-			</div>
-		}
-		{worsePercentile !== null &&
-			<div class="nz-encounter-bad-callout">
-				This {pokemon.species} is worse than {formatTopPct(worsePercentile)} of {pokemon.species}s!
-			</div>
-		}
-	</div>;
+			<NzStatPair
+				species={pokemon.species}
+				nature={pokemon.nature}
+				generation={generation}
+				ivs={pokemon.ivs}
+				ivsExtra={<span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span>}
+			/>
+			{topPercentile !== null &&
+				<div class="nz-encounter-top-callout">
+					This {pokemon.species} is in the top {formatTopPct(topPercentile)} of {pokemon.species}s!
+				</div>
+			}
+			{worsePercentile !== null &&
+				<div class="nz-encounter-bad-callout">
+					This {pokemon.species} is worse than {formatTopPct(worsePercentile)} of {pokemon.species}s!
+				</div>
+			}
+		</div>;
 	}
 }
 
