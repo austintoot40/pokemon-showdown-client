@@ -662,14 +662,14 @@ function NuzlockeLoginGate() {
                     <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/ninjask.png" alt="" aria-hidden="true" />
                     <div>
                         <div class="nz-login-gate-feature-name">Runs in Under an Hour</div>
-                        <div class="nz-login-gate-feature-desc">No grinding, no overworld, no filler — just the decisions that matter.</div>
+                        <div class="nz-login-gate-feature-desc">No grinding, no overworld, no filler, just the decisions that matter.</div>
                     </div>
                 </li>
                 <li class="nz-login-gate-feature nz-login-gate-feature--alakazam">
                     <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/alakazam.png" alt="" aria-hidden="true" />
                     <div>
                         <div class="nz-login-gate-feature-name">Built for Nuzlockes</div>
-                        <div class="nz-login-gate-feature-desc">Every screen is designed around teambuilding and encounter strategy — nothing else in the way.</div>
+                        <div class="nz-login-gate-feature-desc">Every screen is designed around teambuilding and encounter strategy, nothing else in the way.</div>
                     </div>
                 </li>
                 <li class="nz-login-gate-feature nz-login-gate-feature--charizard">
@@ -683,7 +683,7 @@ function NuzlockeLoginGate() {
                     <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/smeargle.png" alt="" aria-hidden="true" />
                     <div>
                         <div class="nz-login-gate-feature-name">Custom Scenarios</div>
-                        <div class="nz-login-gate-feature-desc">Build and share your own scenarios with the community.</div>
+                        <div class="nz-login-gate-feature-desc">Build and share your own scenarios with the community (coming soon!).</div>
                     </div>
                 </li>
             </ul>
