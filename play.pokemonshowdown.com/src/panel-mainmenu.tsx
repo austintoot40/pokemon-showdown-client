@@ -216,6 +216,14 @@ export class MainMenuRoom extends PSRoom {
         case 'challstr': {
             const [, challstr] = args;
             PS.user.challstr = challstr;
+            if (!PS.server.registered) {
+                // Unregistered (local) servers skip the login server — same pattern as changeName().
+                // No session to restore; firing upkeep would stall initializing on a remote XHR.
+                PS.user.initializing = false;
+                PS.update();
+                PS.send('/nuzlocke status');
+                return;
+            }
             PSLoginServer.query(
                 'upkeep', { challstr }
             ).then(res => {
@@ -237,6 +245,7 @@ export class MainMenuRoom extends PSRoom {
             if (named) PS.user.initializing = false;
             PS.user.setName(fullName, named, avatar);
             PS.teams.loadRemoteTeams();
+            this.update(null);
             return;
         } case 'updatechallenges': {
             const [, challengesBuf] = args;
@@ -615,6 +624,11 @@ class NewsPanel extends PSRoomPanel {
     }
 }
 
+function isFullyAuthenticated(): boolean {
+    if (PS.server.registered) return PS.user.registered !== null;
+    return PS.user.named;
+}
+
 function NuzlockeLoadingPanel() {
     return (
         <div class="nz-active-run-panel nz-active-run-panel-loading" aria-busy="true" aria-label="Loading run data">
@@ -631,6 +645,60 @@ function NuzlockeLoadingPanel() {
                         </div>
                     </div>
                 ))}
+            </div>
+        </div>
+    );
+}
+
+function NuzlockeLoginGate() {
+    return (
+        <div class="nz-active-run-panel nz-login-gate" aria-label="Login required">
+            <div class="nz-login-gate-header">
+                <div class="nz-login-gate-eyebrow">Pokemon Showdown</div>
+                <div class="nz-login-gate-title">Nuzlocke Simulator</div>
+                <p class="nz-login-gate-subtitle">
+                    A registered account is required to track your runs and unlock all scenarios.
+                </p>
+            </div>
+            <ul class="nz-login-gate-features">
+                <li class="nz-login-gate-feature">
+                    <span class="nz-login-gate-feature-icon" aria-hidden="true">☠</span>
+                    <div>
+                        <div class="nz-login-gate-feature-name">Permadeath Rules</div>
+                        <div class="nz-login-gate-feature-desc">One death and they're gone — every decision counts.</div>
+                    </div>
+                </li>
+                <li class="nz-login-gate-feature">
+                    <span class="nz-login-gate-feature-icon" aria-hidden="true">⚑</span>
+                    <div>
+                        <div class="nz-login-gate-feature-name">Authentic Nuzlocke</div>
+                        <div class="nz-login-gate-feature-desc">One encounter per route, duplicate clause always enforced.</div>
+                    </div>
+                </li>
+                <li class="nz-login-gate-feature">
+                    <span class="nz-login-gate-feature-icon" aria-hidden="true">◈</span>
+                    <div>
+                        <div class="nz-login-gate-feature-name">Full Scouting</div>
+                        <div class="nz-login-gate-feature-desc">See your opponent's complete team before every battle.</div>
+                    </div>
+                </li>
+                <li class="nz-login-gate-feature">
+                    <span class="nz-login-gate-feature-icon" aria-hidden="true">✦</span>
+                    <div>
+                        <div class="nz-login-gate-feature-name">Dual Movesets</div>
+                        <div class="nz-login-gate-feature-desc">Evolved Pokemon keep pre-evolution moves up to the level cap.</div>
+                    </div>
+                </li>
+            </ul>
+            <div class="nz-login-gate-cta">
+                <button class="nz-btn nz-btn-primary nz-login-gate-btn" data-href="login">
+                    {PS.server.registered ? 'Log In to Play' : 'Choose a Name'}
+                </button>
+                <div class="nz-login-gate-cta-hint">
+                    {PS.server.registered
+                        ? 'Requires a registered Pokemon Showdown account.'
+                        : 'Any name works on this server.'}
+                </div>
             </div>
         </div>
     );
@@ -775,7 +843,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                         <div class="nz-dashboard nz-dashboard-has-run">
 
                             <div class="nz-dashboard-run">
-                                {status === null ? (
+                                {!isFullyAuthenticated() ? (
+                                    <NuzlockeLoginGate />
+                                ) : status === null ? (
                                     <NuzlockeLoadingPanel />
                                 ) : !activeRun ? (
                                     selectedScenarioData ? (
