@@ -656,49 +656,41 @@ function NuzlockeLoginGate() {
             <div class="nz-login-gate-header">
                 <div class="nz-login-gate-eyebrow">Pokemon Showdown</div>
                 <div class="nz-login-gate-title">Nuzlocke Simulator</div>
-                <p class="nz-login-gate-subtitle">
-                    A registered account is required to track your runs and unlock all scenarios.
-                </p>
             </div>
             <ul class="nz-login-gate-features">
-                <li class="nz-login-gate-feature">
-                    <span class="nz-login-gate-feature-icon" aria-hidden="true">☠</span>
+                <li class="nz-login-gate-feature nz-login-gate-feature--ninjask">
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/ninjask.png" alt="" aria-hidden="true" />
                     <div>
-                        <div class="nz-login-gate-feature-name">Permadeath Rules</div>
-                        <div class="nz-login-gate-feature-desc">One death and they're gone — every decision counts.</div>
+                        <div class="nz-login-gate-feature-name">Runs in Under an Hour</div>
+                        <div class="nz-login-gate-feature-desc">No grinding, no overworld, no filler — just the decisions that matter.</div>
                     </div>
                 </li>
-                <li class="nz-login-gate-feature">
-                    <span class="nz-login-gate-feature-icon" aria-hidden="true">⚑</span>
+                <li class="nz-login-gate-feature nz-login-gate-feature--alakazam">
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/alakazam.png" alt="" aria-hidden="true" />
                     <div>
-                        <div class="nz-login-gate-feature-name">Authentic Nuzlocke</div>
-                        <div class="nz-login-gate-feature-desc">One encounter per route, duplicate clause always enforced.</div>
+                        <div class="nz-login-gate-feature-name">Built for Nuzlockes</div>
+                        <div class="nz-login-gate-feature-desc">Every screen is designed around teambuilding and encounter strategy — nothing else in the way.</div>
                     </div>
                 </li>
-                <li class="nz-login-gate-feature">
-                    <span class="nz-login-gate-feature-icon" aria-hidden="true">◈</span>
+                <li class="nz-login-gate-feature nz-login-gate-feature--charizard">
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/charizard.png" alt="" aria-hidden="true" />
                     <div>
-                        <div class="nz-login-gate-feature-name">Full Scouting</div>
-                        <div class="nz-login-gate-feature-desc">See your opponent's complete team before every battle.</div>
+                        <div class="nz-login-gate-feature-name">Official Game Scenarios</div>
+                        <div class="nz-login-gate-feature-desc">Faithful transcriptions of mainline Pokemon games, routes and all.</div>
                     </div>
                 </li>
-                <li class="nz-login-gate-feature">
-                    <span class="nz-login-gate-feature-icon" aria-hidden="true">✦</span>
+                <li class="nz-login-gate-feature nz-login-gate-feature--smeargle">
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/smeargle.png" alt="" aria-hidden="true" />
                     <div>
-                        <div class="nz-login-gate-feature-name">Dual Movesets</div>
-                        <div class="nz-login-gate-feature-desc">Evolved Pokemon keep pre-evolution moves up to the level cap.</div>
+                        <div class="nz-login-gate-feature-name">Custom Scenarios</div>
+                        <div class="nz-login-gate-feature-desc">Build and share your own scenarios with the community.</div>
                     </div>
                 </li>
             </ul>
             <div class="nz-login-gate-cta">
                 <button class="nz-btn nz-btn-primary nz-login-gate-btn" data-href="login">
-                    {PS.server.registered ? 'Log In to Play' : 'Choose a Name'}
+                    Log In to Play
                 </button>
-                <div class="nz-login-gate-cta-hint">
-                    {PS.server.registered
-                        ? 'Requires a registered Pokemon Showdown account.'
-                        : 'Any name works on this server.'}
-                </div>
             </div>
         </div>
     );

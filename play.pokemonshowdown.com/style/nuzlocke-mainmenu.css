@@ -593,7 +593,6 @@
    ============================================= */
 
 .nz-login-gate {
-  min-height: 660px;
   justify-content: space-between;
 }
 
@@ -650,18 +649,53 @@
   padding: 12px 14px;
   background: var(--nz-elevated);
   border: 1px solid var(--nz-border-subtle);
+  border-left-width: 3px;
   clip-path: var(--nz-clip-sm);
 }
 
-.nz-login-gate-feature-icon {
-  font-size: 17px;
-  color: var(--nz-accent);
-  line-height: 1;
+.nz-login-gate-feature-sprite {
+  height: 52px;
+  width: auto;
   flex-shrink: 0;
-  width: 20px;
-  text-align: center;
-  opacity: 0.8;
-  margin-top: 2px;
+  image-rendering: pixelated;
+  align-self: center;
+}
+
+/* Per-pokemon card theming */
+.nz-login-gate-feature--ninjask {
+  border-left: 3px solid #8cc34a;
+  background: color-mix(in srgb, #8cc34a 9%, var(--nz-elevated));
+}
+.nz-login-gate-feature--ninjask .nz-login-gate-feature-name { color: #8cc34a; }
+.nz-login-gate-feature--ninjask .nz-login-gate-feature-sprite {
+  filter: drop-shadow(0 0 6px #8cc34a55);
+}
+
+.nz-login-gate-feature--alakazam {
+  border-left: 3px solid #c8a020;
+  background: color-mix(in srgb, #c8a020 9%, var(--nz-elevated));
+}
+.nz-login-gate-feature--alakazam .nz-login-gate-feature-name { color: #c8a020; }
+.nz-login-gate-feature--alakazam .nz-login-gate-feature-sprite {
+  filter: drop-shadow(0 0 6px #c8a02055);
+}
+
+.nz-login-gate-feature--charizard {
+  border-left: 3px solid #e8621a;
+  background: color-mix(in srgb, #e8621a 9%, var(--nz-elevated));
+}
+.nz-login-gate-feature--charizard .nz-login-gate-feature-name { color: #e8621a; }
+.nz-login-gate-feature--charizard .nz-login-gate-feature-sprite {
+  filter: drop-shadow(0 0 6px #e8621a55);
+}
+
+.nz-login-gate-feature--smeargle {
+  border-left: 3px solid #9e7040;
+  background: color-mix(in srgb, #9e7040 9%, var(--nz-elevated));
+}
+.nz-login-gate-feature--smeargle .nz-login-gate-feature-name { color: #9e7040; }
+.nz-login-gate-feature--smeargle .nz-login-gate-feature-sprite {
+  filter: drop-shadow(0 0 6px #9e704055);
 }
 
 .nz-login-gate-feature-name {
