@@ -117,6 +117,7 @@ PS.send("/nuzlocke battlewithmoves "+parts);
 render=function render(){var _game$box$find,_remainingBattles$sel,_this2=this,_battle$trainer,_battle$trainer2;
 var game=this.props.game;
 var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponent=_this$state2.selectedOpponent;
+var boxDisabled=game.boxDisabled;
 var segment=game.segment;
 var battle=segment.battles[game.currentBattleIndex];
 var remainingBattles=segment.battles.slice(game.currentBattleIndex);
@@ -320,7 +321,7 @@ return desc?preact.h("div",{"class":"nz-item-desc"},desc):null;
 
 preact.h("div",{"class":"nz-tb-detail-actions"},
 preact.h("div",null,
-isInParty?
+!boxDisabled&&(isInParty?
 preact.h(NzBtn,{size:"sm",variant:"danger",
 onClick:function(){return PS.send("/nuzlocke removefromparty "+selectedPokemon.uid);}},"Remove from Party"
 
@@ -330,7 +331,7 @@ preact.h(NzBtn,{size:"sm",variant:"secondary",
 onClick:function(){return PS.send("/nuzlocke addtoparty "+selectedPokemon.uid);}},"Add to Party"
 
 ):
-null
+null)
 
 ),
 evos.length>0&&preact.h("div",{"class":"nz-tb-detail-evos"},
@@ -370,7 +371,7 @@ detailContent
 preact.h("div",{"class":"nz-tb-columns"},
 
 preact.h("div",{"class":"nz-tb-party-col"},
-preact.h("div",{"class":"nz-section-title"},"Party (",partyPokemon.length,"/6)",preact.h("span",{"class":"nz-tb-hint"},"double-click to move to box")),
+preact.h("div",{"class":"nz-section-title"},"Party (",partyPokemon.length,"/6)",!boxDisabled&&preact.h("span",{"class":"nz-tb-hint"},"double-click to move to box")),
 preact.h("div",{"class":"nz-tb-col-scroll"},
 [0,1,2,3,4,5].map(function(i){var _game$availableEvolut3;
 var pok=partyPokemon[i];
@@ -384,7 +385,7 @@ selected:selectedUid===pok.uid,
 isFirst:i===0,
 isLast:i===partyPokemon.length-1,
 onSelect:function(){return _this2.select(pok.uid);},
-onDoubleClick:function(){return PS.send("/nuzlocke removefromparty "+pok.uid);},
+onDoubleClick:boxDisabled?undefined:function(){return PS.send("/nuzlocke removefromparty "+pok.uid);},
 onMoveUp:function(){return PS.send("/nuzlocke partymove "+pok.uid+" left");},
 onMoveDown:function(){return PS.send("/nuzlocke partymove "+pok.uid+" right");},
 hasError:!!errors[pok.uid],
@@ -396,7 +397,7 @@ preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty
 ),
 
 preact.h("div",{"class":"nz-tb-box-col"},
-preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
+preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",boxDisabled?preact.h("span",{"class":"nz-tb-hint"},"locked during battle sequence"):preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
 preact.h("div",{"class":"nz-tb-col-scroll"},
 Array.from({length:Math.ceil(boxOnly.length/3)},function(_,i){
 var chunk=boxOnly.slice(i*3,i*3+3);
@@ -404,9 +405,9 @@ return preact.h("div",{key:i,"class":"nz-box-row-cell"},
 [0,1,2].map(function(j){var _game$availableEvolut4;return chunk[j]?
 preact.h("div",{
 key:chunk[j].uid,
-"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':''),
+"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':'')+(boxDisabled?' nz-tb-box-card-disabled':''),
 onClick:function(){return _this2.select(chunk[j].uid);},
-onDblClick:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+chunk[j].uid);}},
+onDblClick:boxDisabled?undefined:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+chunk[j].uid);}},
 
 preact.h("img",{
 src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(chunk[j].species)+".png",

@@ -406,9 +406,15 @@
   box-sizing: border-box;
 }
 
-.nz-tb-box-card:hover {
+.nz-tb-box-card:hover:not(.nz-tb-box-card-disabled) {
   border-color: var(--nz-accent);
   background: color-mix(in srgb, var(--nz-accent) 5%, var(--nz-elevated));
+}
+
+.nz-tb-box-card-disabled {
+  opacity: 0.35;
+  cursor: default;
+  filter: grayscale(0.6);
 }
 
 .nz-party-slot-evolve {

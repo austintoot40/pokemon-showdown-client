@@ -152,4 +152,5 @@ export interface NuzlockePanelPayload {
 	scenarios: NuzlockeScenarioCard[];
 	battleRoomId: string | null;
 	finalParty: { species: string; nickname: string; alive: boolean }[] | null;
+	boxDisabled: boolean;
 }

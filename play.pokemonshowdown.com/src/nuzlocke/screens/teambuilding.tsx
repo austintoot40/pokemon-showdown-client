@@ -117,6 +117,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 	render() {
 		const { game } = this.props;
 		const { moves, heldItems, errors, selectedUid, selectedOpponent } = this.state;
+		const boxDisabled = game.boxDisabled;
 		const segment = game.segment!;
 		const battle = segment.battles[game.currentBattleIndex];
 		const remainingBattles = segment.battles.slice(game.currentBattleIndex);
@@ -320,7 +321,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 				<div class="nz-tb-detail-actions">
 					<div>
-						{isInParty
+						{!boxDisabled && (isInParty
 							? <NzBtn size="sm" variant="danger"
 								onClick={() => PS.send(`/nuzlocke removefromparty ${selectedPokemon.uid}`)}>
 								Remove from Party
@@ -331,7 +332,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 									Add to Party
 								</NzBtn>
 								: null
-						}
+						)}
 					</div>
 					{evos.length > 0 && <div class="nz-tb-detail-evos">
 						{evos.map(evo =>
@@ -370,7 +371,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				<div class="nz-tb-columns">
 
 					<div class="nz-tb-party-col">
-						<div class="nz-section-title">Party ({partyPokemon.length}/6)<span class="nz-tb-hint">double-click to move to box</span></div>
+						<div class="nz-section-title">Party ({partyPokemon.length}/6){!boxDisabled && <span class="nz-tb-hint">double-click to move to box</span>}</div>
 						<div class="nz-tb-col-scroll">
 							{([0, 1, 2, 3, 4, 5] as const).map(i => {
 								const pok = partyPokemon[i];
@@ -384,7 +385,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 										isFirst={i === 0}
 										isLast={i === partyPokemon.length - 1}
 										onSelect={() => this.select(pok.uid)}
-										onDoubleClick={() => PS.send(`/nuzlocke removefromparty ${pok.uid}`)}
+										onDoubleClick={boxDisabled ? undefined : () => PS.send(`/nuzlocke removefromparty ${pok.uid}`)}
 										onMoveUp={() => PS.send(`/nuzlocke partymove ${pok.uid} left`)}
 										onMoveDown={() => PS.send(`/nuzlocke partymove ${pok.uid} right`)}
 										hasError={!!errors[pok.uid]}
@@ -396,7 +397,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					</div>
 
 					<div class="nz-tb-box-col">
-						<div class="nz-section-title">Box ({boxOnly.length})<span class="nz-tb-hint">double-click to add to party</span></div>
+						<div class="nz-section-title">Box ({boxOnly.length}){boxDisabled ? <span class="nz-tb-hint">locked during battle sequence</span> : <span class="nz-tb-hint">double-click to add to party</span>}</div>
 						<div class="nz-tb-col-scroll">
 							{Array.from({ length: Math.ceil(boxOnly.length / 3) }, (_, i) => {
 								const chunk = boxOnly.slice(i * 3, i * 3 + 3);
@@ -404,9 +405,9 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 									{[0, 1, 2].map(j => chunk[j]
 										? <div
 											key={chunk[j].uid}
-											class={`nz-tb-box-card${selectedUid === chunk[j].uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[chunk[j].uid]?.length ? ' nz-tb-box-card-evolve' : ''}`}
+											class={`nz-tb-box-card${selectedUid === chunk[j].uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[chunk[j].uid]?.length ? ' nz-tb-box-card-evolve' : ''}${boxDisabled ? ' nz-tb-box-card-disabled' : ''}`}
 											onClick={() => this.select(chunk[j].uid)}
-											onDblClick={() => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${chunk[j].uid}`)}
+											onDblClick={boxDisabled ? undefined : () => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${chunk[j].uid}`)}
 										>
 											<img
 												src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(chunk[j].species)}.png`}
