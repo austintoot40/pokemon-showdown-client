@@ -181,7 +181,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					<span class="nz-moves-col-header">Target</span>
 					<span class="nz-moves-col-header">Effect</span>
 					{opp.moves.map((moveId, i) => {
-						const move = moveId ? Dex.forGen(this.props.game.battleGeneration).moves.get(moveId) : null;
+						const move = moveId ? Dex.forGen(this.props.game.generation).moves.get(moveId) : null;
 						const ex = !!(move?.exists);
 						const cat = ex ? move!.category : '';
 						const power = ex && move!.basePower > 0 ? `${move!.basePower}` : ex ? '—' : '';
@@ -287,7 +287,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				<NzMovePanel
 					moves={selectedMoves}
 					legalMoves={legalMoves}
-					generation={this.props.game.battleGeneration}
+					generation={this.props.game.generation}
 					onChange={newMoves => {
 						newMoves.forEach((id, slot) => this.setMove(selectedPokemon.uid, slot, id));
 					}}

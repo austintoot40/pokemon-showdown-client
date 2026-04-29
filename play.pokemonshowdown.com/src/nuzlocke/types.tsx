@@ -118,7 +118,6 @@ export interface NuzlockePanelPayload {
 	scenarioName: string | null;
 	scenarioDescription: string | null;
 	generation: number;
-	battleGeneration: number;
 	currentSegmentIndex: number;
 	totalSegments: number;
 	currentBattleIndex: number;

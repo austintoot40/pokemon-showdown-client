@@ -181,7 +181,7 @@ preact.h("span",{"class":"nz-moves-col-header"},"Acc"),
 preact.h("span",{"class":"nz-moves-col-header"},"Target"),
 preact.h("span",{"class":"nz-moves-col-header"},"Effect"),
 opp.moves.map(function(moveId,i){var _shortDesc;
-var move=moveId?Dex.forGen(_this2.props.game.battleGeneration).moves.get(moveId):null;
+var move=moveId?Dex.forGen(_this2.props.game.generation).moves.get(moveId):null;
 var ex=!!(move!=null&&move.exists);
 var cat=ex?move.category:'';
 var power=ex&&move.basePower>0?""+move.basePower:ex?'—':'';
@@ -287,7 +287,7 @@ error&&preact.h("div",{"class":"nz-card-error",style:"margin-bottom:8px;"},"\u26
 preact.h(NzMovePanel,{
 moves:selectedMoves,
 legalMoves:legalMoves,
-generation:this.props.game.battleGeneration,
+generation:this.props.game.generation,
 onChange:function(newMoves){
 newMoves.forEach(function(id,slot){return _this2.setMove(selectedPokemon.uid,slot,id);});
 }}
