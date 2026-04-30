@@ -322,7 +322,7 @@ export function NzPartySlot({
 		/>
 		<div class="nz-party-slot-info">
 			<div class="nz-party-slot-name">
-				{pokemon.nickname}
+				{pokemon.nickname}{pokemon.gender === 'M' ? <span class="nz-gender nz-gender-m">♂</span> : pokemon.gender === 'F' ? <span class="nz-gender nz-gender-f">♀</span> : null}
 			</div>
 			<div class="nz-party-slot-sub">
 				{pokemon.nickname !== pokemon.species ? `${pokemon.species} · ` : ''}Lv.{levelCap}

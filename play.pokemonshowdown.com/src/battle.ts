@@ -364,7 +364,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			if (ppUsed[0] < 0) ppUsed[0] = 0;
 			if (ppUsed[1] < 0) ppUsed[1] = 0;
 			const move = this.side.battle.dex.moves.get(entry[0]);
-			const maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
+			const maxpp = move.pp === 1 ? 1 : move.pp;
 			if (ppUsed[0] > maxpp) ppUsed[0] = maxpp;
 			if (ppUsed[0] < ppUsed[1]) ppUsed[0] = ppUsed[1];
 			if (ppUsed[0] === ppUsed[1]) ppUsed = ppUsed[0];

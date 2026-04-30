@@ -7,7 +7,8 @@ import { PS } from "../../client-main";
 import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
-import { NzBtn, NzTypeBadges, NzItemSelect } from "../components/primitives";
+import { NzBtn, NzTypeBadges } from "../components/primitives";
+import { NzItemTable } from "../components/item-table";
 import { NzMovePanel, formatTarget } from "../components/move-panel";
 import { NzStatPair, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
 import { calcIvScore, calcNatureQuality, calcCombinedPercentile } from "./encounters";
@@ -296,27 +297,17 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 				{isInParty && <>
 					<div class="nz-label" style="margin-top:12px;margin-bottom:5px;">Held Item</div>
-					<div class="nz-move-slot">
-						{(() => {
-							const itemEntries = Array.from(new Map(game.holdableItems.map(item => [toID(item), item])).entries())
-								.map(([id, name]) => ({ id, name }));
-							const disabledItemIds = itemEntries
-								.filter(({ id }) => heldByOthers(selectedPokemon.uid, id) >= itemCount(id))
-								.map(({ id }) => id);
-							return <NzItemSelect
-								value={heldItems[selectedPokemon.uid] ?? ''}
-								items={itemEntries}
-								disabledIds={disabledItemIds}
-								onChange={id => this.setItem(selectedPokemon.uid, id)}
-							/>;
-						})()}
-						{(() => {
-							const itemId = heldItems[selectedPokemon.uid] ?? '';
-							const item = itemId ? Dex.forGen(this.props.game.generation).items.get(itemId) : null;
-							const desc = item?.exists ? item.shortDesc : '';
-							return desc ? <div class="nz-item-desc">{desc}</div> : null;
-						})()}
-					</div>
+					{(() => {
+						const disabledItemIds = game.holdableItems
+							.filter(({ id }) => heldByOthers(selectedPokemon.uid, id) >= itemCount(id))
+							.map(({ id }) => id);
+						return <NzItemTable
+							value={heldItems[selectedPokemon.uid] ?? ''}
+							items={game.holdableItems}
+							disabledIds={disabledItemIds}
+							onChange={id => this.setItem(selectedPokemon.uid, id)}
+						/>;
+					})()}
 				</>}
 
 				<div class="nz-tb-detail-actions">

@@ -135,7 +135,7 @@ export interface NuzlockePanelPayload {
 	party: string[];
 	graveyard: DeadPokemon[];
 	items: string[];
-	holdableItems: string[];
+	holdableItems: { id: string; name: string; location: string }[];
 	tmMoves: string[];
 	resolvedRoutes: string[];
 	deferredRoutes: RouteEncounter[];

@@ -19,11 +19,12 @@ import type { NuzlockePanelPayload, RouteEncounter, ZoneEncounter, StatsTable } 
 // Helpers
 // ---------------------------------------------------------------------------
 
-function hasZonePrereq(zone: ZoneEncounter, tmMoves: string[], items: string[], ownedSpecies: string[]): boolean {
+function hasZonePrereq(zone: ZoneEncounter, tmMoves: string[], items: string[], ownedSpecies: string[], completedBattles: string[]): boolean {
 	const prereq = zone.requires;
 	if (!prereq) return true;
 	if (prereq.type === 'hm' || prereq.type === 'move') return tmMoves.includes(prereq.name);
 	if (prereq.type === 'pokemon') return ownedSpecies.includes(toID(prereq.name));
+	if (prereq.type === 'battle') return completedBattles.includes(prereq.name);
 	return items.includes(prereq.name);
 }
 
@@ -624,7 +625,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			const pending = allDisplayed.find(enc =>
 				!props.game.resolvedRoutes.includes(enc.route) &&
 				enc.zones.some(z =>
-					hasZonePrereq(z, tmMoves, items, props.game.box.map(p => toID(p.species))) &&
+					hasZonePrereq(z, tmMoves, items, props.game.box.map(p => toID(p.species)), props.game.completedBattles) &&
 					z.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species)))
 				)
 			);
@@ -632,7 +633,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			// Fall back to first unresolved choice gift, then first accessible enc
 			const fallback = !autoSelected
 				? ((segment.gifts ?? []).find(g => g.choice && !props.game.resolvedRoutes.includes(g.route))?.route ??
-					allDisplayed.find(enc => enc.zones.some(z => hasZonePrereq(z, tmMoves, items, props.game.box.map(p => toID(p.species)))))?.route ?? null)
+					allDisplayed.find(enc => enc.zones.some(z => hasZonePrereq(z, tmMoves, items, props.game.box.map(p => toID(p.species)), props.game.completedBattles)))?.route ?? null)
 				: autoSelected;
 			if (fallback !== currentSelected) updates.selectedRoute = fallback;
 		}
@@ -695,7 +696,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			enc.zones.map((zone, i) => ({
 				zone,
 				originalIndex: i,
-				accessible: hasZonePrereq(zone, game.tmMoves, game.items, game.box.map(p => toID(p.species))),
+				accessible: hasZonePrereq(zone, game.tmMoves, game.items, game.box.map(p => toID(p.species)), game.completedBattles),
 			}))
 		);
 		const encAccessibleZones = encZones.map(zones => zones.filter(z => z.accessible));

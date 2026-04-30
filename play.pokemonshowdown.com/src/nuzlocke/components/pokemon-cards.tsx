@@ -8,6 +8,12 @@ import preact from "../../../js/lib/preact";
 import { NzSprite, NzTypeBadges } from "./primitives";
 import type { OwnedPokemon, DeadPokemon, TrainerPokemon } from "../types";
 
+function GenderSymbol({ gender }: { gender: string }) {
+	if (gender === 'M') return <span class="nz-gender nz-gender-m">♂</span>;
+	if (gender === 'F') return <span class="nz-gender nz-gender-f">♀</span>;
+	return null;
+}
+
 export function NzPokemonCard({
 	pokemon,
 	levelCap,
@@ -22,7 +28,7 @@ export function NzPokemonCard({
 	return <div class="nz-card">
 		<NzSprite species={pokemon.species} />
 		<div class="nz-card-nickname">
-			{pokemon.nickname}
+			{pokemon.nickname}<GenderSymbol gender={pokemon.gender} />
 		</div>
 		{pokemon.nickname !== pokemon.species && <div class="nz-card-species">{pokemon.species}</div>}
 		<div class="nz-card-level">Lv. {levelCap ?? pokemon.level}</div>
@@ -45,7 +51,7 @@ export function NzBoxCard({
 }) {
 	return <div class="nz-card nz-card-compact">
 		<NzSprite species={pokemon.species} size={48} />
-		<div class="nz-card-nickname">{pokemon.nickname}</div>
+		<div class="nz-card-nickname">{pokemon.nickname}<GenderSymbol gender={pokemon.gender} /></div>
 		{pokemon.nickname !== pokemon.species && <div class="nz-card-species">{pokemon.species}</div>}
 		<div class="nz-card-level">Lv. {levelCap ?? pokemon.level}</div>
 		<div class="nz-card-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>

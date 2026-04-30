@@ -322,7 +322,7 @@ alt:pokemon.species}
 ),
 preact.h("div",{"class":"nz-party-slot-info"},
 preact.h("div",{"class":"nz-party-slot-name"},
-pokemon.nickname
+pokemon.nickname,pokemon.gender==='M'?preact.h("span",{"class":"nz-gender nz-gender-m"},"\u2642"):pokemon.gender==='F'?preact.h("span",{"class":"nz-gender nz-gender-f"},"\u2640"):null
 ),
 preact.h("div",{"class":"nz-party-slot-sub"},
 pokemon.nickname!==pokemon.species?pokemon.species+" \xB7 ":'',"Lv.",levelCap

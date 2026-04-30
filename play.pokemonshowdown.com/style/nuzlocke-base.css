@@ -424,3 +424,12 @@ body {
   color: var(--nz-danger);
   padding: 8px 0;
 }
+
+.nz-gender {
+  font-size: 0.85em;
+  font-weight: 700;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+.nz-gender-m { color: #6ab4ff; }
+.nz-gender-f { color: #ff7eb3; }

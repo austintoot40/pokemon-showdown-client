@@ -217,11 +217,19 @@ export class MainMenuRoom extends PSRoom {
             const [, challstr] = args;
             PS.user.challstr = challstr;
             if (!PS.server.registered) {
-                // Unregistered (local) servers skip the login server — same pattern as changeName().
-                // No session to restore; firing upkeep would stall initializing on a remote XHR.
-                PS.user.initializing = false;
-                PS.update();
-                PS.send('/nuzlocke status');
+                // Unregistered (local) servers skip the login server to avoid a blocking remote XHR.
+                // If a testclient key is present, parse the username from it and restore the session
+                // via /trn (--no-security means no assertion needed). Otherwise fall back to guest.
+                const key = typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string'
+                    ? POKEMON_SHOWDOWN_TESTCLIENT_KEY : null;
+                const keyName = key?.split(',')[0] ?? null;
+                if (keyName) {
+                    PS.send(`/trn ${keyName}`);
+                } else {
+                    PS.user.initializing = false;
+                    PS.update();
+                    PS.send('/nuzlocke status');
+                }
                 return;
             }
             PSLoginServer.query(
