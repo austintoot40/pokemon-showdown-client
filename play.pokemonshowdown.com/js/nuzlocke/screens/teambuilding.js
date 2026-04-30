@@ -22,6 +22,7 @@
 
 
 
+
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null};_this.
 
@@ -296,32 +297,22 @@ newMoves.forEach(function(id,slot){return _this2.setMove(selectedPokemon.uid,slo
 
 isInParty&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-label",style:"margin-top:12px;margin-bottom:5px;"},"Held Item"),
-preact.h("div",{"class":"nz-move-slot"},
 function(_heldItems$selectedPo){
-var itemEntries=Array.from(new Map(game.holdableItems.map(function(item){return[toID(item),item];})).entries()).
-map(function(_ref3){var id=_ref3[0],name=_ref3[1];return{id:id,name:name};});
-var disabledItemIds=itemEntries.
-filter(function(_ref4){var id=_ref4.id;return heldByOthers(selectedPokemon.uid,id)>=itemCount(id);}).
-map(function(_ref5){var id=_ref5.id;return id;});
-return preact.h(NzItemSelect,{
+var disabledItemIds=game.holdableItems.
+filter(function(_ref3){var id=_ref3.id;return heldByOthers(selectedPokemon.uid,id)>=itemCount(id);}).
+map(function(_ref4){var id=_ref4.id;return id;});
+return preact.h(NzItemTable,{
 value:(_heldItems$selectedPo=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo:'',
-items:itemEntries,
+items:game.holdableItems,
 disabledIds:disabledItemIds,
 onChange:function(id){return _this2.setItem(selectedPokemon.uid,id);}}
 );
-}(),
-function(_heldItems$selectedPo2){
-var itemId=(_heldItems$selectedPo2=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo2:'';
-var item=itemId?Dex.forGen(_this2.props.game.generation).items.get(itemId):null;
-var desc=item!=null&&item.exists?item.shortDesc:'';
-return desc?preact.h("div",{"class":"nz-item-desc"},desc):null;
 }()
-)
 ),
 
 preact.h("div",{"class":"nz-tb-detail-actions"},
 preact.h("div",null,
-!boxDisabled&&(isInParty?
+boxDisabled?null:isInParty?
 preact.h(NzBtn,{size:"sm",variant:"danger",
 onClick:function(){return PS.send("/nuzlocke removefromparty "+selectedPokemon.uid);}},"Remove from Party"
 
@@ -331,7 +322,7 @@ preact.h(NzBtn,{size:"sm",variant:"secondary",
 onClick:function(){return PS.send("/nuzlocke addtoparty "+selectedPokemon.uid);}},"Add to Party"
 
 ):
-null)
+null
 
 ),
 evos.length>0&&preact.h("div",{"class":"nz-tb-detail-evos"},

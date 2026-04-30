@@ -7,6 +7,7 @@
 
 import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
+declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
@@ -50,8 +51,8 @@ interface NuzlockeMenuPayload {
         partySpecies: string[];
         curRoom: string;
         ai: string;
+        generation: number;
     } | null;
-    generation: number;
     scenarios: NuzlockeScenarioCard[];
     beatenScenarios: string[];
     randomizerPreview: { scenarioId: string; starters: string[] } | null;
@@ -995,7 +996,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                         <div class="nz-label" style="margin-bottom:8px;">Party</div>
                                         <div class="nz-team-grid">
                                             {activeRun.partySpecies.map((species, i) => {
-                                                const types = Dex.forGen(status!.generation).species.get(species)?.types ?? [];
+                                                const types = Dex.forGen(activeRun.generation).species.get(species)?.types ?? [];
                                                 return <div key={i} class="nz-team-slot">
                                                     <img
                                                         src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(species)}.png`}

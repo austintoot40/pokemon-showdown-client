@@ -208,7 +208,7 @@ selectable:clickable,
 onClick:clickable?function(){return PS.send("/nuzlocke encounter "+routeName+" "+zoneIndex);}:undefined},
 
 preact.h("div",{"class":"nz-route-pool"},
-zone.pokemon.map(function(e){
+[].concat(zone.pokemon).sort(function(a,b){return b.rate-a.rate;}).map(function(e){
 var dupe=accessible&&dupeSet.has(toID(e.species));
 var isCaught=resolved&&toID(e.species)===toID(caughtSpecies);
 var pct=!accessible?Math.round(e.rate/(totalRate||1)*100):

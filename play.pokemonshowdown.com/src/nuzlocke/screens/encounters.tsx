@@ -208,7 +208,7 @@ function StandardZoneCard({
 		onClick={clickable ? () => PS.send(`/nuzlocke encounter ${routeName} ${zoneIndex}`) : undefined}
 	>
 		<div class="nz-route-pool">
-			{zone.pokemon.map(e => {
+			{[...zone.pokemon].sort((a, b) => b.rate - a.rate).map(e => {
 				const dupe = accessible && dupeSet.has(toID(e.species));
 				const isCaught = resolved && toID(e.species) === toID(caughtSpecies!);
 				const pct = !accessible ? Math.round(e.rate / (totalRate || 1) * 100)

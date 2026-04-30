@@ -312,7 +312,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 				<div class="nz-tb-detail-actions">
 					<div>
-						{!boxDisabled && (isInParty
+						{boxDisabled ? null : (isInParty
 							? <NzBtn size="sm" variant="danger"
 								onClick={() => PS.send(`/nuzlocke removefromparty ${selectedPokemon.uid}`)}>
 								Remove from Party

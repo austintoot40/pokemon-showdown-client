@@ -86,7 +86,7 @@ export interface ZoneEncounter {
 	method: string;    // 'Standard' | 'Gift' | 'Trade'
 	pokemon: EncounterEntry[];
 	levels?: [number, number];
-	requires?: { type: 'hm' | 'move' | 'item' | 'pokemon'; name: string };
+	requires?: { type: 'hm' | 'move' | 'item' | 'battle' | 'pokemon'; name: string };
 }
 
 export interface RouteEncounter {

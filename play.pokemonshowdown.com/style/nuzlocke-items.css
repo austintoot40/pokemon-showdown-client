@@ -6,11 +6,47 @@
  */
 
 /* =============================================
+   PANEL CONTAINER
+   ============================================= */
+
+.nz-item-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* =============================================
+   SEARCH BAR
+   ============================================= */
+
+.nz-item-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  background: var(--nz-bg);
+  border: 1px solid var(--nz-border);
+  border-radius: var(--nz-radius);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+}
+
+.nz-item-search::placeholder {
+  color: var(--nz-text-dim);
+}
+
+.nz-item-search:focus {
+  outline: none;
+  border-color: var(--nz-accent);
+}
+
+/* =============================================
    TABLE CONTAINER
    ============================================= */
 
 .nz-item-table-wrap {
-  max-height: 300px;
+  max-height: 193px;
   overflow-y: auto;
   border: 1px solid var(--nz-border);
   border-radius: var(--nz-radius);
