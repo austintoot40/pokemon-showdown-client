@@ -25,7 +25,7 @@
   display: flex;
   gap: 10px;
   margin-right: 0;
-  padding: 6px;
+  padding: 6px 1px;
 }
 
 /* Override movebutton's float/fixed-width for flex layout */
@@ -177,7 +177,7 @@
    ============================================= */
 
 .nz-move-table-wrap {
-  height: clamp(180px, 25vh, 260px);
+  height: 18vh;
   overflow-y: auto;
   border: 1px solid var(--nz-border);
   border-radius: var(--nz-radius);

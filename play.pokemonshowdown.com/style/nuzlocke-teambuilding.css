@@ -85,7 +85,6 @@
   grid-template-columns: 1fr 2fr;
   gap: 16px;
   margin-bottom: 14px;
-  padding-bottom: 12px;
   border-bottom: 1px solid var(--nz-border-subtle);
   align-items: start;
 }
@@ -93,7 +92,6 @@
 .nz-tb-left-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   min-width: 0;
 }
 
@@ -139,6 +137,7 @@
 .nz-tb-detail-sprite img {
   width: 96px;
   height: 96px;
+  margin-bottom: -14px;
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-accent) 40%, transparent));

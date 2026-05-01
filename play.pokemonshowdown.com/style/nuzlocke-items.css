@@ -21,6 +21,7 @@
    ============================================= */
 
 .nz-item-search {
+  margin-top: 12px;
   width: 100%;
   box-sizing: border-box;
   padding: 6px 10px;
@@ -46,7 +47,7 @@
    ============================================= */
 
 .nz-item-table-wrap {
-  max-height: 193px;
+  max-height: 14vh;
   overflow-y: auto;
   border: 1px solid var(--nz-border);
   border-radius: var(--nz-radius);

@@ -296,7 +296,6 @@ newMoves.forEach(function(id,slot){return _this2.setMove(selectedPokemon.uid,slo
 ),
 
 isInParty&&preact.h(preact.Fragment,null,
-preact.h("div",{"class":"nz-label",style:"margin-top:12px;margin-bottom:5px;"},"Held Item"),
 function(_heldItems$selectedPo){
 var disabledItemIds=game.holdableItems.
 filter(function(_ref3){var id=_ref3.id;return heldByOthers(selectedPokemon.uid,id)>=itemCount(id);}).

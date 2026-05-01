@@ -296,7 +296,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				/>
 
 				{isInParty && <>
-					<div class="nz-label" style="margin-top:12px;margin-bottom:5px;">Held Item</div>
 					{(() => {
 						const disabledItemIds = game.holdableItems
 							.filter(({ id }) => heldByOthers(selectedPokemon.uid, id) >= itemCount(id))
