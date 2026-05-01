@@ -227,7 +227,6 @@ function StandardZoneCard({
 				</div>;
 			})}
 		</div>
-		{accessible && allDupes && <div class="nz-label">Duplicate clause</div>}
 	</ZoneCardBase>;
 }
 
@@ -287,7 +286,6 @@ function GiftZoneCard({
 				</div>;
 			})}
 		</div>
-		{accessible && allDupes && <div class="nz-label">Duplicate clause</div>}
 	</ZoneCardBase>;
 }
 
@@ -340,7 +338,6 @@ function TradeZoneCard({
 				</div>
 			)}
 		</div>
-		{isDupe && <div class="nz-label">Duplicate clause</div>}
 	</ZoneCardBase>;
 }
 

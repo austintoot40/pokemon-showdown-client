@@ -226,8 +226,7 @@ preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
 preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
 );
 })
-),
-accessible&&allDupes&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+)
 );
 }
 
@@ -286,8 +285,7 @@ onClick:clickable?sendCmd:undefined},
 preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species})
 );
 })
-),
-accessible&&allDupes&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+)
 );
 }
 
@@ -339,8 +337,7 @@ preact.h("div",{"class":cls('nz-trade-zone-pokemon',caughtHere&&'nz-trade-zone-p
 preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(newPokemon.species)+".png",alt:newPokemon.species})
 )
 
-),
-isDupe&&preact.h("div",{"class":"nz-label"},"Duplicate clause")
+)
 );
 }
 

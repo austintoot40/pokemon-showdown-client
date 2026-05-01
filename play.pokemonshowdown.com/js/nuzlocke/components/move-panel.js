@@ -174,10 +174,14 @@ return[].concat(filtered).sort(function(a,b){var _a$lm$hpType,_b$lm$hpType,_a$mo
 var va;
 var vb;
 switch(sortCol){
-case'acquired':
+case'acquired':{
 
 if(a.lm.isNew!==b.lm.isNew)return a.lm.isNew?-1:1;
+var aTM=a.lm.fromTM||a.lm.fromHM;
+var bTM=b.lm.fromTM||b.lm.fromHM;
+if(aTM!==bTM)return aTM?1:-1;
 return(b.lm.acquisitionOrder-a.lm.acquisitionOrder)*dir;
+}
 case'name':
 return a.lm.name.localeCompare(b.lm.name)*dir;
 case'type':

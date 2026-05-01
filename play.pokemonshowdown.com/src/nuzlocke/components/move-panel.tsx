@@ -174,10 +174,14 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 			let va: number | string;
 			let vb: number | string;
 			switch (sortCol) {
-				case 'acquired':
-					// isNew first (desc only), then acquisitionOrder
+				case 'acquired': {
+					// isNew first (desc only), then level-up moves, then TMs/HMs
 					if (a.lm.isNew !== b.lm.isNew) return a.lm.isNew ? -1 : 1;
+					const aTM = a.lm.fromTM || a.lm.fromHM;
+					const bTM = b.lm.fromTM || b.lm.fromHM;
+					if (aTM !== bTM) return aTM ? 1 : -1;
 					return (b.lm.acquisitionOrder - a.lm.acquisitionOrder) * dir;
+				}
 				case 'name':
 					return a.lm.name.localeCompare(b.lm.name) * dir;
 				case 'type':

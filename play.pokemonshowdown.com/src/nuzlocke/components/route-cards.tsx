@@ -44,10 +44,6 @@ export function NzRouteCard({
 				</div>;
 			})}
 		</div>
-		{allDupes
-			? <div class="nz-label">Duplicate clause</div>
-			: <div class="nz-route-caught" aria-hidden style="visibility:hidden">_</div>
-		}
 	</div>;
 }
 

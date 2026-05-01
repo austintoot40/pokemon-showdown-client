@@ -43,11 +43,7 @@ preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
 preact.h("div",{"class":"nz-encounter-rate-label"},dupe?'dupe':pct+"%")
 );
 })
-),
-allDupes?
-preact.h("div",{"class":"nz-label"},"Duplicate clause"):
-preact.h("div",{"class":"nz-route-caught","aria-hidden":true,style:"visibility:hidden"},"_")
-
+)
 );
 }var
 
