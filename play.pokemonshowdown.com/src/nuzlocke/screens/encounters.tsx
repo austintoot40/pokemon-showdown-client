@@ -216,7 +216,10 @@ function StandardZoneCard({
 					resolved && !isCaught && 'nz-encounter-slot-dimmed',
 					isCaught && 'nz-encounter-slot-caught',
 				)}>
-					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} />
+					<img
+						src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(e.species)}.gif`}
+						alt={e.species}
+					/>
 					<div class="nz-encounter-rate-bar">
 						<div class="nz-encounter-rate-fill" style={`width:${pct}%`} />
 					</div>
@@ -279,7 +282,10 @@ function GiftZoneCard({
 					)}
 					onClick={clickable ? sendCmd : undefined}
 				>
-					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} />
+					<img
+						src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(e.species)}.gif`}
+						alt={e.species}
+					/>
 				</div>;
 			})}
 		</div>
@@ -424,7 +430,10 @@ function GiftChoicePicker({
 					class={cls('nz-gift-zone-option', 'nz-gift-zone-option-selectable', isDupe && 'nz-gift-zone-option-dupe')}
 					onClick={() => PS.send(`/nuzlocke choosegift ${giftIndex} ${toID(e.species)}`)}
 				>
-					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(e.species)}.png`} alt={e.species} />
+					<img
+						src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(e.species)}.gif`}
+						alt={e.species}
+					/>
 				</div>;
 			})}
 		</div>
@@ -476,7 +485,7 @@ class EncounterPokemonStats extends preact.Component<{
 			<div class="nz-encounter-stats-header">
 				<img
 					class="nz-encounter-stats-sprite"
-					src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(pokemon.species)}.png`}
+					src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(pokemon.species)}.gif`}
 					alt={pokemon.species}
 				/>
 				<div class="nz-encounter-stats-identity">

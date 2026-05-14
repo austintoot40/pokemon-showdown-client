@@ -858,7 +858,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                             onClick={() => this.selectStarter(i)}
                                                                         >
                                                                             <img
-                                                                                src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(species)}.png`}
+                                                                                src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(species)}.gif`}
                                                                                 alt={species}
                                                                             />
                                                                             <div class="nz-starter-pick-name">{species}</div>

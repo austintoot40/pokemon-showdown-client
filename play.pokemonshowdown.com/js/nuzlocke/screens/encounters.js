@@ -216,7 +216,10 @@ dupe&&'nz-encounter-slot-dupe',
 resolved&&!isCaught&&'nz-encounter-slot-dimmed',
 isCaught&&'nz-encounter-slot-caught'
 )},
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species}),
+preact.h("img",{
+src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(e.species)+".gif",
+alt:e.species}
+),
 preact.h("div",{"class":"nz-encounter-rate-bar"},
 preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
 ),
@@ -279,7 +282,10 @@ clickable&&'nz-gift-zone-option-selectable'
 ),
 onClick:clickable?sendCmd:undefined},
 
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species})
+preact.h("img",{
+src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(e.species)+".gif",
+alt:e.species}
+)
 );
 })
 )
@@ -424,7 +430,10 @@ key:e.species,
 "class":cls('nz-gift-zone-option','nz-gift-zone-option-selectable',isDupe&&'nz-gift-zone-option-dupe'),
 onClick:function(){return PS.send("/nuzlocke choosegift "+giftIndex+" "+toID(e.species));}},
 
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(e.species)+".png",alt:e.species})
+preact.h("img",{
+src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(e.species)+".gif",
+alt:e.species}
+)
 );
 })
 )
@@ -476,7 +485,7 @@ return preact.h("div",{"class":"nz-encounter-stats"},
 preact.h("div",{"class":"nz-encounter-stats-header"},
 preact.h("img",{
 "class":"nz-encounter-stats-sprite",
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(pokemon.species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(pokemon.species)+".gif",
 alt:pokemon.species}
 ),
 preact.h("div",{"class":"nz-encounter-stats-identity"},

@@ -243,7 +243,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 						<div class="nz-tb-detail-header">
 							<div class="nz-tb-detail-sprite">
 								<img
-									src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(selectedPokemon.species)}.png`}
+									src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(selectedPokemon.species)}.gif`}
 									alt={selectedPokemon.species}
 								/>
 							</div>

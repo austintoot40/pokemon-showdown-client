@@ -143,6 +143,16 @@
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-accent) 40%, transparent));
 }
 
+/* Player's selected Pokemon panel uses animated GIF */
+.nz-tb-left-col .nz-tb-detail-sprite img {
+  width: auto;
+  height: 96px;
+  padding: 0;
+  margin-bottom: 0;
+  object-fit: unset;
+  image-rendering: auto;
+}
+
 .nz-tb-nature-ability {
   display: flex;
   flex-direction: row;

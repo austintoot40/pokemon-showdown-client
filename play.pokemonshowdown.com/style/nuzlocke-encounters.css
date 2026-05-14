@@ -250,6 +250,13 @@
   gap: 2px;
 }
 
+.nz-encounter-slot img {
+  height: 48px;
+  width: auto;
+  padding: 24px;
+  image-rendering: auto;
+}
+
 .nz-encounter-slot-dupe img {
   opacity: 0.25;
 }
@@ -352,10 +359,10 @@
 }
 
 .nz-encounter-stats-sprite {
-  width: 80px;
-  height: 80px;
+  height: 96px;
+  width: auto;
   flex-shrink: 0;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 .nz-encounter-stats-identity {
@@ -588,7 +595,10 @@
 }
 
 .nz-gift-zone-option img {
-  image-rendering: pixelated;
+  height: 48px;
+  width: auto;
+  padding: 24px;
+  image-rendering: auto;
 }
 
 .nz-gift-zone-option-selectable {

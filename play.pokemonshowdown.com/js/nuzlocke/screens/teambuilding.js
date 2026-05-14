@@ -243,7 +243,7 @@ preact.h("div",{"class":"nz-tb-left-col"},
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(selectedPokemon.species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(selectedPokemon.species)+".gif",
 alt:selectedPokemon.species}
 )
 ),
