@@ -12,6 +12,8 @@ import { NzRoot, NzScreen } from "./nuzlocke/components/layout";
 import { EncountersScreen } from "./nuzlocke/screens/encounters";
 import { TeambuildingScreen } from "./nuzlocke/screens/teambuilding";
 import { BattleScreen } from "./nuzlocke/screens/battle";
+import { VictoryScreen } from "./nuzlocke/screens/victory";
+import { WipeScreen } from "./nuzlocke/screens/wipe";
 import type { NuzlockePanelPayload } from "./nuzlocke/types";
 
 // ---------------------------------------------------------------------------
@@ -69,6 +71,8 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | nu
 	case 'encounters':   screen = <EncountersScreen game={gameState} />; break;
 	case 'teambuilding': screen = <TeambuildingScreen game={gameState} />; break;
 	case 'battle':       screen = <BattleScreen game={gameState} />; break;
+	case 'done':         screen = <VictoryScreen game={gameState} />; break;
+	case 'wipe':         screen = <WipeScreen game={gameState} />; break;
 	default:
 		screen = <NzScreen><p class="nz-notice">Unknown screen: {(gameState as any).curScreen}</p></NzScreen>;
 	}

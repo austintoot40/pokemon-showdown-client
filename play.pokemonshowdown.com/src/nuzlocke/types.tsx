@@ -74,7 +74,7 @@ export interface TrainerPokemon {
 // ---------------------------------------------------------------------------
 
 export type NuzlockeScreen =
-	'encounters' | 'teambuilding' | 'battle' | 'done';
+	'encounters' | 'teambuilding' | 'battle' | 'done' | 'wipe';
 
 export interface EncounterEntry {
 	species: string;
@@ -100,6 +100,7 @@ export interface TrainerBattle {
 	trainer: string;
 	team: TrainerPokemon[];
 	battleType?: 'singles' | 'doubles';
+	sprite?: string;
 }
 
 export interface NuzlockeScenarioCard {

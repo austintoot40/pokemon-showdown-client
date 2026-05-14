@@ -35,7 +35,6 @@ interface NuzlockeScenarioCard {
     starters: string[];
     color: string;
     pokemon: string;
-    verified: boolean;
 }
 
 // Lightweight run summary delivered globally (|updatenuzlocke| message).
@@ -72,15 +71,6 @@ function getLocalGenerationPreference(): string {
 
 function setLocalGenerationPreference(mode: string) {
     localStorage.setItem('nuzlocke_generation_preference', mode);
-}
-
-function getLocalVerifiedFilter(): boolean {
-    const stored = localStorage.getItem('nuzlocke_verified_filter');
-    return stored === null ? true : stored === '1';
-}
-
-function setLocalVerifiedFilter(value: boolean) {
-    localStorage.setItem('nuzlocke_verified_filter', value ? '1' : '0');
 }
 
 interface RandomizerSettings {
@@ -717,14 +707,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     confirmAbandon: boolean = false;
     showRandomizerModal: boolean = false;
     randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
-    showVerifiedOnly: boolean = getLocalVerifiedFilter();
-
     get effectiveSelectedScenario(): string | null {
         if (this.selectedScenario) return this.selectedScenario;
         const status = this.props.room.nuzlockeMenuPayload;
         if (!status || status.activeRun) return null;
-        const visible = this.showVerifiedOnly ? status.scenarios.filter(s => s.verified) : status.scenarios;
-        return [...visible].sort((a, b) => a.generation - b.generation)[0]?.id ?? null;
+        return [...status.scenarios].sort((a, b) => a.generation - b.generation)[0]?.id ?? null;
     }
     clickAbandon = () => {
         this.confirmAbandon = true;
@@ -804,19 +791,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         setLocalGenerationPreference(mode);
         this.forceUpdate();
     };
-    toggleVerifiedFilter = () => {
-        this.showVerifiedOnly = !this.showVerifiedOnly;
-        setLocalVerifiedFilter(this.showVerifiedOnly);
-        if (this.showVerifiedOnly && this.selectedScenario) {
-            const status = this.props.room.nuzlockeMenuPayload;
-            const selected = status?.scenarios.find(s => s.id === this.selectedScenario);
-            if (selected && !selected.verified) {
-                this.selectedScenario = null;
-                this.selectedStarter = null;
-            }
-        }
-        this.forceUpdate();
-    };
     override render() {
         const status = this.props.room.nuzlockeMenuPayload;
         const activeRun = status?.activeRun ?? null;
@@ -824,9 +798,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         const beatenScenarios = status?.beatenScenarios ?? [];
 
         const serverScenarios = status?.scenarios ?? [];
-        const visibleScenarios = this.showVerifiedOnly
-            ? serverScenarios.filter(s => s.verified)
-            : serverScenarios;
         const effectiveSelectedId = this.effectiveSelectedScenario;
         const selectedScenarioData = effectiveSelectedId
             ? serverScenarios.find(s => s.id === effectiveSelectedId) ?? null
@@ -1033,17 +1004,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             <div class="nz-dashboard-scenarios">
                                 <div class="nz-scenarios-header">
                                     <div class="nz-section-title" style="margin-bottom:0;">Scenarios</div>
-                                    <label class="nz-verified-filter-btn">
-                                        <input
-                                            type="checkbox"
-                                            checked={this.showVerifiedOnly}
-                                            onChange={this.toggleVerifiedFilter}
-                                        />
-                                        Verified
-                                    </label>
                                 </div>
                                 <div class="nz-scenario-grid">
-                                    {[...visibleScenarios].sort((a, b) => a.generation - b.generation).map(scenario => {
+                                    {[...serverScenarios].sort((a, b) => a.generation - b.generation).map(scenario => {
                                         const selected = effectiveSelectedId === scenario.id;
                                         return <div
                                             key={scenario.id}
@@ -1060,7 +1023,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                             <div class="nz-scenario-card-content">
                                                 <div class="nz-scenario-card-title">
                                                     {scenario.name}
-                                                    {scenario.verified && <span class="nz-verified-badge">Verified</span>}
                                                     {beatenScenarios.includes(scenario.id) && (
                                                         <span class="nz-badge nz-badge-active nz-scenario-cleared-badge">Cleared</span>
                                                     )}

@@ -145,9 +145,7 @@ function ZoneCardBase(_ref)
 
 {var zone=_ref.zone,accessible=_ref.accessible,_ref$allDupes=_ref.allDupes,allDupes=_ref$allDupes===void 0?false:_ref$allDupes,_ref$resolvedElsewher=_ref.resolvedElsewhere,resolvedElsewhere=_ref$resolvedElsewher===void 0?false:_ref$resolvedElsewher,_ref$selectable=_ref.selectable,selectable=_ref$selectable===void 0?false:_ref$selectable,onClick=_ref.onClick,children=_ref.children;
 var locked=!accessible;
-var req=locked?prereqLabel(zone):null;
-var zoneLabel=zone.zone||zone.method;
-var showMethodSeparate=zone.zone&&zone.zone!==zone.method&&zone.method!=='Standard';
+var req=prereqLabel(zone);
 
 return preact.h("div",{
 "class":cls(
@@ -159,10 +157,9 @@ selectable&&'nz-zone-card-selectable'
 onClick:onClick},
 
 preact.h("div",{"class":"nz-zone-label"},
-zoneLabel,
-showMethodSeparate&&preact.h("span",{"class":"nz-zone-method"},zone.method),
-
-locked&&req&&preact.h("span",{"class":"nz-zone-prereq-label"},"Requires ",req)
+preact.h("span",{"class":"nz-zone-method"},zone.method),
+zone.zone?zone.zone:undefined,
+req&&preact.h("span",{"class":"nz-zone-prereq-label"},"Requires ",req)
 ),
 children
 );

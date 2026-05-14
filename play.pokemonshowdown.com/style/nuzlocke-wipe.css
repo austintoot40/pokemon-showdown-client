@@ -1,0 +1,204 @@
+/*
+ * Nuzlocke — Hall of Shame (Wipe Screen)
+ *
+ * Trainer sprite entrance, word-by-word quip reveal, danger/red theme.
+ */
+
+/* =============================================
+   KEYFRAMES
+   ============================================= */
+
+@keyframes nz-shame-trainer-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes nz-shame-word-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nz-shame-title-in {
+  from { opacity: 0; letter-spacing: 0.3em; }
+  to   { opacity: 1; letter-spacing: 0.15em; }
+}
+
+@keyframes nz-shame-shimmer {
+  0%   { background-position: -250% center; }
+  100% { background-position: 250% center; }
+}
+
+@keyframes nz-shame-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nz-shame-glow-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px 4px color-mix(in srgb, var(--nz-danger) 25%, transparent),
+      0 0 40px 8px color-mix(in srgb, var(--nz-danger) 10%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 30px 10px color-mix(in srgb, var(--nz-danger) 45%, transparent),
+      0 0 60px 16px color-mix(in srgb, var(--nz-danger) 20%, transparent);
+  }
+}
+
+/* =============================================
+   SCREEN CONTAINER
+   ============================================= */
+
+.nz-shame-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 520px;
+  padding: 32px 24px 28px;
+  gap: 24px;
+}
+
+/* =============================================
+   HEADER
+   ============================================= */
+
+.nz-shame-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.nz-shame-title {
+  font-family: var(--nz-font-ui);
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+
+  background: linear-gradient(90deg,
+    var(--nz-danger) 0%,
+    #ff6b6b 30%,
+    #fff8f8 50%,
+    #ff6b6b 70%,
+    var(--nz-danger) 100%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  opacity: 0;
+  animation:
+    nz-shame-title-in 0.6s ease forwards,
+    nz-shame-shimmer 3s linear infinite;
+}
+
+.nz-shame-subtitle {
+  font-family: var(--nz-font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--nz-text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: nz-shame-fade-in 0.4s ease forwards;
+  animation-delay: 0.3s;
+}
+
+/* =============================================
+   TRAINER SPRITE
+   ============================================= */
+
+.nz-shame-trainer-wrap {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--nz-danger) 18%, transparent) 0%, transparent 70%);
+  animation: nz-shame-trainer-in 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) forwards,
+             nz-shame-glow-pulse 2.5s ease-in-out infinite;
+  /* trainer-in starts at the slot's delay; glow-pulse inherits same delay so it starts after entrance */
+  opacity: 0;
+}
+
+.nz-shame-trainer-img {
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
+}
+
+/* =============================================
+   QUIP
+   ============================================= */
+
+.nz-shame-quip {
+  font-family: var(--nz-font-ui);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--nz-text);
+  text-align: center;
+  max-width: 440px;
+  line-height: 1.7;
+}
+
+.nz-shame-word {
+  display: inline-block;
+  opacity: 0;
+  animation: nz-shame-word-in 0.2s ease forwards;
+  margin-right: 0.3em;
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+
+.nz-shame-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  animation: nz-shame-fade-in 0.5s ease forwards;
+}
+
+.nz-shame-menu-btn {
+  font-family: var(--nz-font-ui);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 32px;
+  background: var(--nz-danger);
+  color: #fff;
+  border: none;
+  clip-path: var(--nz-clip-sm);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.nz-shame-menu-btn:hover {
+  background: color-mix(in srgb, var(--nz-danger) 80%, #fff);
+  transform: translateY(-1px);
+}
+
+.nz-shame-menu-btn:active {
+  transform: translateY(0);
+}
