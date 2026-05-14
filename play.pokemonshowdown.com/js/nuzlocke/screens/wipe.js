@@ -12,18 +12,12 @@
 
 
 var QUIPS=[
-"And so your journey came to an end. {trainer} barely broke a sweat.",
-"{trainer} would like you to know this happens to everyone. It doesn't.",
-"Blacked out. Whited out. Wiped out. Courtesy of {trainer}.",
-"{trainer} has added your team to their highlight reel.",
-"A moment of silence for everyone who trusted you.",
-"You gave it your all. {trainer} gave slightly more.",
-"The credits would roll, but this isn't that kind of ending.",
-"{trainer} has seen better challengers. Many, many better challengers.",
-"Your party died for this. Let that sink in.",
-"Next time, maybe try having a strategy.",
-"{trainer} says hi. Your Pokemon say nothing, because they fainted.",
-"Defeated. Humiliated. Sent back to the menu. By {trainer}."];
+"Try catching better Pokémon.",
+"You probably just rolled bad natures or something.",
+"It is the true nature of nuzlockers to lose repeatedly.",
+"Pokémon Go might be more your speed.",
+"Your battle style is... intriguing.",
+"Unfortunately, you can't save scum your way out of this one."];
 
 
 function WipeScreen(_ref){var _game$segment,_battle$trainer,_battle$sprite,_ref2,_Dex;var game=_ref.game;
