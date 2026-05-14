@@ -669,7 +669,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			return;
 		}
 
-		if (userid === this.userid || !PS.server.registered) {
+		if (userid === this.userid || !Config.defaultserver.registered) {
 			// Local/unregistered servers use --no-security; skip the login server
 			// (which would be blocked by CORS from localhost anyway) and send /trn directly.
 			PS.send(`/trn ${name}`);
@@ -809,7 +809,7 @@ class PSServer {
 	altport = Config.defaultserver.altport;
 	registered = Config.defaultserver.registered;
 	prefix = '/showdown';
-	protocol: 'http' | 'https' = Config.defaultserver.httpport ? 'https' : 'http';
+	protocol: 'http' | 'https' = Config.defaultserver.registered ? (Config.defaultserver.httpport ? 'https' : 'http') : 'http';
 	groups: { [symbol: string]: PSGroup } = {
 		'#': {
 			name: "Room Owner (#)",

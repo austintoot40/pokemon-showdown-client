@@ -340,18 +340,9 @@ PSBackground.subscribe(bgUrl => {
 		return;
 	}
 
-	if (bgUrl !== null) {
-		let background;
-		if (bgUrl.startsWith('#')) {
-			background = bgUrl;
-		} else if (PSBackground.curId !== 'custom') {
-			background = `#546bac url(${bgUrl}) no-repeat left center fixed`;
-		} else {
-			background = `#546bac url(${bgUrl}) no-repeat center center fixed`;
-		}
-		document.body.style.background = background;
-		document.body.style.backgroundSize = 'cover';
-	}
+	// Nuzlocke client uses CSS-controlled background; clear any inline style PS would set
+	document.body.style.background = '';
+	document.body.style.backgroundSize = '';
 
 	// main menu button colors
 	let cssBuf = ``;

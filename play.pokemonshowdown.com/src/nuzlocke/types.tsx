@@ -82,7 +82,7 @@ export interface EncounterEntry {
 }
 
 export interface ZoneEncounter {
-	zone: string;      // exact Bulbapedia zone label: "1F", "B2F", "Grass", "Surfing"
+	zone: string;      // zone label: "1F", "B2F", etc
 	method: string;    // 'Standard' | 'Gift' | 'Trade'
 	pokemon: EncounterEntry[];
 	levels?: [number, number];

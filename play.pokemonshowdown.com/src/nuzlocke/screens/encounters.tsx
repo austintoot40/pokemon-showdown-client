@@ -145,9 +145,7 @@ function ZoneCardBase({
 	children: preact.ComponentChildren;
 }) {
 	const locked = !accessible;
-	const req = locked ? prereqLabel(zone) : null;
-	const zoneLabel = zone.zone || zone.method;
-	const showMethodSeparate = zone.zone && zone.zone !== zone.method && zone.method !== 'Standard';
+	const req = prereqLabel(zone);
 
 	return <div
 		class={cls(
@@ -159,10 +157,9 @@ function ZoneCardBase({
 		onClick={onClick}
 	>
 		<div class="nz-zone-label">
-			{zoneLabel}
-			{showMethodSeparate && <span class="nz-zone-method">{zone.method}</span>}
-
-			{locked && req && <span class="nz-zone-prereq-label">Requires {req}</span>}
+			<span class="nz-zone-method">{zone.method}</span>
+			{zone.zone ? zone.zone : undefined}
+			{req && <span class="nz-zone-prereq-label">Requires {req}</span>}
 		</div>
 		{children}
 	</div>;
