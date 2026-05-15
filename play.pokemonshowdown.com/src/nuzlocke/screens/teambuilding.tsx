@@ -409,26 +409,22 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					<div class="nz-tb-box-col">
 						<div class="nz-section-title">Box ({boxOnly.length}){boxDisabled ? <span class="nz-tb-hint">locked during battle sequence</span> : <span class="nz-tb-hint">double-click to add to party</span>}</div>
 						<div class="nz-tb-col-scroll">
-							{Array.from({ length: Math.ceil(boxOnly.length / 3) }, (_, i) => {
-								const chunk = boxOnly.slice(i * 3, i * 3 + 3);
-								return <div key={i} class="nz-box-row-cell">
-									{[0, 1, 2].map(j => chunk[j]
-										? <div
-											key={chunk[j].uid}
-											class={`nz-tb-box-card${selectedUid === chunk[j].uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[chunk[j].uid]?.length ? ' nz-tb-box-card-evolve' : ''}${boxDisabled ? ' nz-tb-box-card-disabled' : ''}`}
-											onClick={() => this.select(chunk[j].uid)}
-											onDblClick={boxDisabled ? undefined : () => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${chunk[j].uid}`)}
-										>
-											<img
-												src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(chunk[j].species)}.png`}
-												alt={chunk[j].species}
-											/>
-											<div class="nz-tb-box-card-name">{chunk[j].nickname}</div>
-										</div>
-										: null
-									)}
-								</div>;
-							})}
+							<div class="nz-tb-box-grid">
+								{boxOnly.map(mon => (
+									<div
+										key={mon.uid}
+										class={`nz-tb-box-card${selectedUid === mon.uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[mon.uid]?.length ? ' nz-tb-box-card-evolve' : ''}${boxDisabled ? ' nz-tb-box-card-disabled' : ''}`}
+										onClick={() => this.select(mon.uid)}
+										onDblClick={boxDisabled ? undefined : () => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${mon.uid}`)}
+									>
+										<img
+											src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(mon.species)}.png`}
+											alt={mon.species}
+										/>
+										<div class="nz-tb-box-card-name">{mon.nickname}</div>
+									</div>
+								))}
+							</div>
 						</div>
 					</div>
 

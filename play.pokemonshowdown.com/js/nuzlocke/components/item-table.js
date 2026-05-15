@@ -53,8 +53,46 @@ var _this$props=_this.props,value=_this$props.value,onChange=_this$props.onChang
 onChange(value===id?'':id);
 };return _this;}_inheritsLoose(NzItemTable,_preact$Component);var _proto=NzItemTable.prototype;_proto.scrollToSelected=function scrollToSelected(){var _offsetHeight,_wrap$querySelector;var wrap=this.wrapRef;var row=this.selectedRowRef;if(!wrap||!row)return;var headerHeight=(_offsetHeight=(_wrap$querySelector=wrap.querySelector('thead'))==null?void 0:_wrap$querySelector.offsetHeight)!=null?_offsetHeight:0;var rowTop=row.offsetTop-headerHeight;var rowBottom=row.offsetTop+row.offsetHeight;if(rowTop<wrap.scrollTop){wrap.scrollTop=rowTop;}else if(rowBottom>wrap.scrollTop+wrap.clientHeight){wrap.scrollTop=rowBottom-wrap.clientHeight;}};_proto.componentDidMount=function componentDidMount(){this.scrollToSelected();};_proto.componentDidUpdate=function componentDidUpdate(prevProps){if(prevProps.value!==this.props.value)this.scrollToSelected();};_proto.
 
-render=function render(){var _this2=this;
-var _this$props2=this.props,value=_this$props2.value,items=_this$props2.items,disabledIds=_this$props2.disabledIds;
+renderMobileCard=function renderMobileCard(item){var _this2=this;
+var _this$props2=this.props,value=_this$props2.value,disabledIds=_this$props2.disabledIds;
+if(!item){
+var _isSelected=!value;
+return(
+preact.h("li",{
+"class":"nz-item-card"+(_isSelected?' nz-item-card--selected':''),
+onClick:function(){return _this2.props.onChange('');}},
+
+preact.h("span",{"class":"nz-item-card-none"},"(none)")
+));
+
+}
+var isSelected=value===item.id;
+var isDisabled=disabledIds.includes(item.id);
+var dexItem=Dex.items.get(item.name);
+var effect=(dexItem==null?void 0:dexItem.shortDesc)||(dexItem==null?void 0:dexItem.desc)||'';
+var cardClass=[
+'nz-item-card',
+isSelected?'nz-item-card--selected':'',
+isDisabled?'nz-item-card--disabled':''].
+filter(Boolean).join(' ');
+return(
+preact.h("li",{
+key:item.id,
+"class":cardClass,
+onClick:isDisabled?undefined:function(){return _this2.clickRow(item.id);}},
+
+preact.h("div",{"class":"nz-item-card-header"},
+preact.h("span",{"class":"itemicon",style:Dex.getItemIcon(item.name)}),
+preact.h("span",{"class":"nz-item-card-name"},item.name),
+preact.h("span",{"class":"nz-item-card-location"},item.location||'—')
+),
+effect&&preact.h("div",{"class":"nz-item-card-desc"},effect)
+));
+
+};_proto.
+
+render=function render(){var _this3=this;
+var _this$props3=this.props,value=_this$props3.value,items=_this$props3.items,disabledIds=_this$props3.disabledIds;
 var query=this.state.query;
 var q=query.toLowerCase();
 var filtered=q?items.filter(function(item){return item.name.toLowerCase().includes(q);}):items;
@@ -66,9 +104,9 @@ preact.h("input",{
 type:"text",
 placeholder:"Search items\u2026",
 value:query,
-onInput:function(e){return _this2.setState({query:e.target.value});}}
+onInput:function(e){return _this3.setState({query:e.target.value});}}
 ),
-preact.h("div",{"class":"nz-item-table-wrap",ref:function(el){_this2.wrapRef=el;}},
+preact.h("div",{"class":"nz-item-table-wrap nz-item-desktop",ref:function(el){_this3.wrapRef=el;}},
 preact.h("table",{"class":"nz-item-table"},
 preact.h("thead",null,
 preact.h("tr",null,
@@ -80,9 +118,9 @@ preact.h("th",{"class":"nz-item-col-location"},"Route Acquired")
 ),
 preact.h("tbody",null,
 preact.h("tr",{
-ref:!value?function(el){_this2.selectedRowRef=el;}:undefined,
+ref:!value?function(el){_this3.selectedRowRef=el;}:undefined,
 "class":!value?'nz-item-row--selected':undefined,
-onClick:function(){return _this2.props.onChange('');}},
+onClick:function(){return _this3.props.onChange('');}},
 
 preact.h("td",null),
 preact.h("td",{"class":"nz-item-col-name nz-item-none-label"},"(none)"),
@@ -102,9 +140,9 @@ filter(Boolean).join(' ')||undefined;
 return(
 preact.h("tr",{
 key:item.id,
-ref:isSelected?function(el){_this2.selectedRowRef=el;}:undefined,
+ref:isSelected?function(el){_this3.selectedRowRef=el;}:undefined,
 "class":rowClass,
-onClick:isDisabled?undefined:function(){return _this2.clickRow(item.id);}},
+onClick:isDisabled?undefined:function(){return _this3.clickRow(item.id);}},
 
 preact.h("td",{"class":"nz-item-col-sprite"},
 preact.h("span",{"class":"itemicon",style:Dex.getItemIcon(item.name)})
@@ -119,6 +157,10 @@ preact.h("td",{"class":"nz-item-col-location"},item.location||'—')
 })
 )
 )
+),
+preact.h("ul",{"class":"nz-item-list nz-item-mobile"},
+this.renderMobileCard(null),
+filtered.map(function(item){return _this3.renderMobileCard(item);})
 )
 ));
 

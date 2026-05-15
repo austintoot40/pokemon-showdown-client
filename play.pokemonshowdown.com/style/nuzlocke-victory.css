@@ -77,7 +77,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 520px;
+  min-height: var(--nz-victory-min-h);
   padding: 32px 24px 28px;
   gap: 28px;
   overflow: hidden;
@@ -305,4 +305,57 @@
 
 .nz-victory-menu-btn:active {
   transform: translateY(0);
+}
+
+/* =============================================
+   MOBILE
+   ============================================= */
+
+@media (max-width: 800px) {
+  .nz-victory-screen {
+    padding: 20px 16px 20px;
+    gap: 20px;
+    min-height: 0;
+  }
+
+  .nz-victory-title {
+    font-size: 24px;
+    letter-spacing: 0.08em;
+  }
+
+  .nz-victory-subtitle {
+    font-size: 15px;
+  }
+
+  .nz-victory-party {
+    gap: 14px 10px;
+    max-width: 100%;
+  }
+
+  .nz-victory-slot {
+    width: 90px;
+  }
+
+  .nz-victory-sprite-wrap {
+    width: 80px;
+    height: 80px;
+  }
+
+  .nz-victory-sprite {
+    width: 80px;
+    height: 80px;
+  }
+
+  .nz-victory-mon-name {
+    font-size: 13px;
+    max-width: 84px;
+  }
+
+  .nz-victory-mon-species {
+    font-size: 10px;
+  }
+
+  .nz-victory-mon-level {
+    font-size: 11px;
+  }
 }

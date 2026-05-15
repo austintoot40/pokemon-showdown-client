@@ -245,16 +245,88 @@ active&&preact.h("span",{"class":"nz-sort-arrow"},sortDir==='asc'?'▲':'▼')
 
 };_proto.
 
-render=function render(){var _this4=this;
+renderSortBar=function renderSortBar(){var _this4=this;
+var _this$state6=this.state,sortCol=_this$state6.sortCol,sortDir=_this$state6.sortDir;
+var options=[
+['acquired','Acq'],
+['name','Name'],
+['type','Type'],
+['category','Cat'],
+['power','BP'],
+['accuracy','Acc'],
+['pp','PP']];
+
+return(
+preact.h("div",{"class":"nz-move-sort-bar"},
+preact.h("span",{"class":"nz-move-sort-label"},"Sort:"),
+options.map(function(_ref2){var col=_ref2[0],label=_ref2[1];
+var active=sortCol===col;
+return(
+preact.h("button",{
+key:col,
+"class":"nz-move-sort-btn"+(active?' nz-move-sort-btn--active':''),
+onClick:function(){return _this4.setSort(col);}},
+
+label,active&&preact.h("span",{"class":"nz-sort-arrow"},sortDir==='asc'?'▲':'▼')
+));
+
+})
+));
+
+};_proto.
+
+renderMobileCard=function renderMobileCard(_ref3){var _lm$hpType2,_this5=this;var lm=_ref3.lm,move=_ref3.move;
 var moves=this.props.moves;
-var _this$state6=this.state,activeSlot=_this$state6.activeSlot,activeMove=_this$state6.activeMove,query=_this$state6.query;
+var activeMove=this.state.activeMove;
+var id=toID(lm.name);
+var isActive=activeMove===id;
+var isEquipped=moves.includes(id);
+var displayType=(_lm$hpType2=lm.hpType)!=null?_lm$hpType2:move.type;
+var power=move.basePower>0?""+move.basePower:'—';
+var acc=move.accuracy===true?'—':move.accuracy+"%";
+var acquiredLabel;
+var acquiredNew=false;
+if(lm.fromTM||lm.fromHM){
+acquiredLabel=lm.tmRoute||(lm.fromHM?'HM':'TM');
+acquiredNew=lm.isNew;
+}else{
+acquiredLabel=lm.learnedLevel!==undefined?"Lv. "+lm.learnedLevel:'—';
+acquiredNew=lm.isNew;
+}
+var itemClass=[
+'nz-move-item',
+lm.isNew?'nz-move-item--new':'',
+isActive?'nz-move-item--active':'',
+isEquipped&&!isActive?'nz-move-item--equipped':''].
+filter(Boolean).join(' ');
+return(
+preact.h("li",{key:id,"class":itemClass,onClick:function(){return _this5.clickRow(id);}},
+preact.h("div",{"class":"nz-move-item-header"},
+preact.h("span",{"class":"nz-move-item-name"},lm.name),
+preact.h("span",{"class":"nz-type nz-type-"+displayType.toLowerCase()},displayType),
+preact.h("span",{"class":"nz-move-cat nz-move-cat-"+move.category.toLowerCase()},move.category)
+),
+preact.h("div",{"class":"nz-move-item-desc"},move.shortDesc||move.desc||''),
+preact.h("div",{"class":"nz-move-item-stats"},
+preact.h("span",{"class":"nz-move-item-stat"},preact.h("span",{"class":"nz-move-item-stat-label"},"BP"),power),
+preact.h("span",{"class":"nz-move-item-stat"},preact.h("span",{"class":"nz-move-item-stat-label"},"Acc"),acc),
+preact.h("span",{"class":"nz-move-item-stat"},preact.h("span",{"class":"nz-move-item-stat-label"},"PP"),move.pp),
+preact.h("span",{"class":"nz-move-item-acq"+(acquiredNew?' nz-move-col-acquired--new':'')},acquiredLabel)
+)
+));
+
+};_proto.
+
+render=function render(){var _this6=this;
+var moves=this.props.moves;
+var _this$state7=this.state,activeSlot=_this$state7.activeSlot,activeMove=_this$state7.activeMove,query=_this$state7.query;
 var rows=this.getFilteredSorted();
 
 return(
 preact.h("div",{"class":"nz-move-panel",ref:this.panelRef},
 preact.h("div",{"class":"nz-move-slots-wrap"+(activeMove!==null?' nz-move-selecting':'')},
 preact.h("div",{"class":"movemenu nz-move-slots"},
-[0,1,2,3].map(function(slot){return _this4.renderSlotButton(slot);})
+[0,1,2,3].map(function(slot){return _this6.renderSlotButton(slot);})
 )
 ),
 
@@ -263,10 +335,12 @@ preact.h("input",{
 type:"text",
 placeholder:"Search moves\u2026 (or type a type, category, or target)",
 value:query,
-onInput:function(e){return _this4.setState({query:e.target.value});}}
+onInput:function(e){return _this6.setState({query:e.target.value});}}
 ),
 
-preact.h("div",{"class":"nz-move-table-wrap"+(activeSlot!==null?' nz-move-selecting':'')},
+this.renderSortBar(),
+
+preact.h("div",{"class":"nz-move-table-wrap nz-move-desktop"+(activeSlot!==null?' nz-move-selecting':'')},
 preact.h("table",{"class":"nz-move-table"},
 preact.h("thead",null,
 preact.h("tr",null,
@@ -281,12 +355,12 @@ this.renderHeader('acquired','Acquired','nz-move-col-acquired-header')
 )
 ),
 preact.h("tbody",null,
-rows.map(function(_ref2){var _lm$hpType2;var lm=_ref2.lm,move=_ref2.move;
+rows.map(function(_ref4){var _lm$hpType3;var lm=_ref4.lm,move=_ref4.move;
 var id=toID(lm.name);
 var isActive=activeMove===id;
 var isEquipped=moves.includes(id);
 var isNew=lm.isNew;
-var displayType=(_lm$hpType2=lm.hpType)!=null?_lm$hpType2:move.type;
+var displayType=(_lm$hpType3=lm.hpType)!=null?_lm$hpType3:move.type;
 var cat=move.category;
 var power=move.basePower>0?""+move.basePower:'—';
 var acc=move.accuracy===true?'—':move.accuracy+"%";
@@ -308,7 +382,7 @@ isEquipped&&!isActive?'nz-move-row--equipped':''].
 filter(Boolean).join(' ')||undefined;
 
 return(
-preact.h("tr",{key:id,"class":rowClass,onClick:function(){return _this4.clickRow(id);}},
+preact.h("tr",{key:id,"class":rowClass,onClick:function(){return _this6.clickRow(id);}},
 preact.h("td",{"class":"nz-move-col-name"},lm.name),
 preact.h("td",null,preact.h("span",{"class":"nz-type nz-type-"+displayType.toLowerCase()},displayType)),
 preact.h("td",null,preact.h("span",{"class":"nz-move-cat nz-move-cat-"+move.category.toLowerCase()},cat)),
@@ -331,6 +405,15 @@ preact.h("td",{colSpan:8,style:"text-align:center;color:var(--nz-text-dim);paddi
 
 )
 )
+),
+
+preact.h("div",{"class":"nz-move-list-wrap nz-move-mobile"+(activeSlot!==null?' nz-move-selecting':'')},
+rows.length===0?
+preact.h("div",{"class":"nz-move-no-results"},"No moves match"):
+preact.h("ul",{"class":"nz-move-list"},
+rows.map(function(row){return _this6.renderMobileCard(row);})
+)
+
 )
 
 ));

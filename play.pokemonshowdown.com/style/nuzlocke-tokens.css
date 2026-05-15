@@ -46,6 +46,40 @@
   --nz-shadow:       0 4px 16px rgba(0, 0, 0, 0.5);
   --nz-shadow-hover: 0 6px 24px rgba(74, 158, 255, 0.15);
 
+  /* Layout — Screen */
+  --nz-screen-max:          1920px;
+
+  /* Layout — Dashboard */
+  --nz-dash-pad:            36px 48px;
+  --nz-dash-gap:            32px;
+  --nz-dash-cols-run:       1fr 460px;
+  --nz-scenario-cols:       repeat(2, 1fr);
+  --nz-starter-h:           120px;
+
+  /* Layout — Modals */
+  --nz-modal-min-w:         340px;
+  --nz-modal-max-w:         440px;
+
+  /* Layout — Tall detail panels */
+  --nz-panel-h:             660px;
+  --nz-panel-detail-empty:  580px;
+
+  /* Layout — Teambuilding */
+  --nz-tb-scroll-max:       660px;
+  --nz-tb-cols:             1fr 1fr 1fr;
+  --nz-tb-box-size:         80px;
+
+  /* Layout — Cards */
+  --nz-card-w:              152px;
+  --nz-card-compact-w:      116px;
+  --nz-starter-card-w:      172px;
+
+  /* Layout — Encounters */
+  --nz-enc-route-w:         320px;
+
+  /* Layout — Victory / Wipe */
+  --nz-victory-min-h:       520px;
+
   /* HP bar colors */
   --nz-hp-high:      #44cc88;
   --nz-hp-mid:       #ffc844;
@@ -70,4 +104,33 @@
   --type-dark:     #624D4E;
   --type-steel:    #60A1B8;
   --type-fairy:    #EF70EF;
+}
+
+/* =============================================
+   RESPONSIVE — Mobile (≤768px)
+   Overrides layout tokens only. Structural
+   changes (grid-template-areas, grid-template-
+   columns that need extra context) live in each
+   screen's CSS file.
+   ============================================= */
+
+@media (max-width: 800px) {
+  :root {
+    --nz-dash-pad:           12px 16px;
+    --nz-dash-gap:           16px;
+    --nz-dash-cols-run:      1fr;
+    --nz-scenario-cols:      1fr;
+    --nz-starter-h:          88px;
+    --nz-modal-min-w:        min(340px, calc(100vw - 32px));
+    --nz-modal-max-w:        calc(100vw - 32px);
+    --nz-panel-h:            auto;
+    --nz-panel-detail-empty: auto;
+    --nz-tb-scroll-max:      none;
+    --nz-tb-cols:            1fr;
+    --nz-tb-box-size:        64px;
+    --nz-card-w:             140px;
+    --nz-starter-card-w:     140px;
+    --nz-enc-route-w:        100%;
+    --nz-victory-min-h:      auto;
+  }
 }

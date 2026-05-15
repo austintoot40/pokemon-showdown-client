@@ -21,7 +21,7 @@
   align-items: center;
   text-align: center;
   gap: 3px;
-  width: 152px;
+  width: var(--nz-card-w);
   transition: box-shadow 0.15s, transform 0.15s;
   position: relative;
 }
@@ -171,7 +171,7 @@
    ============================================= */
 
 .nz-card-compact {
-  width: 116px;
+  width: var(--nz-card-compact-w);
   padding: 8px 10px;
 }
 
@@ -265,126 +265,6 @@
 }
 
 /* =============================================
-   ROUTE CARDS
-   ============================================= */
-
-.nz-route-card {
-  background: var(--nz-elevated);
-  border: 1px solid var(--nz-border);
-  border-left: 2px solid transparent;
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% + 2px), 0 calc(100% + 2px));
-  padding: 8px 10px;
-  text-align: center;
-  box-shadow: var(--nz-shadow);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  min-width: 180px;
-}
-
-.nz-route-card-clickable {
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-}
-
-.nz-route-card-clickable:hover {
-  border-color: var(--nz-accent);
-  background: color-mix(in srgb, var(--nz-accent) 8%, var(--nz-elevated));
-  box-shadow: 0 0 0 1px var(--nz-accent), var(--nz-shadow);
-}
-
-.nz-route-card-clickable:active {
-  background: color-mix(in srgb, var(--nz-accent) 18%, var(--nz-elevated));
-}
-
-.nz-route-card-resolved {
-  border-color: var(--nz-success);
-  border-left: 2px solid var(--nz-success);
-}
-
-.nz-route-card-dupe {
-  opacity: 0.45;
-}
-
-.nz-route-name {
-  font-size: 15px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--nz-text);
-  margin-bottom: 2px;
-}
-
-.nz-route-card-resolved .nz-route-name {
-  color: var(--nz-success);
-}
-
-.nz-route-levels {
-  font-family: var(--nz-font-mono);
-  font-size: 12px;
-  color: var(--nz-text-dim);
-  margin-bottom: 6px;
-}
-
-.nz-route-pool {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  margin-bottom: 8px;
-}
-
-.nz-route-pool img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-.nz-route-caught-aura img {
-  display: block;
-  filter:
-    drop-shadow(0 0 4px color-mix(in srgb, var(--nz-success) 70%, transparent))
-    drop-shadow(0 0 10px color-mix(in srgb, var(--nz-success) 30%, transparent));
-}
-
-.nz-route-caught {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--nz-success);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-  line-height: 1.4;
-  display: block;
-  border-bottom: 1px solid transparent;
-}
-
-.nz-route-caught-editable {
-  cursor: text;
-  border-bottom: 1px dashed color-mix(in srgb, var(--nz-success) 40%, transparent);
-  transition: border-color 0.15s;
-}
-
-.nz-route-caught-editable:hover {
-  border-bottom-color: var(--nz-success);
-}
-
-.nz-route-caught-input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--nz-success);
-  outline: none;
-  width: 100%;
-  padding: 0;
-  box-sizing: border-box;
-  text-align: center;
-  line-height: 1.4;
-  height: auto;
-}
-
-/* =============================================
    STARTER CARDS
    ============================================= */
 
@@ -394,7 +274,7 @@
   border-left: 2px solid transparent;
   clip-path: var(--nz-clip);
   padding: 16px 14px;
-  width: 172px;
+  width: var(--nz-starter-card-w);
   text-align: center;
   box-shadow: var(--nz-shadow);
   cursor: pointer;
@@ -451,4 +331,12 @@
   font-size: 13px;
   color: var(--nz-text);
   font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  /* Remove reserved 3-line height — on mobile cards stack so layout
+     shifts aren't a concern and the blank space just wastes room. */
+  .nz-card-subdesc {
+    min-height: 0;
+  }
 }

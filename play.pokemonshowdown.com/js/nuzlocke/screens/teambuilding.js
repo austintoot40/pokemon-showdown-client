@@ -409,26 +409,22 @@ preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty
 preact.h("div",{"class":"nz-tb-box-col"},
 preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",boxDisabled?preact.h("span",{"class":"nz-tb-hint"},"locked during battle sequence"):preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
 preact.h("div",{"class":"nz-tb-col-scroll"},
-Array.from({length:Math.ceil(boxOnly.length/3)},function(_,i){
-var chunk=boxOnly.slice(i*3,i*3+3);
-return preact.h("div",{key:i,"class":"nz-box-row-cell"},
-[0,1,2].map(function(j){var _game$availableEvolut4;return chunk[j]?
+preact.h("div",{"class":"nz-tb-box-grid"},
+boxOnly.map(function(mon){var _game$availableEvolut4;return(
 preact.h("div",{
-key:chunk[j].uid,
-"class":"nz-tb-box-card"+(selectedUid===chunk[j].uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[chunk[j].uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':'')+(boxDisabled?' nz-tb-box-card-disabled':''),
-onClick:function(){return _this2.select(chunk[j].uid);},
-onDblClick:boxDisabled?undefined:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+chunk[j].uid);}},
+key:mon.uid,
+"class":"nz-tb-box-card"+(selectedUid===mon.uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[mon.uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':'')+(boxDisabled?' nz-tb-box-card-disabled':''),
+onClick:function(){return _this2.select(mon.uid);},
+onDblClick:boxDisabled?undefined:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+mon.uid);}},
 
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(chunk[j].species)+".png",
-alt:chunk[j].species}
+src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(mon.species)+".png",
+alt:mon.species}
 ),
-preact.h("div",{"class":"nz-tb-box-card-name"},chunk[j].nickname)
-):
-null;}
+preact.h("div",{"class":"nz-tb-box-card-name"},mon.nickname)
+));}
 )
-);
-})
+)
 )
 ),
 

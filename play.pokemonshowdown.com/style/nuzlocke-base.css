@@ -22,6 +22,7 @@ body {
   background: var(--nz-bg) !important;
 }
 
+
 /* Override PS's room-light background so it doesn't show below short screens */
 #room-view-nuzlocke {
   background: var(--nz-bg) !important;
@@ -35,7 +36,7 @@ body {
   background: var(--nz-bg);
   min-height: 100%;
   width: 100%;
-  max-width: 1920px;
+  max-width: var(--nz-screen-max);
 }
 
 .nz-row {
@@ -433,3 +434,31 @@ body {
 }
 .nz-gender-m { color: #6ab4ff; }
 .nz-gender-f { color: #ff7eb3; }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 800px) {
+  .nz-root {
+    padding: 10px 12px;
+  }
+
+  .nz-screen-title {
+    font-size: 18px;
+  }
+
+  /* Wrap meta items more aggressively on narrow screens */
+  .nz-screen-meta {
+    gap: 8px;
+  }
+
+  /* Let button groups wrap and give items more tap surface */
+  .nz-btn-group {
+    gap: 6px;
+  }
+
+  .nz-btn {
+    padding: 8px 14px;
+  }
+}

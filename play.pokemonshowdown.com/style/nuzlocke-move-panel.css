@@ -146,6 +146,14 @@
   50%       { box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.85), 0 0 10px rgba(74, 158, 255, 0.3); }
 }
 
+/* Hidden on desktop; shown on mobile */
+.nz-move-sort-bar { display: none; }
+.nz-move-mobile   { display: none; }
+
+.nz-move-list-wrap.nz-move-selecting {
+  animation: nz-move-selecting-pulse 1.6s ease-in-out infinite;
+}
+
 
 /* =============================================
    SEARCH BAR
@@ -342,5 +350,161 @@
 .nz-move-col-acquired--new {
   color: var(--nz-warning);
   font-weight: 700;
+}
+
+@media (max-width: 800px) {
+  /* Move slots: 2×2 grid instead of 4-across row */
+  .nz-move-slots.movemenu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  /* Hide the desktop table; show the card list instead */
+  .nz-move-desktop { display: none !important; }
+  .nz-move-mobile  { display: block; }
+
+  /* ── Sort bar ── */
+  .nz-move-sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .nz-move-sort-label {
+    font-size: 11px;
+    color: var(--nz-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 2px;
+    flex-shrink: 0;
+  }
+
+  .nz-move-sort-btn {
+    font-family: var(--nz-font-ui);
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--nz-border);
+    background: var(--nz-bg);
+    color: var(--nz-text-muted);
+    border-radius: var(--nz-radius);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .nz-move-sort-btn--active {
+    border-color: var(--nz-accent);
+    color: var(--nz-accent);
+    background: rgba(74, 158, 255, 0.08);
+  }
+
+  /* ── Card list container ── */
+  .nz-move-list-wrap {
+    height: 40vh;
+    overflow-y: auto;
+    border: 1px solid var(--nz-border);
+    border-radius: var(--nz-radius);
+  }
+
+  .nz-move-list-wrap::-webkit-scrollbar { width: 6px; }
+  .nz-move-list-wrap::-webkit-scrollbar-track { background: var(--nz-bg); }
+  .nz-move-list-wrap::-webkit-scrollbar-thumb { background: var(--nz-border); border-radius: 3px; }
+
+  .nz-move-no-results {
+    padding: 16px;
+    text-align: center;
+    color: var(--nz-text-dim);
+    font-size: 13px;
+  }
+
+  /* ── Individual move cards ── */
+  .nz-move-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nz-move-item {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(46, 66, 104, 0.4);
+    background: var(--nz-bg);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .nz-move-item:last-child { border-bottom: none; }
+
+  .nz-move-item:hover { background: var(--nz-elevated); }
+
+  .nz-move-item--new {
+    border-left: 3px solid var(--nz-warning);
+    padding-left: 7px;
+  }
+
+  .nz-move-item--active { background: rgba(74, 158, 255, 0.12); }
+  .nz-move-item--active:hover { background: rgba(74, 158, 255, 0.2); }
+
+  .nz-move-item--equipped { opacity: 0.5; cursor: default; }
+  .nz-move-item--equipped:hover { background: var(--nz-bg); opacity: 0.65; }
+
+  /* Line 1: name + type badge + category badge */
+  .nz-move-item-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  .nz-move-item-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--nz-text);
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Line 2: effect description */
+  .nz-move-item-desc {
+    font-size: 11px;
+    color: var(--nz-text-dim);
+    line-height: 1.4;
+    margin: 3px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Line 3: BP / Acc / PP / Acquired */
+  .nz-move-item-stats {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    margin-top: 2px;
+  }
+
+  .nz-move-item-stat {
+    font-family: var(--nz-font-mono);
+    font-size: 12px;
+    color: var(--nz-text-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+  }
+
+  .nz-move-item-stat-label {
+    font-size: 10px;
+    color: var(--nz-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .nz-move-item-acq {
+    font-family: var(--nz-font-mono);
+    font-size: 12px;
+    color: var(--nz-text-muted);
+    margin-left: auto;
+  }
 }
 

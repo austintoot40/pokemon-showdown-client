@@ -15,7 +15,7 @@
 }
 .mainmenu-left {
   width: 100% !important;
-  max-width: 1920px;
+  max-width: var(--nz-screen-max);
   padding: 0 !important;
   min-height: 100%;
 }
@@ -31,17 +31,17 @@
   grid-template-areas:
     "scenarios";
   gap: 0;
-  padding: 36px 48px;
+  padding: var(--nz-dash-pad);
   width: 100%;
   box-sizing: border-box;
 }
 
 /* With active run: run panel left (primary), scenarios right (secondary) */
 .nz-dashboard-has-run {
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: var(--nz-dash-cols-run);
   grid-template-areas:
     "run       scenarios";
-  gap: 32px 32px;
+  gap: var(--nz-dash-gap);
 }
 
 .nz-dashboard-run       { grid-area: run; display: flex; flex-direction: column; min-height: 0; }
@@ -250,7 +250,7 @@
 .nz-starter-picker {
   display: flex;
   gap: 8px;
-  height: 120px;
+  height: var(--nz-starter-h);
 }
 
 .nz-starter-pick {
@@ -396,7 +396,7 @@
 
 .nz-scenario-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: var(--nz-scenario-cols);
   align-content: start;
   gap: 12px;
   overflow-y: auto;
@@ -770,8 +770,8 @@
   border-top: 2px solid var(--nz-warning);
   clip-path: var(--nz-clip);
   padding: 24px 28px;
-  min-width: 340px;
-  max-width: 440px;
+  min-width: var(--nz-modal-min-w);
+  max-width: var(--nz-modal-max-w);
   width: 100%;
   box-shadow: var(--nz-shadow);
 }
@@ -952,4 +952,78 @@
 
 .nz-tooltip:hover::after {
   opacity: 1;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+/* Tablet ≤1024px: scenarios column no longer fits beside run panel at
+   fixed 460px with the PS sidebar eating 240px. Stack vertically. */
+@media (max-width: 1024px) {
+  .nz-dashboard-has-run {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "run"
+      "scenarios";
+  }
+
+  .nz-scenario-grid {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 800px) {
+  /* Team grid: 1 column so slots aren't cramped on narrow phones */
+  .nz-team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Starter picker: stack cards vertically, flip internal layout to row */
+  .nz-starter-picker {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .nz-starter-pick {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    padding: 8px 12px;
+  }
+
+  .nz-starter-pick img {
+    width: 52px;
+    height: 52px;
+    flex: none;
+  }
+
+  .nz-starter-pick-types {
+    justify-content: flex-start;
+  }
+
+  /* Reduce active-run-panel internal padding */
+  .nz-active-run-panel {
+    padding: 16px 18px;
+  }
+
+  /* Login gate: reduce title size */
+  .nz-login-gate-title {
+    font-size: 22px;
+  }
+
+  /* Modal: pad the overlay so the modal fills the inset content area.
+     box-sizing: border-box ensures width:100% includes the modal's own padding. */
+  .nz-modal-overlay {
+    padding: 0 16px;
+  }
+
+  .nz-modal {
+    min-width: 0;
+    max-width: none;
+    box-sizing: border-box;
+  }
 }

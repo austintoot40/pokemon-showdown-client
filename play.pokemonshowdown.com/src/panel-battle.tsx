@@ -496,7 +496,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			{
 				!props.noHPBar && !pokemon.fainted &&
 				<span class={hpColorClass}>
-					<span style={{ width: Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1 }}></span>
+					<span style={{ width: `${Math.round(pokemon.hp * 100 / pokemon.maxhp) || 1}%` }}></span>
 				</span>
 			}
 			{!props.noHPBar && pokemon.status && <span class={`status ${pokemon.status}`}></span>}

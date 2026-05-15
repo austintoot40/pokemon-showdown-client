@@ -53,6 +53,44 @@ export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableS
 		onChange(value === id ? '' : id);
 	};
 
+	renderMobileCard(item: { id: string; name: string; location: string } | null) {
+		const { value, disabledIds } = this.props;
+		if (!item) {
+			const isSelected = !value;
+			return (
+				<li
+					class={`nz-item-card${isSelected ? ' nz-item-card--selected' : ''}`}
+					onClick={() => this.props.onChange('')}
+				>
+					<span class="nz-item-card-none">(none)</span>
+				</li>
+			);
+		}
+		const isSelected = value === item.id;
+		const isDisabled = disabledIds.includes(item.id);
+		const dexItem = Dex.items.get(item.name);
+		const effect = dexItem?.shortDesc || dexItem?.desc || '';
+		const cardClass = [
+			'nz-item-card',
+			isSelected ? 'nz-item-card--selected' : '',
+			isDisabled ? 'nz-item-card--disabled' : '',
+		].filter(Boolean).join(' ');
+		return (
+			<li
+				key={item.id}
+				class={cardClass}
+				onClick={isDisabled ? undefined : () => this.clickRow(item.id)}
+			>
+				<div class="nz-item-card-header">
+					<span class="itemicon" style={Dex.getItemIcon(item.name)} />
+					<span class="nz-item-card-name">{item.name}</span>
+					<span class="nz-item-card-location">{item.location || '—'}</span>
+				</div>
+				{effect && <div class="nz-item-card-desc">{effect}</div>}
+			</li>
+		);
+	}
+
 	render() {
 		const { value, items, disabledIds } = this.props;
 		const { query } = this.state;
@@ -68,7 +106,7 @@ export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableS
 					value={query}
 					onInput={(e: any) => this.setState({ query: e.target.value })}
 				/>
-				<div class="nz-item-table-wrap" ref={(el: any) => { this.wrapRef = el; }}>
+				<div class="nz-item-table-wrap nz-item-desktop" ref={(el: any) => { this.wrapRef = el; }}>
 					<table class="nz-item-table">
 						<thead>
 							<tr>
@@ -120,6 +158,10 @@ export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableS
 						</tbody>
 					</table>
 				</div>
+				<ul class="nz-item-list nz-item-mobile">
+					{this.renderMobileCard(null)}
+					{filtered.map(item => this.renderMobileCard(item))}
+				</ul>
 			</div>
 		);
 	}

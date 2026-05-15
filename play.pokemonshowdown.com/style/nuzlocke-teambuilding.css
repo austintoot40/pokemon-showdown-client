@@ -20,7 +20,7 @@
 /* Three independently-scrolling columns */
 .nz-tb-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: var(--nz-tb-cols);
   gap: 0 16px;
   align-items: start;
   width: 100%;
@@ -30,7 +30,7 @@
 /* Scrollable content area within each column — height matches detail panel */
 .nz-tb-col-scroll {
   overflow-y: auto;
-  max-height: 660px;
+  max-height: var(--nz-tb-scroll-max);
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -65,14 +65,14 @@
   padding: 18px 20px;
   position: sticky;
   top: 0;
-  min-height: 660px;
+  min-height: var(--nz-panel-h);
   overflow-y: auto;
   box-sizing: border-box;
 }
 
 .nz-tb-detail-empty {
   height: 100%;
-  min-height: 580px;
+  min-height: var(--nz-panel-detail-empty);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -395,14 +395,20 @@
   min-width: 0;
 }
 
+.nz-tb-box-grid {
+  display: grid;
+  grid-template-columns: repeat(3, var(--nz-tb-box-size));
+  gap: 3px;
+}
+
 .nz-tb-box-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   user-select: none;
-  width: 80px;
-  height: 80px;
+  width: var(--nz-tb-box-size);
+  height: var(--nz-tb-box-size);
   flex-shrink: 0;
   padding: 4px;
   background: var(--nz-elevated);
@@ -1002,4 +1008,114 @@
   background: var(--nz-danger-dim);
   color: var(--nz-danger);
   border: 1px solid var(--nz-danger);
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 800px) {
+  /* Stack detail panel and column lists vertically */
+  .nz-tb-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* On mobile the detail panel comes after the lists in DOM, so sticky
+     positioning is still useful — it sticks to the top as you scroll
+     the lists below it. Remove the fixed min-height so it shrinks to fit. */
+  .nz-tb-detail {
+    position: static;
+  }
+
+  /* Stacked columns get vertical breathing room between sections.
+     margin-top covers the gap above the first item (party), which
+     grid gap alone cannot provide. */
+  .nz-tb-columns {
+    gap: 20px 0;
+    margin-top: 20px;
+  }
+
+  /* Box: fill available width with as many cards as fit */
+  .nz-tb-box-grid {
+    grid-template-columns: repeat(auto-fill, minmax(var(--nz-tb-box-size), 1fr));
+  }
+
+  .nz-tb-box-card {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  /* Moves grid: two-line layout per move.
+     Move name spans the full width; Type/Cat/BP/Acc/Target fill the row below.
+     "Move" header (item 1) and Effect column (items 7,14,21,28,35) are hidden. */
+  .nz-moves-grid {
+    grid-template-columns: repeat(5, 1fr);
+    column-gap: 6px;
+    row-gap: 4px;
+  }
+
+  .nz-moves-grid > :first-child,
+  .nz-moves-grid > :nth-child(7n) {
+    display: none;
+  }
+
+  .nz-moves-grid .nz-tb-move-name {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--nz-border-subtle);
+  }
+
+  /* Type and category badges: fill their 1fr column */
+  .nz-moves-grid .nz-type,
+  .nz-moves-grid .nz-move-cat {
+    min-width: 0;
+    width: 100%;
+    font-size: 10px;
+    padding: 1px 2px;
+    justify-self: stretch;
+    text-align: center;
+  }
+
+  /* Stat values and column headers: center in their 1fr cells */
+  .nz-moves-grid .nz-move-stat,
+  .nz-moves-grid .nz-moves-col-header {
+    width: 100%;
+    text-align: center;
+    justify-self: center;
+  }
+
+  /* Stat split — stack the two stat panels vertically with a row gap */
+  .nz-stat-split,
+  .nz-stat-radar-row {
+    grid-template-columns: 1fr;
+    gap: 14px 0;
+  }
+
+  /* Info + stats row — stack sprite/info above stats bars */
+  .nz-tb-info-stats {
+    grid-template-columns: 1fr;
+  }
+
+  /* Nature / ability — stack vertically instead of side-by-side */
+  .nz-tb-nature-ability {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Action bar — allow evolve buttons to wrap onto a second line */
+  .nz-tb-detail-actions {
+    flex-wrap: wrap;
+  }
+
+  /* Item slot — single column so the description isn't squeezed */
+  .nz-move-slot {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tighten detail panel padding */
+  .nz-tb-detail {
+    padding: 14px 14px;
+  }
 }

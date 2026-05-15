@@ -245,6 +245,78 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 		);
 	}
 
+	renderSortBar() {
+		const { sortCol, sortDir } = this.state;
+		const options: Array<[SortCol, string]> = [
+			['acquired', 'Acq'],
+			['name', 'Name'],
+			['type', 'Type'],
+			['category', 'Cat'],
+			['power', 'BP'],
+			['accuracy', 'Acc'],
+			['pp', 'PP'],
+		];
+		return (
+			<div class="nz-move-sort-bar">
+				<span class="nz-move-sort-label">Sort:</span>
+				{options.map(([col, label]) => {
+					const active = sortCol === col;
+					return (
+						<button
+							key={col}
+							class={`nz-move-sort-btn${active ? ' nz-move-sort-btn--active' : ''}`}
+							onClick={() => this.setSort(col)}
+						>
+							{label}{active && <span class="nz-sort-arrow">{sortDir === 'asc' ? '▲' : '▼'}</span>}
+						</button>
+					);
+				})}
+			</div>
+		);
+	}
+
+	renderMobileCard({ lm, move }: { lm: LegalMove; move: ReturnType<typeof Dex.moves.get> }) {
+		const { moves } = this.props;
+		const { activeMove } = this.state;
+		const id = toID(lm.name);
+		const isActive = activeMove === id;
+		const isEquipped = moves.includes(id);
+		const displayType = lm.hpType ?? move.type;
+		const power = move.basePower > 0 ? `${move.basePower}` : '—';
+		const acc = move.accuracy === true ? '—' : `${move.accuracy}%`;
+		let acquiredLabel: string;
+		let acquiredNew = false;
+		if (lm.fromTM || lm.fromHM) {
+			acquiredLabel = lm.tmRoute || (lm.fromHM ? 'HM' : 'TM');
+			acquiredNew = lm.isNew;
+		} else {
+			acquiredLabel = lm.learnedLevel !== undefined ? `Lv. ${lm.learnedLevel}` : '—';
+			acquiredNew = lm.isNew;
+		}
+		const itemClass = [
+			'nz-move-item',
+			lm.isNew ? 'nz-move-item--new' : '',
+			isActive ? 'nz-move-item--active' : '',
+			isEquipped && !isActive ? 'nz-move-item--equipped' : '',
+		].filter(Boolean).join(' ');
+		return (
+			<li key={id} class={itemClass} onClick={() => this.clickRow(id)}>
+				<div class="nz-move-item-header">
+					<span class="nz-move-item-name">{lm.name}</span>
+					<span class={`nz-type nz-type-${displayType.toLowerCase()}`}>{displayType}</span>
+					<span class={`nz-move-cat nz-move-cat-${move.category.toLowerCase()}`}>{move.category}</span>
+				</div>
+				<div class="nz-move-item-desc">{move.shortDesc || move.desc || ''}</div>
+				<div class="nz-move-item-stats">
+					<span class="nz-move-item-stat"><span class="nz-move-item-stat-label">BP</span>{power}</span>
+					<span class="nz-move-item-stat"><span class="nz-move-item-stat-label">Acc</span>{acc}</span>
+					<span class="nz-move-item-stat"><span class="nz-move-item-stat-label">PP</span>{move.pp}</span>
+					<span class={`nz-move-item-acq${acquiredNew ? ' nz-move-col-acquired--new' : ''}`}>{acquiredLabel}</span>
+				</div>
+			</li>
+		);
+	}
+
 	override render() {
 		const { moves } = this.props;
 		const { activeSlot, activeMove, query } = this.state;
@@ -266,7 +338,9 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 					onInput={(e: any) => this.setState({ query: e.target.value })}
 				/>
 
-				<div class={`nz-move-table-wrap${activeSlot !== null ? ' nz-move-selecting' : ''}`}>
+				{this.renderSortBar()}
+
+				<div class={`nz-move-table-wrap nz-move-desktop${activeSlot !== null ? ' nz-move-selecting' : ''}`}>
 					<table class="nz-move-table">
 						<thead>
 							<tr>
@@ -331,6 +405,15 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 							)}
 						</tbody>
 					</table>
+				</div>
+
+				<div class={`nz-move-list-wrap nz-move-mobile${activeSlot !== null ? ' nz-move-selecting' : ''}`}>
+					{rows.length === 0
+						? <div class="nz-move-no-results">No moves match</div>
+						: <ul class="nz-move-list">
+							{rows.map(row => this.renderMobileCard(row))}
+						</ul>
+					}
 				</div>
 
 			</div>

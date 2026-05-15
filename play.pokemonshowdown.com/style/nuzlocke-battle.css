@@ -265,6 +265,69 @@
   cursor: default;
 }
 
+/* ─── Mobile responsive ───────────────────────────────────── */
+
+@media (max-width: 800px) {
+  .battle-controls-container {
+    max-width: 100vw;
+    overflow: hidden;
+  }
+
+  .battle-controls {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .battle-controls .controls {
+    padding: 0 10px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* Move buttons: 2×2 grid */
+  .battle-controls .movemenu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .battle-controls .movemenu .movebutton {
+    width: 100%;
+    float: none;
+    margin: 0;
+    box-sizing: border-box;
+    font-size: 13px;
+    padding: 6px 4px;
+  }
+
+  /* Mega/Z-move/Tera toggle spans full width if present */
+  .battle-controls .movemenu .megaevo {
+    grid-column: 1 / -1;
+  }
+
+  /* Switch/party buttons: 2 across */
+  .battle-controls .switchmenu {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .battle-controls .switchmenu button {
+    width: 100%;
+    float: none;
+    margin: 0;
+    box-sizing: border-box;
+  }
+}
+
 /* ─── Move warning / error text ──────────────────────────── */
 
 .battle-controls .movewarning {
