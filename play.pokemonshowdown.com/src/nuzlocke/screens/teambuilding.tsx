@@ -8,6 +8,7 @@ import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
+import { NzTutorial, TutorialStep } from "../components/tutorial";
 import { NzItemTable } from "../components/item-table";
 import { NzMovePanel, formatTarget } from "../components/move-panel";
 import { NzStatPair, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
@@ -21,10 +22,29 @@ interface TeambuildingState {
 	errors: Record<string, string>;
 	selectedUid: string | null;
 	selectedOpponent: { battleIdx: number; slotIdx: number } | null;
+	showTutorial: boolean;
 }
 
 export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
-	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null };
+	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false };
+
+	override componentDidMount() {
+		try {
+			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+			if (!seen.teambuilding) this.setState({ showTutorial: true });
+		} catch {}
+	}
+
+	dismissTeambuildingTutorial = () => {
+		try {
+			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+			seen.teambuilding = true;
+			localStorage.setItem(key, JSON.stringify(seen));
+		} catch {}
+		this.setState({ showTutorial: false });
+	};
 
 	static getDerivedStateFromProps(
 		props: { game: NuzlockePanelPayload },
@@ -455,6 +475,36 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					</NzBtn>
 				</div>
 			</div>
+
+			{this.state.showTutorial && (() => {
+				const TEAMBUILDING_STEPS: TutorialStep[] = [
+					{
+						title: 'Prepare Your Team',
+						body: 'Before each battle, set your party, assign moves and held items, and view the opponent\'s team. Everything here carries into the fight.',
+					},
+					{
+						selector: '.nz-move-panel',
+						title: 'Move Slots',
+						body: 'Click a move slot to select it, then click a move in the table to assign it. Each party Pokémon needs at least one move before you can battle.',
+					},
+					{
+						selector: '.nz-item-panel',
+						title: 'Held Items',
+						body: 'Assign a held item to your selected Pokémon. Items already held by other party members are dimmed.',
+					},
+					{
+						selector: '.nz-tb-party-col',
+						title: 'Your Party',
+						body: 'Double-click a box Pokémon to add it to your party, or double-click a party slot to move them back to the box.',
+					},
+					{
+						selector: '.nz-tb-opponent-col',
+						title: 'Opponent Preview',
+						body: 'Click any opponent Pokémon to see their full stats, moves, and ability in the detail panel.',
+					},
+				];
+				return <NzTutorial steps={TEAMBUILDING_STEPS} onDone={this.dismissTeambuildingTutorial} />;
+			})()}
 		</NzScreen>;
 	}
 }

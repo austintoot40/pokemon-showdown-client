@@ -12,6 +12,7 @@ import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzScreenHeader } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
 import { NzStatPair } from "../components/teambuilding";
+import { NzTutorial, TutorialStep } from "../components/tutorial";
 import type { NuzlockePanelPayload, RouteEncounter, ZoneEncounter, StatsTable } from "../types";
 
 
@@ -572,6 +573,7 @@ interface EncountersState {
 	nicknames: Record<string, string>;
 	deferredThisSession: Set<string>;
 	lastSegmentIndex: number;
+	showTutorial: boolean;
 }
 
 export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayload }, EncountersState> {
@@ -580,6 +582,25 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		nicknames: {},
 		deferredThisSession: new Set(),
 		lastSegmentIndex: -1,
+		showTutorial: false,
+	};
+
+	override componentDidMount() {
+		try {
+			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+			if (!seen.encounters) this.setState({ showTutorial: true });
+		} catch {}
+	}
+
+	dismissEncountersTutorial = () => {
+		try {
+			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+			seen.encounters = true;
+			localStorage.setItem(key, JSON.stringify(seen));
+		} catch {}
+		this.setState({ showTutorial: false });
 	};
 
 	static getDerivedStateFromProps(
@@ -936,6 +957,31 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 					Continue
 				</NzBtn>
 			</div>
+
+			{this.state.showTutorial && (() => {
+				const ENCOUNTERS_STEPS: TutorialStep[] = [
+					{
+						title: 'Welcome to the Nuzlocke Simulator!',
+						body: 'This is the Encounters screen. Before each trainer battle, you explore routes to catch new Pokémon. Since this is a nuzlocke, you only get one encounter per route.',
+					},
+					{
+						selector: '.nz-route-list',
+						title: 'Routes',
+						body: 'Every route in your current segment is listed here. Click a route to see its encounter zones on the right.',
+					},
+					{
+						selector: '.nz-encounter-detail',
+						title: 'Encounter Zones',
+						body: 'Each route has one or more zones with different encounter pools. Pick one to catch a Pokémon!',
+					},
+					{
+						selector: '.nz-btn-defer',
+						title: 'Deferring Routes',
+						body: 'Some zones will be greyed out, indicating you don\'t have the requirements to catch there. Defer the route to see it again later when you do meet the requirements.',
+					},
+				];
+				return <NzTutorial steps={ENCOUNTERS_STEPS} onDone={this.dismissEncountersTutorial} />;
+			})()}
 		</NzScreen>;
 	}
 }

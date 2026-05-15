@@ -1,0 +1,89 @@
+/* ============================================================
+   Tutorial overlay
+   ============================================================ */
+
+.nz-tutorial-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 9000;
+	pointer-events: auto;
+}
+
+/* Transparent box whose box-shadow darkens everything outside it */
+.nz-tutorial-spotlight {
+	position: fixed;
+	z-index: 9001;
+	pointer-events: none;
+	border-radius: 3px;
+	background: transparent;
+}
+
+/* Full-screen dim used when the step has no spotlight target */
+.nz-tutorial-dim {
+	position: fixed;
+	inset: 0;
+	z-index: 9001;
+	background: rgba(0, 0, 0, 0.72);
+	pointer-events: none;
+}
+
+/* ============================================================
+   Tooltip card
+   ============================================================ */
+
+.nz-tutorial-card {
+	position: fixed;
+	z-index: 9002;
+	width: 300px;
+	background: var(--nz-surface);
+	border: 1px solid var(--nz-border);
+	border-left: 3px solid var(--nz-accent);
+	clip-path: var(--nz-clip);
+	padding: 16px 18px 14px;
+	box-shadow: var(--nz-shadow);
+	font-family: var(--nz-font-ui);
+	pointer-events: auto;
+}
+
+.nz-tutorial-step-count {
+	font-family: var(--nz-font-mono);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--nz-accent);
+	margin-bottom: 6px;
+}
+
+.nz-tutorial-title {
+	font-size: 15px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--nz-text);
+	margin-bottom: 8px;
+}
+
+.nz-tutorial-body {
+	font-size: 13px;
+	color: var(--nz-text-muted);
+	line-height: 1.55;
+	margin-bottom: 14px;
+}
+
+.nz-tutorial-actions {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.nz-tutorial-skip {
+	margin-left: auto;
+	font-size: 12px;
+	opacity: 0.7;
+	padding: 2px 8px;
+}
+
+.nz-tutorial-skip:hover {
+	opacity: 1;
+}
