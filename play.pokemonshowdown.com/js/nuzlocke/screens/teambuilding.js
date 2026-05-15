@@ -135,7 +135,7 @@ return uid+" "+m+" "+item;
 PS.send("/nuzlocke battlewithmoves "+parts);
 };return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);var _proto=TeambuildingScreen.prototype;_proto.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.teambuilding)this.setState({showTutorial:true});}catch(_unused2){}};TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref,_props$game$party$,_props$game$box$find;var defaultUid=(_ref=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
 
-render=function render(){var _game$box$find,_remainingBattles$sel,_this2=this,_battle$trainer,_battle$trainer2;
+render=function render(){var _game$box$find,_remainingBattles$sel,_this2=this,_battle$trainer;
 var game=this.props.game;
 var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponent=_this$state2.selectedOpponent;
 var boxDisabled=game.boxDisabled;
@@ -362,13 +362,7 @@ evo.species
 
 
 return preact.h(NzScreen,null,
-preact.h(NzScreenHeader,{
-title:"vs. "+((_battle$trainer=battle==null?void 0:battle.trainer)!=null?_battle$trainer:'Unknown'),
-meta:[
-{label:'Level Cap',value:String(segment.levelCap)},
-{label:'Segment',value:segment.name}]}
-
-),
+preact.h(NzTimeline,{game:game}),
 
 preact.h("div",{"class":"nz-tb-layout"},
 
@@ -429,7 +423,7 @@ preact.h("div",{"class":"nz-tb-box-card-name"},mon.nickname)
 ),
 
 preact.h("div",{"class":"nz-tb-opponent-col"},
-preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer2=battle==null?void 0:battle.trainer)!=null?_battle$trainer2:'Opponent'),
+preact.h("div",{"class":"nz-section-title nz-section-title-danger"},"vs. ",(_battle$trainer=battle==null?void 0:battle.trainer)!=null?_battle$trainer:'Opponent'),
 preact.h("div",{"class":"nz-tb-col-scroll"},
 remainingBattles.map(function(b,bi){return preact.h(preact.Fragment,{key:bi},
 bi>0&&preact.h("div",{"class":"nz-section-title nz-section-title-danger",style:"margin-top:12px;"},"vs. ",b.trainer),

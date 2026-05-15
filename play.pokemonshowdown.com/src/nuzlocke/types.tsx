@@ -74,7 +74,7 @@ export interface TrainerPokemon {
 // ---------------------------------------------------------------------------
 
 export type NuzlockeScreen =
-	'encounters' | 'teambuilding' | 'battle' | 'done' | 'wipe';
+	'segment' | 'encounters' | 'teambuilding' | 'battle' | 'done' | 'wipe';
 
 export interface EncounterEntry {
 	species: string;
@@ -118,6 +118,8 @@ export interface NuzlockePanelPayload {
 	scenarioId: string | null;
 	scenarioName: string | null;
 	scenarioDescription: string | null;
+	scenarioColor: string | null;
+	scenarioPokemon: string | null;
 	generation: number;
 	currentSegmentIndex: number;
 	totalSegments: number;
@@ -150,6 +152,15 @@ export interface NuzlockePanelPayload {
 		deaths: DeadPokemon[];
 	} | null;
 	segmentNames: Record<string, string>;
+	segmentSummaries: Array<{
+		id: string;
+		name: string;
+		battles: TrainerBattle[];
+		catches: OwnedPokemon[];
+		deaths: DeadPokemon[];
+		availableEncounters: RouteEncounter[];
+		status: 'completed' | 'current' | 'upcoming';
+	}>;
 	scenarios: NuzlockeScenarioCard[];
 	battleRoomId: string | null;
 	finalParty: { species: string; nickname: string; alive: boolean }[] | null;

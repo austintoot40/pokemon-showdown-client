@@ -4,7 +4,7 @@
 
 import preact from "../../../js/lib/preact";
 import { PS, type RoomID } from "../../client-main";
-import { NzScreen, NzScreenHeader, NzPanelFlat } from "../components/layout";
+import { NzScreen, NzTimeline, NzPanelFlat } from "../components/layout";
 import type { NuzlockePanelPayload } from "../types";
 
 export function BattleScreen({ game }: { game: NuzlockePanelPayload }) {
@@ -21,10 +21,7 @@ export function BattleScreen({ game }: { game: NuzlockePanelPayload }) {
 	}
 
 	return <NzScreen>
-		<NzScreenHeader
-			title="Battle in Progress"
-			meta={battle ? [{ label: 'Opponent', value: battle.trainer }] : []}
-		/>
+		<NzTimeline game={game} />
 		<NzPanelFlat>
 			<p style="color:var(--nz-text-muted);font-size:13px;">
 				Battle in progress. Return here when it ends.

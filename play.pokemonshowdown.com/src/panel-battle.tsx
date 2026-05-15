@@ -451,18 +451,30 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderMoveButton(props: {
 		name: string,
 		cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp?: number, maxpp?: number, disabled?: boolean },
+		effectiveness?: number,
 	} | null) {
 		if (!props) {
 			return <button class="movebutton" disabled>&nbsp;</button>;
 		}
 		const pp = props.moveData.maxpp ? `${props.moveData.pp!}/${props.moveData.maxpp}` : '\u2014';
+		let effectivenessLabel: string | null = null;
+		let effectivenessClass = '';
+		if (props.effectiveness !== undefined) {
+			const e = props.effectiveness;
+			if (e === 0) { effectivenessLabel = '0\u00d7'; effectivenessClass = 'eff-immune'; }
+			else if (e === 0.25) { effectivenessLabel = '\u00bc\u00d7'; effectivenessClass = 'eff-resist'; }
+			else if (e === 0.5) { effectivenessLabel = '\u00bd\u00d7'; effectivenessClass = 'eff-resist'; }
+			else if (e === 2) { effectivenessLabel = '2\u00d7'; effectivenessClass = 'eff-super'; }
+			else if (e === 4) { effectivenessLabel = '4\u00d7'; effectivenessClass = 'eff-super'; }
+		}
 		return <button
 			data-cmd={props.cmd} data-tooltip={props.tooltip}
 			class={`movebutton has-tooltip ${props.moveData.disabled ? 'disabled' : `type-${props.type}`}`}
 			aria-disabled={props.moveData.disabled}
 		>
 			{props.name}<br />
-			<small class="type">{props.type}</small> <small class="pp">{pp}</small>&nbsp;
+			<small class="type">{props.type}</small> <small class="pp">{pp}</small>
+			{effectivenessLabel && <small class={`move-eff ${effectivenessClass}`}>{effectivenessLabel}</small>}&nbsp;
 		</button>;
 	}
 	renderPokemonButton(props: {
@@ -558,6 +570,16 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</div>
 		</div>;
 	}
+	getMoveEffectiveness(attackType: Dex.TypeName, defenderTypes: readonly Dex.TypeName[]): number {
+		let mult = 1;
+		for (const defType of defenderTypes) {
+			const taken = Dex.types.get(defType).damageTaken?.[attackType];
+			if (taken === Dex.IMMUNE) return 0;
+			if (taken === Dex.WEAK) mult *= 2;
+			else if (taken === Dex.RESIST) mult *= 0.5;
+		}
+		return mult;
+	}
 	renderMoveControls(active: BattleRequestActivePokemon, choices: BattleChoiceBuilder) {
 		const battle = this.props.room.battle;
 		const dex = battle.dex;
@@ -566,6 +588,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const serverPokemon = choices.request.side!.pokemon[pokemonIndex];
 		const valueTracker = new ModifiableValue(battle, battle.nearSide.active[activeIndex]!, serverPokemon);
 		const tooltips = (battle.scene as BattleScene).tooltips;
+		const opponent = battle.farSide.active[0] ?? null;
+		const defenderTypes: readonly Dex.TypeName[] = opponent ? opponent.getTypeList() : [];
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
@@ -581,12 +605,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				}
 				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
 				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
+				const effectiveness = defenderTypes.length ? this.getMoveEffectiveness(moveType, defenderTypes) : undefined;
 				return this.renderMoveButton({
 					name: maxMoveData.name,
 					cmd: `/move ${i + 1} max`,
 					type: moveType,
 					tooltip,
 					moveData,
+					effectiveness,
 				});
 			});
 		}
@@ -604,12 +630,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const move = specialMove.exists ? specialMove : dex.moves.get(moveData.name);
 				const moveType = tooltips.getMoveType(move, valueTracker)[0];
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
+				const effectiveness = defenderTypes.length ? this.getMoveEffectiveness(moveType, defenderTypes) : undefined;
 				return this.renderMoveButton({
 					name: zMoveData.name,
 					cmd: `/move ${i + 1} zmove`,
 					type: moveType,
 					tooltip,
 					moveData: { pp: 1, maxpp: 1 },
+					effectiveness,
 				});
 			});
 		}
@@ -619,12 +647,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const move = dex.moves.get(moveData.name);
 			const moveType = tooltips.getMoveType(move, valueTracker)[0];
 			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
+			const isDamaging = move.category !== 'Status';
+			const effectiveness = (defenderTypes.length && isDamaging) ? this.getMoveEffectiveness(moveType, defenderTypes) : undefined;
 			return this.renderMoveButton({
 				name: move.name,
 				cmd: `/move ${i + 1}${special}`,
 				type: moveType,
 				tooltip,
 				moveData,
+				effectiveness,
 			});
 		});
 	}

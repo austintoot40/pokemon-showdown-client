@@ -1,0 +1,654 @@
+/*
+ * Nuzlocke — Segment Overview Screen & Timeline
+ *
+ * Full-page overview shown at the start of each segment.
+ * Compact timeline strip used as the header on all game screens.
+ */
+
+/* =============================================
+   SEGMENT OVERVIEW SCREEN
+   ============================================= */
+
+.nz-seg-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 32px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100%;
+}
+
+.nz-seg-header {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  background:
+    linear-gradient(135deg,
+      var(--nz-surface) 60%,
+      color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 18%, var(--nz-surface)) 100%
+    );
+  border: 1px solid color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 30%, var(--nz-border));
+  border-left: 3px solid var(--scenario-color, var(--nz-accent));
+  clip-path: var(--nz-clip);
+  padding: 24px 28px;
+}
+
+.nz-seg-bg-sprite {
+  position: absolute;
+  right: -20%;
+  top: -20%;
+  width: 80%;
+  height: 160%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  opacity: 0.06;
+  pointer-events: none;
+  filter: saturate(0.3);
+}
+
+.nz-seg-scenario {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 85%, var(--nz-text));
+  margin-bottom: 6px;
+}
+
+.nz-seg-title {
+  font-family: var(--nz-font-ui);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--nz-text);
+  text-shadow:
+    0 0 20px color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 50%, transparent),
+    0 0 6px  color-mix(in srgb, var(--scenario-color, var(--nz-accent)) 25%, transparent);
+  animation: nz-seg-title-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nz-seg-progress {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  color: var(--nz-accent);
+  margin-top: 4px;
+  letter-spacing: 0.1em;
+}
+
+@keyframes nz-seg-title-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
+   FULL TIMELINE
+   ============================================= */
+
+.nz-seg-timeline-wrap {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  clip-path: var(--nz-clip);
+  padding: 20px 24px 16px;
+}
+
+.nz-seg-section-label {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nz-text-dim);
+  margin-bottom: 16px;
+}
+
+.nz-seg-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0;
+  row-gap: 16px;
+}
+
+/* ---- Individual timeline node ---- */
+
+.nz-tl-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  width: 100px;
+  animation: nz-seg-node-in 0.4s ease both;
+}
+
+@keyframes nz-seg-node-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nz-tl-node--upcoming {
+  opacity: 0.38;
+}
+
+
+/* Trainer sprite area */
+.nz-tl-trainers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nz-tl-trainer-wrap {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.nz-tl-trainer-visible {
+  opacity: 1;
+}
+
+.nz-tl-trainer-sprite {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.nz-tl-node--upcoming .nz-tl-trainer-sprite {
+  filter: grayscale(1) brightness(0.5);
+}
+
+.nz-tl-trainer-placeholder {
+  width: 80px;
+  height: 80px;
+}
+
+/* Central pip */
+.nz-tl-pip {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nz-border);
+  background: var(--nz-surface);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nz-text-dim);
+  font-family: var(--nz-font-mono);
+  flex-shrink: 0;
+}
+
+.nz-tl-pip--done {
+  background: var(--nz-accent-dim);
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+  padding: 0;
+  overflow: hidden;
+}
+
+.nz-tl-pip--current {
+  background: var(--nz-accent);
+  border-color: var(--nz-accent);
+  color: var(--nz-bg);
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  animation: nz-pulse 2s ease-in-out infinite;
+}
+
+/* Segment name label */
+.nz-tl-label {
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-text-muted);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nz-tl-node--current .nz-tl-label {
+  color: var(--nz-text);
+  font-size: 13px;
+}
+
+/* Pokemon carousel (catches / deaths) */
+.nz-pkmn-carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.nz-pkmn-carousel-visible {
+  opacity: 1;
+}
+
+.nz-pkmn-carousel-sprite {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.nz-pkmn-carousel--death .nz-pkmn-carousel-sprite {
+  filter: grayscale(1) brightness(0.5);
+}
+
+.nz-pkmn-carousel-label {
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nz-text-muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 96px;
+}
+
+.nz-pkmn-carousel--death .nz-pkmn-carousel-label {
+  color: var(--nz-danger);
+}
+
+/* Connector line between nodes */
+.nz-tl-line {
+  width: 20px;
+  height: 1px;
+  background: var(--nz-border);
+  flex-shrink: 0;
+  margin-top: 16px; /* half pip height (32px / 2) */
+}
+
+.nz-tl-line--done {
+  background: var(--nz-accent);
+}
+
+/* =============================================
+   ENCOUNTER PREVIEW CAROUSEL
+   ============================================= */
+
+.nz-seg-preview {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  clip-path: var(--nz-clip);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.nz-carousel {
+  width: 100%;
+}
+
+.nz-carousel-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 24px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.nz-carousel-row.nz-carousel-visible {
+  opacity: 1;
+}
+
+.nz-carousel-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.nz-carousel-sprite {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 6px rgba(74, 158, 255, 0.25));
+}
+
+/* Center item (index 2 of 5) gets a subtle emphasis */
+.nz-carousel-item-2 .nz-carousel-sprite {
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.4));
+}
+
+.nz-carousel-species {
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nz-text-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.nz-carousel-item-2 .nz-carousel-species {
+  font-size: 15px;
+  color: var(--nz-text);
+}
+
+.nz-carousel-empty {
+  font-family: var(--nz-font-mono);
+  font-size: 12px;
+  color: var(--nz-text-dim);
+  padding: 16px 0;
+  text-align: center;
+}
+
+/* =============================================
+   PROCEED BUTTON
+   ============================================= */
+
+.nz-seg-footer {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 24px;
+}
+
+.nz-seg-proceed-btn {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 12px 36px;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   COMPACT TIMELINE STRIP (game screen header)
+   ============================================= */
+
+.nz-timeline-strip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 12px 16px;
+  min-height: 52px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.nz-timeline-strip::-webkit-scrollbar { display: none; }
+
+.nz-timeline-nodes {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.nz-timeline-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+  width: 52px;
+  padding: 8px 0;
+  cursor: default;
+  position: relative;
+}
+
+.nz-timeline-node--upcoming {
+  opacity: 0.4;
+}
+
+.nz-timeline-pip {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--nz-border);
+  background: var(--nz-bg);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--nz-text-dim);
+  font-family: var(--nz-font-mono);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.nz-timeline-pip--done {
+  background: var(--nz-accent-dim);
+  border-color: var(--nz-accent);
+  color: var(--nz-accent);
+}
+
+.nz-timeline-pip--current {
+  background: var(--nz-accent);
+  border-color: var(--nz-accent);
+  color: var(--nz-bg);
+  width: 30px;
+  height: 30px;
+  animation: nz-pulse 2s ease-in-out infinite;
+}
+
+.nz-timeline-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: -4px;
+  font-family: var(--nz-font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--nz-text-muted);
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.nz-timeline-node--current .nz-timeline-label {
+  color: var(--nz-accent);
+  font-size: 12px;
+}
+
+
+.nz-timeline-line {
+  width: 12px;
+  height: 1px;
+  background: var(--nz-border);
+  flex-shrink: 0;
+}
+
+.nz-timeline-line--done {
+  background: var(--nz-accent);
+  opacity: 0.5;
+}
+
+
+/* =============================================
+   RESPONSIVE — Tablet (≤900px)
+   ============================================= */
+
+@media (max-width: 900px) {
+  .nz-seg-screen {
+    padding: 20px 20px;
+    gap: 20px;
+  }
+
+  .nz-tl-node {
+    width: 80px;
+  }
+
+  .nz-tl-trainer-sprite {
+    width: 56px;
+    height: 56px;
+  }
+
+  .nz-tl-trainer-placeholder {
+    width: 56px;
+    height: 56px;
+  }
+
+  .nz-tl-line {
+    margin-top: 14px;
+  }
+
+  .nz-tl-line {
+    width: 14px;
+  }
+
+  /* Tablet: hide 4th and 5th carousel items, show 3 */
+  .nz-carousel-item-3,
+  .nz-carousel-item-4 {
+    display: none;
+  }
+
+  /* Re-center emphasis on middle of 3 */
+  .nz-carousel-item-1 .nz-carousel-sprite {
+    width: 96px;
+    height: 96px;
+    filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.4));
+  }
+
+  .nz-carousel-item-1 .nz-carousel-species {
+    font-size: 15px;
+    color: var(--nz-text);
+  }
+
+  .nz-carousel-item-2 .nz-carousel-sprite {
+    width: 80px;
+    height: 80px;
+    filter: drop-shadow(0 0 6px rgba(74, 158, 255, 0.25));
+  }
+
+  .nz-carousel-item-2 .nz-carousel-species {
+    font-size: 13px;
+    color: var(--nz-text-muted);
+  }
+}
+
+/* =============================================
+   RESPONSIVE — Mobile (≤600px)
+   ============================================= */
+
+@media (max-width: 600px) {
+  .nz-seg-screen {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .nz-seg-title {
+    font-size: 22px;
+  }
+
+  /* Full timeline: switch to vertical list */
+  .nz-seg-timeline {
+    flex-direction: column;
+    align-items: stretch;
+    overflow-x: visible;
+    gap: 0;
+  }
+
+  .nz-tl-node {
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--nz-border-subtle);
+  }
+
+  .nz-tl-node--current {
+    width: 100%;
+  }
+
+  .nz-tl-trainers {
+    min-height: unset;
+    align-items: center;
+    order: 1;
+  }
+
+  .nz-tl-pip {
+    order: 0;
+    flex-shrink: 0;
+  }
+
+  .nz-tl-label {
+    flex: 1;
+    text-align: left;
+    order: 2;
+  }
+
+  .nz-pkmn-carousel {
+    order: 3;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .nz-pkmn-carousel-sprite {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Vertical connector: hide horizontal lines, show vertical */
+  .nz-tl-line {
+    display: none;
+  }
+
+  /* Mobile: show only center item (index 0), hide the rest */
+  .nz-carousel-item-1,
+  .nz-carousel-item-2,
+  .nz-carousel-item-3,
+  .nz-carousel-item-4 {
+    display: none;
+  }
+
+  .nz-carousel-item-0 .nz-carousel-sprite {
+    width: 96px;
+    height: 96px;
+    filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.4));
+  }
+
+  .nz-carousel-item-0 .nz-carousel-species {
+    font-size: 15px;
+    color: var(--nz-text);
+  }
+
+  /* Proceed button: full width */
+  .nz-seg-proceed-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Compact timeline strip: show only prev/current/next window */
+  .nz-timeline-node:not(.nz-timeline-in-window) {
+    display: none;
+  }
+
+  /* Also hide lines adjacent to hidden nodes */
+  .nz-timeline-line {
+    display: none;
+  }
+
+  .nz-timeline-node--current {
+    width: 100px;
+  }
+
+  .nz-timeline-strip {
+    justify-content: center;
+  }
+}

@@ -154,6 +154,17 @@
 .battle-controls .movemenu button.type-Ice small,
 .battle-controls .movemenu button.type-Flying small  { color: rgba(0, 0, 0, 0.55); }
 
+/* Type effectiveness badge — inherits button text color, opacity signals strength */
+.battle-controls .movemenu button small.move-eff {
+  font-weight: 700;
+  font-size: 0.85em;
+  margin-left: 4px;
+  color: inherit;
+}
+.battle-controls .movemenu button small.eff-super  { opacity: 1; }
+.battle-controls .movemenu button small.eff-resist { opacity: 0.5; }
+.battle-controls .movemenu button small.eff-immune { opacity: 0.35; }
+
 /* Type button hover — filter only, keep the type background */
 .battle-controls .movemenu button[class*="type-"]:not(.disabled):not(:disabled):hover {
   filter: brightness(1.18);

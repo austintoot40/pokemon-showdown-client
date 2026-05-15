@@ -6,7 +6,7 @@ import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
-import { NzScreen, NzScreenHeader } from "../components/layout";
+import { NzScreen, NzTimeline } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
 import { NzItemTable } from "../components/item-table";
@@ -362,13 +362,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 		// ---- Full render ----
 		return <NzScreen>
-			<NzScreenHeader
-				title={`vs. ${battle?.trainer ?? 'Unknown'}`}
-				meta={[
-					{ label: 'Level Cap', value: String(segment.levelCap) },
-					{ label: 'Segment', value: segment.name },
-				]}
-			/>
+			<NzTimeline game={game} />
 
 			<div class="nz-tb-layout">
 

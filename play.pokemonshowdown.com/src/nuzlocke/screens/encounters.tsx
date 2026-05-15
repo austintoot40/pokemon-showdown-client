@@ -9,7 +9,7 @@ import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { toID, Dex } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
-import { NzScreen, NzScreenHeader } from "../components/layout";
+import { NzScreen, NzTimeline } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
 import { NzStatPair } from "../components/teambuilding";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
@@ -759,14 +759,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		const selectedAccessibleZones = selectedEncIdx >= 0 ? encAccessibleZones[selectedEncIdx] : [];
 
 		return <NzScreen>
-			<NzScreenHeader
-				title={segment.name}
-				meta={[
-					{ label: 'Level Cap', value: String(segment.levelCap) },
-					{ label: 'Next Battle', value: segment.battles[0]?.trainer ?? '?' },
-					{ label: 'Routes Remaining', value: String(pendingRoutes.length) },
-				]}
-			/>
+			<NzTimeline game={game} />
 
 			<div class="nz-encounters-layout">
 				{/* Left: route list */}

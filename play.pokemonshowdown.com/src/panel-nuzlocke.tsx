@@ -9,6 +9,7 @@
 import preact from "../js/lib/preact";
 import { PS } from "./client-main";
 import { NzRoot, NzScreen } from "./nuzlocke/components/layout";
+import { SegmentScreen } from "./nuzlocke/screens/segment";
 import { EncountersScreen } from "./nuzlocke/screens/encounters";
 import { TeambuildingScreen } from "./nuzlocke/screens/teambuilding";
 import { BattleScreen } from "./nuzlocke/screens/battle";
@@ -68,6 +69,7 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | nu
 
 	let screen: preact.VNode;
 	switch (gameState.curScreen) {
+	case 'segment':      screen = <SegmentScreen game={gameState} />; break;
 	case 'encounters':   screen = <EncountersScreen game={gameState} />; break;
 	case 'teambuilding': screen = <TeambuildingScreen game={gameState} />; break;
 	case 'battle':       screen = <BattleScreen game={gameState} />; break;

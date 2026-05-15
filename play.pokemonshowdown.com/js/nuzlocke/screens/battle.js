@@ -21,10 +21,7 @@ PS.join(battleRoomId);
 }
 
 return preact.h(NzScreen,null,
-preact.h(NzScreenHeader,{
-title:"Battle in Progress",
-meta:battle?[{label:'Opponent',value:battle.trainer}]:[]}
-),
+preact.h(NzTimeline,{game:game}),
 preact.h(NzPanelFlat,null,
 preact.h("p",{style:"color:var(--nz-text-muted);font-size:13px;"},"Battle in progress. Return here when it ends."
 
