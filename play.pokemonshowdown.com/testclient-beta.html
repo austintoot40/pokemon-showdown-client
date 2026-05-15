@@ -93,6 +93,7 @@
 		function loadRemoteData(src) {
 			var scriptEl = document.createElement('script');
 			scriptEl.src = src.replace(/.*\/(data|js)\//g, 'https://play.pokemonshowdown.com/$1/');
+			scriptEl.onload = function() { if (window.PS) PS.update(); };
 			document.head.appendChild(scriptEl);
 		}
 		Config.testclient = true;
