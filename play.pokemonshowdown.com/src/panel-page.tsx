@@ -95,6 +95,19 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	/** Set by panel-nuzlocke.tsx after it loads. Renders the nuzlocke game panel. */
 	static nuzlockeRenderer: ((gameState: any) => any) | null = null;
 
+	private lastNuzlockeScreen: string | null = null;
+
+	override componentDidUpdate() {
+		const { room } = this.props;
+		if (room.page === 'nuzlocke') {
+			const screen = room.nuzlockeState?.curScreen ?? null;
+			if (screen && screen !== this.lastNuzlockeScreen) {
+				this.lastNuzlockeScreen = screen;
+				(this.base as HTMLElement | null)?.scrollTo({ top: 0 });
+			}
+		}
+	}
+
 	override componentDidMount() {
 		super.componentDidMount();
 		if (this.props.room.id === 'view-nuzlocke') {

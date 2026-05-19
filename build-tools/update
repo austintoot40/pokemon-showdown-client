@@ -245,3 +245,24 @@ teamsContents = teamsContents.replace(URL_REGEX, addCachebuster);
 fs.writeFileSync('teams.pokemonshowdown.com/index.html', teamsContents);
 
 console.log("DONE");
+
+/*********************************************************
+ * Update nuzlocke asset cache-busters in testclient-beta.html
+ *********************************************************/
+
+process.stdout.write("Updating nuzlocke cache-busters... ");
+
+const NUZLOCKE_URL_REGEX = /((?:src|href)=")((?:style\/nuzlocke|js\/nuzlocke\/|js\/panel-nuzlocke)[^?"]*?)(\?[a-z0-9]*)?"/g;
+
+let testclientContents = fs.readFileSync('play.pokemonshowdown.com/testclient-beta.html', UTF8);
+testclientContents = testclientContents.replace(NUZLOCKE_URL_REGEX, (match, attrPrefix, url) => {
+	let hash = Math.random().toString(36).slice(2, 10);
+	try {
+		const fstr = fs.readFileSync('play.pokemonshowdown.com/' + url, UTF8);
+		hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+	} catch {}
+	return `${attrPrefix}${url}?${hash}"`;
+});
+fs.writeFileSync('play.pokemonshowdown.com/testclient-beta.html', testclientContents);
+
+console.log("DONE");

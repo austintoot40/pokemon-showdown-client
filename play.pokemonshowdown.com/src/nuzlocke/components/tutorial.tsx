@@ -37,6 +37,12 @@ function measureSpotlight(step: TutorialStep): DOMRect | null {
 	return el ? (el.getBoundingClientRect() as DOMRect) : null;
 }
 
+function isElementInViewport(el: Element): boolean {
+	const r = el.getBoundingClientRect();
+	return r.top >= 0 && r.bottom <= window.innerHeight &&
+		r.left >= 0 && r.right <= window.innerWidth;
+}
+
 function computeCardStyle(rect: DOMRect | null): CSSProp {
 	if (!rect) {
 		return { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' };
@@ -115,7 +121,21 @@ export class NzTutorial extends preact.Component<NzTutorialProps, NzTutorialStat
 			onDone();
 			return;
 		}
-		this.setState({ stepIndex: idx, spotlightRect: measureSpotlight(steps[idx]) });
+		const step = steps[idx];
+		const el = step.selector ? document.querySelector(step.selector) : null;
+		if (el && !isElementInViewport(el)) {
+			// Scroll the target into view smoothly so the user can follow along,
+			// then remeasure once the scroll settles to position the spotlight correctly.
+			el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+			this.setState({ stepIndex: idx, spotlightRect: null });
+			setTimeout(() => {
+				if (this.state.stepIndex === idx) {
+					this.setState({ spotlightRect: measureSpotlight(step) });
+				}
+			}, 400);
+		} else {
+			this.setState({ stepIndex: idx, spotlightRect: measureSpotlight(step) });
+		}
 	}
 
 	next = () => this.goTo(this.state.stepIndex + 1, 1);
