@@ -317,7 +317,7 @@ preact.h(PreviewCarousel,{items:previewItems})
 ),
 
 preact.h("div",{"class":"nz-seg-footer"},
-preact.h("button",{"class":"nz-btn nz-btn-accent nz-seg-proceed-btn",onClick:handleProceed},"Begin Exploration \u25B6"
+preact.h("button",{"class":"nz-btn nz-btn-primary",onClick:handleProceed},"Continue"
 
 )
 )

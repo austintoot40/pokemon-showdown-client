@@ -107,13 +107,16 @@ export class PSConnection {
 		if (this.worker) return; // must be one or the other
 
 		const server = PS.server;
-		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport!}`;
+		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport ?? server.port}`;
 		const url = `${server.protocol}://${server.host}${port}${server.prefix}`;
 
+		console.log(`[direct] connecting to ${url}`);
 		try {
 			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 		} catch {
-			this.socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
+			const wsUrl = url.replace('http', 'ws') + '/websocket';
+			console.log(`[direct] SockJS failed, falling back to raw WebSocket: ${wsUrl}`);
+			this.socket = new WebSocket(wsUrl);
 		}
 
 		const socket = this.socket!;
@@ -169,6 +172,7 @@ export class PSConnection {
 		if (!this.canReconnect()) return;
 		if (this.reconnectTimer) return;
 
+		console.log(`[connection] retrying in ${this.reconnectDelay}ms`);
 		this.reconnectTimer = setTimeout(() => {
 			this.reconnectTimer = null;
 			if (!this.connected && this.canReconnect()) {

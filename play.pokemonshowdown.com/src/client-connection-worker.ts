@@ -30,10 +30,13 @@ function connectToServer() {
 	const port = serverInfo.protocol === 'https' ? '' : `:${serverInfo.port}`;
 	const url = `${serverInfo.protocol}://${serverInfo.host}${port}${serverInfo.prefix}`;
 
+	console.log(`[worker] connecting to ${url}`);
 	try {
 		socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 	} catch {
-		socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
+		const wsUrl = url.replace('http', 'ws') + '/websocket';
+		console.log(`[worker] SockJS failed, falling back to raw WebSocket: ${wsUrl}`);
+		socket = new WebSocket(wsUrl);
 	}
 	if (socket) {
 		socket.onopen = () => {

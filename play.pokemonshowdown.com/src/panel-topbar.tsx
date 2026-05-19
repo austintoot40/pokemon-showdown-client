@@ -162,20 +162,11 @@ export class PSHeader extends preact.Component {
 			PSView.verticalHeaderWidth = PSView.narrowMode ? NARROW_MODE_HEADER_WIDTH : VERTICAL_HEADER_WIDTH;
 			document.documentElement.style.width = PSView.narrowMode ? `${width + NARROW_MODE_HEADER_WIDTH}px` : 'auto';
 			if (oldNarrowMode !== PSView.narrowMode) {
-				if (PSView.narrowMode) {
-					if (!PSView.textboxFocused) {
-						document.documentElement.classList?.add('scroll-snap-enabled');
-					}
-					PSView.scrollToRoom();
-				} else {
-					document.documentElement.classList?.remove('scroll-snap-enabled');
-				}
 				PS.update();
 			}
 			return;
 		}
 		if (PSView.narrowMode) {
-			document.documentElement.classList?.remove('scroll-snap-enabled');
 			document.documentElement.style.width = 'auto';
 			PSView.narrowMode = false;
 		}

@@ -317,8 +317,8 @@ export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
 				</div>}
 
 				<div class="nz-seg-footer">
-					<button class="nz-btn nz-btn-accent nz-seg-proceed-btn" onClick={handleProceed}>
-						Begin Exploration ▶
+					<button class="nz-btn nz-btn-primary" onClick={handleProceed}>
+						Continue
 					</button>
 				</div>
 

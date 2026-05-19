@@ -322,7 +322,6 @@ export class PSView extends preact.Component {
 	static readonly isSafari = !this.isChrome && navigator.userAgent.includes(' Safari/');
 	static readonly isFirefox = navigator.userAgent.includes(' Firefox/');
 	static readonly isMac = navigator.platform?.startsWith('Mac');
-	static textboxFocused = false;
 	static dragend: ((ev: DragEvent) => void) | null = null;
 	/** was the last click event a tap? heristic for mobile/desktop */
 	static hasTapped = false;
@@ -332,15 +331,8 @@ export class PSView extends preact.Component {
 	static setTextboxFocused(focused: boolean) {
 		if (!PSView.narrowMode) return;
 		if (!PSView.isChrome && !PSView.isSafari) return;
-		// Chrome bug: on Android, it insistently scrolls everything leftmost when scroll snap is enabled
-
-		this.textboxFocused = focused;
-		if (focused) {
-			document.documentElement.classList.remove('scroll-snap-enabled');
-			PSView.scrollToRoom();
-		} else {
-			document.documentElement.classList.add('scroll-snap-enabled');
-		}
+		// Chrome bug: on Android, focusing a textbox scrolls everything to x=0
+		if (focused) PSView.scrollToRoom();
 	}
 	static focusPreview(room: PSRoom) {
 		if (room !== PS.room) return '';
@@ -381,6 +373,8 @@ export class PSView extends preact.Component {
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
+
+		PSView.initScrollSnap();
 
 		if (PSView.isSafari) {
 			// I don't want to prevent users from being able to zoom, but iOS Safari
@@ -652,33 +646,27 @@ export class PSView extends preact.Component {
 	}
 	static scrollToHeader() {
 		if (PSView.narrowMode && window.scrollX > 0) {
-			if (PSView.isSafari || PSView.isFirefox) {
-				// Safari bug: `scrollBy` doesn't actually work when scroll snap is enabled
-				// note: interferes with the `PSView.textboxFocused` workaround for a Chrome bug
-				document.documentElement.classList.remove('scroll-snap-enabled');
-				window.scrollTo(0, 0);
-				setTimeout(() => {
-					if (!PSView.textboxFocused) document.documentElement.classList.add('scroll-snap-enabled');
-				}, 1);
-			} else {
-				window.scrollTo(0, 0);
-			}
+			window.scrollTo(0, 0);
 		}
 	}
 	static scrollToRoom() {
 		if (PSView.narrowMode && window.scrollX === 0) {
-			if (PSView.isSafari || PSView.isFirefox) {
-				// Safari bug: `scrollBy` doesn't actually work when scroll snap is enabled
-				// note: interferes with the `PSView.textboxFocused` workaround for a Chrome bug
-				document.documentElement.classList.remove('scroll-snap-enabled');
-				window.scrollTo(NARROW_MODE_HEADER_WIDTH, 0);
-				setTimeout(() => {
-					if (!PSView.textboxFocused) document.documentElement.classList.add('scroll-snap-enabled');
-				}, 1);
-			} else {
-				window.scrollTo(NARROW_MODE_HEADER_WIDTH, 0);
-			}
+			// rAF so the document width set by handleResize has reflowed before scrollTo runs
+			requestAnimationFrame(() => window.scrollTo(NARROW_MODE_HEADER_WIDTH, 0));
 		}
+	}
+	static initScrollSnap() {
+		// Replace CSS scroll-snap with a JS scrollend listener. CSS mandatory snap fires during
+		// vertical overscroll and pulls the sidebar open; scrollend only fires after the gesture
+		// completes, so accidental x-deltas from vertical swipes get corrected without snapping
+		// mid-swipe.
+		window.addEventListener('scrollend', () => {
+			if (!PSView.narrowMode) return;
+			const x = window.scrollX;
+			if (x > 0 && x < NARROW_MODE_HEADER_WIDTH) {
+				window.scrollTo(x < NARROW_MODE_HEADER_WIDTH / 2 ? 0 : NARROW_MODE_HEADER_WIDTH, 0);
+			}
+		});
 	}
 	static focusIfNoSelection = (ev: MouseEvent) => {
 		const room = PS.getRoom(ev.target as HTMLElement, true);

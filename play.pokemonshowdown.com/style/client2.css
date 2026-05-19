@@ -94,15 +94,6 @@ li::marker {
  * Header
  *********************************************************/
 
-.scroll-snap-enabled {
-  scroll-snap-type: x mandatory;
-}
-.scroll-snap-enabled .header-vertical {
-	scroll-snap-align: start;
-}
-.scroll-snap-enabled .mini-header {
-	scroll-snap-align: start;
-}
 
 .header {
 	position: relative;

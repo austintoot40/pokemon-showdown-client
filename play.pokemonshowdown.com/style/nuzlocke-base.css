@@ -15,6 +15,7 @@
   font-size: 16px;
   color: var(--nz-text);
   padding: 16px 20px;
+  touch-action: pan-y;
 }
 
 /* Override PS background image with solid theme color */
