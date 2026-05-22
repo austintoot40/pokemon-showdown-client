@@ -11,6 +11,7 @@ export interface TutorialStep {
 	selector?: string;   // CSS selector for spotlight target; omit for a centered card
 	title: string;
 	body: string;
+	onActivate?: () => void; // called when this step becomes active (use to switch tabs, etc.)
 }
 
 interface NzTutorialProps {
@@ -114,7 +115,8 @@ export class NzTutorial extends preact.Component<NzTutorialProps, NzTutorialStat
 		let idx = from;
 		while (idx >= 0 && idx < steps.length) {
 			const step = steps[idx];
-			if (!step.selector || document.querySelector(step.selector)) break;
+			// Steps with onActivate are never skipped — they'll reveal their target themselves.
+			if (step.onActivate || !step.selector || document.querySelector(step.selector)) break;
 			idx += direction;
 		}
 		if (idx < 0 || idx >= steps.length) {
@@ -122,6 +124,17 @@ export class NzTutorial extends preact.Component<NzTutorialProps, NzTutorialStat
 			return;
 		}
 		const step = steps[idx];
+		step.onActivate?.();
+		if (step.onActivate) {
+			// Defer DOM measurement so the parent has time to re-render after onActivate.
+			this.setState({ stepIndex: idx, spotlightRect: null });
+			setTimeout(() => {
+				if (this.state.stepIndex === idx) {
+					this.setState({ spotlightRect: measureSpotlight(step) });
+				}
+			}, 50);
+			return;
+		}
 		const el = step.selector ? document.querySelector(step.selector) : null;
 		if (el && !isElementInViewport(el)) {
 			// Scroll the target into view smoothly so the user can follow along,

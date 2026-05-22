@@ -3,8 +3,9 @@
  *
  * Single-select table for held item assignment in teambuilding.
  * Columns: sprite · Name · Effect · Route Acquired
- * Clicking a row selects it; clicking the selected row or "(none)" clears it.
- * Items held by other party members are disabled (dimmed, not clickable).
+ *
+ * Clicking a row equips that item (moves it out of the table into a slot above).
+ * Clicking the × on the equipped slot unequips it. Clicking a different row swaps.
  */
 
 import preact from "../../../js/lib/preact";
@@ -13,7 +14,6 @@ import { Dex } from "../../battle-dex";
 interface NzItemTableProps {
 	value: string;
 	items: { id: string; name: string; location: string }[];
-	disabledIds: string[];
 	onChange: (itemId: string) => void;
 }
 
@@ -24,62 +24,21 @@ interface NzItemTableState {
 export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableState> {
 	override state: NzItemTableState = { query: '' };
 	wrapRef: HTMLDivElement | null = null;
-	selectedRowRef: HTMLTableRowElement | null = null;
-
-	scrollToSelected() {
-		const wrap = this.wrapRef;
-		const row = this.selectedRowRef;
-		if (!wrap || !row) return;
-		const headerHeight = (wrap.querySelector('thead') as HTMLElement | null)?.offsetHeight ?? 0;
-		const rowTop = row.offsetTop - headerHeight;
-		const rowBottom = row.offsetTop + row.offsetHeight;
-		if (rowTop < wrap.scrollTop) {
-			wrap.scrollTop = rowTop;
-		} else if (rowBottom > wrap.scrollTop + wrap.clientHeight) {
-			wrap.scrollTop = rowBottom - wrap.clientHeight;
-		}
-	}
-
-	override componentDidMount() {
-		this.scrollToSelected();
-	}
 
 	override componentDidUpdate(prevProps: NzItemTableProps) {
-		if (prevProps.value !== this.props.value) this.scrollToSelected();
+		if (prevProps.items !== this.props.items) {
+			this.setState({ query: '' });
+		}
 	}
 
-	clickRow = (id: string) => {
-		const { value, onChange } = this.props;
-		onChange(value === id ? '' : id);
-	};
-
-	renderMobileCard(item: { id: string; name: string; location: string } | null) {
-		const { value, disabledIds } = this.props;
-		if (!item) {
-			const isSelected = !value;
-			return (
-				<li
-					class={`nz-item-card${isSelected ? ' nz-item-card--selected' : ''}`}
-					onClick={() => this.props.onChange('')}
-				>
-					<span class="nz-item-card-none">(none)</span>
-				</li>
-			);
-		}
-		const isSelected = value === item.id;
-		const isDisabled = disabledIds.includes(item.id);
+	renderMobileCard(item: { id: string; name: string; location: string }) {
 		const dexItem = Dex.items.get(item.name);
 		const effect = dexItem?.shortDesc || dexItem?.desc || '';
-		const cardClass = [
-			'nz-item-card',
-			isSelected ? 'nz-item-card--selected' : '',
-			isDisabled ? 'nz-item-card--disabled' : '',
-		].filter(Boolean).join(' ');
 		return (
 			<li
 				key={item.id}
-				class={cardClass}
-				onClick={isDisabled ? undefined : () => this.clickRow(item.id)}
+				class="nz-item-card"
+				onClick={() => this.props.onChange(item.id)}
 			>
 				<div class="nz-item-card-header">
 					<span class="itemicon" style={Dex.getItemIcon(item.name)} />
@@ -92,13 +51,33 @@ export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableS
 	}
 
 	render() {
-		const { value, items, disabledIds } = this.props;
+		const { value, items, onChange } = this.props;
 		const { query } = this.state;
+
+		const equippedItem = value ? items.find(i => i.id === value) ?? null : null;
+		const equippedName = equippedItem?.name ?? (value || null);
+
 		const q = query.toLowerCase();
-		const filtered = q ? items.filter(item => item.name.toLowerCase().includes(q)) : items;
+		const available = items.filter(i => i.id !== value);
+		const filtered = q ? available.filter(item => item.name.toLowerCase().includes(q)) : available;
 
 		return (
 			<div class="nz-item-panel">
+				<div class="nz-item-equipped">
+					{equippedName ? (
+						<div class="nz-item-equipped-filled">
+							<span class="itemicon" style={Dex.getItemIcon(equippedName)} />
+							<span class="nz-item-equipped-name">{equippedName}</span>
+							{equippedItem && (() => {
+								const desc = Dex.items.get(equippedName)?.shortDesc;
+								return desc ? <span class="nz-item-equipped-desc">{desc}</span> : null;
+							})()}
+							<button class="nz-item-equipped-remove" onClick={() => onChange('')} title="Remove item">×</button>
+						</div>
+					) : (
+						<div class="nz-item-equipped-empty">No item held — select one below</div>
+					)}
+				</div>
 				<input
 					class="nz-item-search"
 					type="text"
@@ -117,32 +96,13 @@ export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableS
 							</tr>
 						</thead>
 						<tbody>
-							<tr
-								ref={!value ? (el: any) => { this.selectedRowRef = el; } : undefined}
-								class={!value ? 'nz-item-row--selected' : undefined}
-								onClick={() => this.props.onChange('')}
-							>
-								<td></td>
-								<td class="nz-item-col-name nz-item-none-label">(none)</td>
-								<td></td>
-								<td></td>
-							</tr>
 							{filtered.map(item => {
-								const isSelected = value === item.id;
-								const isDisabled = disabledIds.includes(item.id);
 								const dexItem = Dex.items.get(item.name);
 								const effect = dexItem?.shortDesc || dexItem?.desc || '';
-								const rowClass = [
-									isSelected ? 'nz-item-row--selected' : '',
-									isDisabled ? 'nz-item-row--disabled' : '',
-								].filter(Boolean).join(' ') || undefined;
-
 								return (
 									<tr
 										key={item.id}
-										ref={isSelected ? (el: any) => { this.selectedRowRef = el; } : undefined}
-										class={rowClass}
-										onClick={isDisabled ? undefined : () => this.clickRow(item.id)}
+										onClick={() => onChange(item.id)}
 									>
 										<td class="nz-item-col-sprite">
 											<span class="itemicon" style={Dex.getItemIcon(item.name)} />
@@ -155,12 +115,17 @@ export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableS
 									</tr>
 								);
 							})}
+							{filtered.length === 0 && (
+								<tr>
+									<td colSpan={4} class="nz-item-no-results">No items match</td>
+								</tr>
+							)}
 						</tbody>
 					</table>
 				</div>
 				<ul class="nz-item-list nz-item-mobile">
-					{this.renderMobileCard(null)}
 					{filtered.map(item => this.renderMobileCard(item))}
+					{filtered.length === 0 && <li class="nz-item-no-results">No items match</li>}
 				</ul>
 			</div>
 		);

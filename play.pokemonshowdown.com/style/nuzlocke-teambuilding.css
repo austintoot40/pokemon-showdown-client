@@ -1011,6 +1011,42 @@
 }
 
 /* =============================================
+   MOVES / ITEMS TAB BAR
+   ============================================= */
+
+.nz-tb-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--nz-border);
+  margin-bottom: 12px;
+  margin-top: 4px;
+}
+
+.nz-tb-tab {
+  padding: 5px 16px;
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nz-text-dim);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nz-tb-tab:hover:not(.nz-tb-tab--active) {
+  color: var(--nz-text);
+}
+
+.nz-tb-tab--active {
+  color: var(--nz-accent);
+  border-bottom-color: var(--nz-accent);
+}
+
+/* =============================================
    RESPONSIVE
    ============================================= */
 
@@ -1117,5 +1153,9 @@
   /* Tighten detail panel padding */
   .nz-tb-detail {
     padding: 14px 14px;
+  }
+
+  .nz-tb-tab {
+    padding: 5px 12px;
   }
 }

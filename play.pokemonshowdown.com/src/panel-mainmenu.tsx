@@ -58,7 +58,8 @@ interface NuzlockeMenuPayload {
 }
 
 function getLocalAiPreference(): string {
-    return localStorage.getItem('nuzlocke_ai_preference') ?? 'basic';
+    const saved = localStorage.getItem('nuzlocke_ai_preference') ?? 'basic';
+    return ['basic', 'smart'].includes(saved) ? saved : 'basic';
 }
 
 function setLocalAiPreference(difficulty: string) {
@@ -95,7 +96,6 @@ function setLocalRandomizerSettings(s: RandomizerSettings) {
 const AI_DIFFICULTIES = [
     { id: 'basic', label: 'Basic', tooltip: 'Mirrors the official games — attacks freely, never switches. Uses a heuristic score to pick moves.' },
     { id: 'smart', label: 'Smart', tooltip: 'Upgraded AI with richer heuristics. Properly values status moves and switches out reactively.' },
-    { id: 'competitive', label: 'Competitive', tooltip: 'Experimental and quite difficult. Uses lookahead to make long-term plans and counter yours.' },
 ];
 
 const GENERATION_OPTIONS = [
@@ -209,13 +209,11 @@ export class MainMenuRoom extends PSRoom {
             PS.user.challstr = challstr;
             if (!PS.server.registered) {
                 // Unregistered (local) servers skip the login server to avoid a blocking remote XHR.
-                // If a testclient key is present, parse the username from it and restore the session
-                // via /trn (--no-security means no assertion needed). Otherwise fall back to guest.
-                const key = typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string'
-                    ? POKEMON_SHOWDOWN_TESTCLIENT_KEY : null;
-                const keyName = key?.split(',')[0] ?? null;
-                if (keyName) {
-                    PS.send(`/trn ${keyName}`);
+                // Restore the last-used username from localStorage so returning users auto-login.
+                // First-time visitors get the guest state and must choose a name via the login UI.
+                const savedName = localStorage.getItem('nuzlocke_username');
+                if (savedName) {
+                    PS.send(`/trn ${savedName}`);
                 } else {
                     PS.user.initializing = false;
                     PS.update();
@@ -243,6 +241,9 @@ export class MainMenuRoom extends PSRoom {
             const named = namedCode === '1';
             if (named) PS.user.initializing = false;
             PS.user.setName(fullName, named, avatar);
+            if (named && !PS.server.registered) {
+                localStorage.setItem('nuzlocke_username', PS.user.name);
+            }
             PS.teams.loadRemoteTeams();
             this.update(null);
             return;

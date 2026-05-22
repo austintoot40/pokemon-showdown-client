@@ -23,6 +23,7 @@
 
 
 
+
 var CARD_W=300;
 var CARD_H=240;
 var GAP=10;
@@ -138,9 +139,21 @@ if(step)_this.setState({spotlightRect:measureSpotlight(step)});
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 next=function(){return _this.goTo(_this.state.stepIndex+1,1);};_this.
 prev=function(){return _this.goTo(_this.state.stepIndex-1,-1);};_this.
-skip=function(){return _this.props.onDone();};return _this;}_inheritsLoose(NzTutorial,_preact$Component);var _proto=NzTutorial.prototype;_proto.componentDidMount=function componentDidMount(){this.portalEl=document.createElement('div');document.body.appendChild(this.portalEl);window.addEventListener('resize',this.onResize);this.goTo(0);};_proto.componentDidUpdate=function componentDidUpdate(){this.syncPortal();};_proto.componentWillUnmount=function componentWillUnmount(){window.removeEventListener('resize',this.onResize);if(this.portalEl){preact.render('',this.portalEl);document.body.removeChild(this.portalEl);this.portalEl=null;}};_proto.goTo=function goTo(from){var _this2=this;var direction=arguments.length>1&&arguments[1]!==undefined?arguments[1]:1;var _this$props=this.props,steps=_this$props.steps,onDone=_this$props.onDone;var idx=from;while(idx>=0&&idx<steps.length){var _step=steps[idx];if(!_step.selector||document.querySelector(_step.selector))break;idx+=direction;}if(idx<0||idx>=steps.length){onDone();return;}var step=steps[idx];var el=step.selector?document.querySelector(step.selector):null;if(el&&!isElementInViewport(el)){el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});this.setState({stepIndex:idx,spotlightRect:null});setTimeout(function(){if(_this2.state.stepIndex===idx){_this2.setState({spotlightRect:measureSpotlight(step)});}},400);}else{this.setState({stepIndex:idx,spotlightRect:measureSpotlight(step)});}};_proto.
+skip=function(){return _this.props.onDone();};return _this;}_inheritsLoose(NzTutorial,_preact$Component);var _proto=NzTutorial.prototype;_proto.componentDidMount=function componentDidMount(){this.portalEl=document.createElement('div');document.body.appendChild(this.portalEl);window.addEventListener('resize',this.onResize);this.goTo(0);};_proto.componentDidUpdate=function componentDidUpdate(){this.syncPortal();};_proto.componentWillUnmount=function componentWillUnmount(){window.removeEventListener('resize',this.onResize);if(this.portalEl){preact.render('',this.portalEl);document.body.removeChild(this.portalEl);this.portalEl=null;}};_proto.goTo=function goTo(from){var _this2=this;var direction=arguments.length>1&&arguments[1]!==undefined?arguments[1]:1;var _this$props=this.props,steps=_this$props.steps,onDone=_this$props.onDone;var idx=from;while(idx>=0&&idx<steps.length){var _step=steps[idx];if(_step.onActivate||!_step.selector||document.querySelector(_step.selector))break;idx+=direction;}if(idx<0||idx>=steps.length){onDone();return;}var step=steps[idx];step.onActivate==null||step.onActivate();if(step.onActivate){this.setState({stepIndex:idx,spotlightRect:null});setTimeout(function(){if(_this2.state.stepIndex===idx){_this2.setState({spotlightRect:measureSpotlight(step)});}},50);return;}var el=step.selector?document.querySelector(step.selector):null;if(el&&!isElementInViewport(el)){el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});this.setState({stepIndex:idx,spotlightRect:null});setTimeout(function(){if(_this2.state.stepIndex===idx){_this2.setState({spotlightRect:measureSpotlight(step)});}},400);}else{this.setState({stepIndex:idx,spotlightRect:measureSpotlight(step)});}};_proto.
 
 hasNext=function hasNext(from){
 var steps=this.props.steps;

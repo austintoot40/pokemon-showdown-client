@@ -23,10 +23,11 @@ interface TeambuildingState {
 	selectedUid: string | null;
 	selectedOpponent: { battleIdx: number; slotIdx: number } | null;
 	showTutorial: boolean;
+	activeTab: 'moves' | 'items';
 }
 
 export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
-	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false };
+	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves' };
 
 	override componentDidMount() {
 		try {
@@ -85,7 +86,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 		return changed ? { moves, heldItems, selectedUid } : null;
 	}
 
-	select = (uid: string) => this.setState({ selectedUid: uid, selectedOpponent: null });
+	select = (uid: string) => this.setState({ selectedUid: uid, selectedOpponent: null, activeTab: 'moves' });
 	selectOpponent = (battleIdx: number, slotIdx: number) => this.setState({ selectedOpponent: { battleIdx, slotIdx }, selectedUid: null });
 
 	setMove = (uid: string, slot: number, value: string) => {
@@ -153,14 +154,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 		const selectedPokemon = selectedUid ? (game.box.find(p => p.uid === selectedUid) ?? null) : null;
 		const isInParty = selectedUid ? game.party.includes(selectedUid) : false;
 		const hasErrors = Object.keys(errors).length > 0;
-
-		const itemCount = (id: string) =>
-			game.items.filter(i => toID(i) === id).length;
-		const heldByOthers = (uid: string, id: string) =>
-			game.party
-				.filter(pid => pid !== uid)
-				.filter(pid => toID(heldItems[pid] ?? game.box.find(p => p.uid === pid)?.item ?? '') === id)
-				.length;
 
 		const selectedOppPokemon = selectedOpponent !== null
 			? remainingBattles[selectedOpponent.battleIdx]?.team[selectedOpponent.slotIdx]
@@ -306,28 +299,31 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 				{error && <div class="nz-card-error" style="margin-bottom:8px;">⚠ {error}</div>}
 
-				<NzMovePanel
+				<div class="nz-tb-tabs">
+					<button
+						class={`nz-tb-tab${(this.state.activeTab === 'moves' || !isInParty) ? ' nz-tb-tab--active' : ''}`}
+						onClick={() => this.setState({ activeTab: 'moves' })}
+					>Moves</button>
+					{isInParty && <button
+						class={`nz-tb-tab${this.state.activeTab === 'items' ? ' nz-tb-tab--active' : ''}`}
+						onClick={() => this.setState({ activeTab: 'items' })}
+					>Items</button>}
+				</div>
+
+				{(this.state.activeTab === 'moves' || !isInParty) && <NzMovePanel
 					moves={selectedMoves}
 					legalMoves={legalMoves}
 					generation={this.props.game.generation}
 					onChange={newMoves => {
 						newMoves.forEach((id, slot) => this.setMove(selectedPokemon.uid, slot, id));
 					}}
-				/>
+				/>}
 
-				{isInParty && <>
-					{(() => {
-						const disabledItemIds = game.holdableItems
-							.filter(({ id }) => heldByOthers(selectedPokemon.uid, id) >= itemCount(id))
-							.map(({ id }) => id);
-						return <NzItemTable
-							value={heldItems[selectedPokemon.uid] ?? ''}
-							items={game.holdableItems}
-							disabledIds={disabledItemIds}
-							onChange={id => this.setItem(selectedPokemon.uid, id)}
-						/>;
-					})()}
-				</>}
+				{this.state.activeTab === 'items' && isInParty && <NzItemTable
+					value={heldItems[selectedPokemon.uid] ?? ''}
+					items={game.holdableItems}
+					onChange={id => this.setItem(selectedPokemon.uid, id)}
+				/>}
 
 				<div class="nz-tb-detail-actions">
 					<div>
@@ -475,12 +471,14 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					{
 						selector: '.nz-move-panel',
 						title: 'Move Slots',
-						body: 'Click a move slot to select it, then click a move in the table to assign it. Each party Pokémon needs at least one move before you can battle.',
+						body: 'Click a move slot to activate it, then click a move in the table to assign it. Each party Pokémon needs at least one move before you can battle.',
+						onActivate: () => this.setState({ activeTab: 'moves' }),
 					},
 					{
 						selector: '.nz-item-panel',
 						title: 'Held Items',
-						body: 'Assign a held item to your selected Pokémon. Items already held by other party members are dimmed.',
+						body: 'Click the Items tab to assign a held item to your Pokémon. Items already held by other party members are dimmed.',
+						onActivate: () => this.setState({ activeTab: 'items' }),
 					},
 					{
 						selector: '.nz-tb-party-col',

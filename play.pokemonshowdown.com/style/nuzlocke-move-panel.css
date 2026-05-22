@@ -185,7 +185,7 @@
    ============================================= */
 
 .nz-move-table-wrap {
-  height: 18vh;
+  max-height: 50vh;
   overflow-y: auto;
   border: 1px solid var(--nz-border);
   border-radius: var(--nz-radius);

@@ -25,8 +25,9 @@
 
 
 
+
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
-state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false};_this.
+state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves'};_this.
 
 
 
@@ -85,7 +86,7 @@ _this.setState({showTutorial:false});
 
 
 
-select=function(uid){return _this.setState({selectedUid:uid,selectedOpponent:null});};_this.
+select=function(uid){return _this.setState({selectedUid:uid,selectedOpponent:null,activeTab:'moves'});};_this.
 selectOpponent=function(battleIdx,slotIdx){return _this.setState({selectedOpponent:{battleIdx:battleIdx,slotIdx:slotIdx},selectedUid:null});};_this.
 
 setMove=function(uid,slot,value){
@@ -153,14 +154,6 @@ return evos.length===1;
 var selectedPokemon=selectedUid?(_game$box$find=game.box.find(function(p){return p.uid===selectedUid;}))!=null?_game$box$find:null:null;
 var isInParty=selectedUid?game.party.includes(selectedUid):false;
 var hasErrors=Object.keys(errors).length>0;
-
-var itemCount=function(id){return(
-game.items.filter(function(i){return toID(i)===id;}).length);};
-var heldByOthers=function(uid,id){return(
-game.party.
-filter(function(pid){return pid!==uid;}).
-filter(function(pid){var _ref2,_heldItems$pid,_game$box$find2;return toID((_ref2=(_heldItems$pid=heldItems[pid])!=null?_heldItems$pid:(_game$box$find2=game.box.find(function(p){return p.uid===pid;}))==null?void 0:_game$box$find2.item)!=null?_ref2:'')===id;}).
-length);};
 
 var selectedOppPokemon=selectedOpponent!==null?(_remainingBattles$sel=
 remainingBattles[selectedOpponent.battleIdx])==null?void 0:_remainingBattles$sel.team[selectedOpponent.slotIdx]:
@@ -235,7 +228,7 @@ item.exists&&item.shortDesc&&preact.h("div",{"class":"nz-item-desc"},item.shortD
 detailContent=preact.h("div",{"class":"nz-tb-detail-empty"},
 preact.h("p",{"class":"nz-notice"},"Select a Pok\xE9mon to edit")
 );
-}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut2,_BattleNatures;
+}else{var _game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut2,_BattleNatures,_heldItems$selectedPo;
 var legalMoves=(_game$legalMoves$sele=game.legalMoves[selectedPokemon.uid])!=null?_game$legalMoves$sele:[];
 var selectedMoves=(_moves$selectedPokemo=moves[selectedPokemon.uid])!=null?_moves$selectedPokemo:['','','',''];
 var evos=(_game$availableEvolut2=game.availableEvolutions[selectedPokemon.uid])!=null?_game$availableEvolut2:[];
@@ -306,7 +299,18 @@ preact.h(NzStatPair,{species:selectedPokemon.species,nature:selectedPokemon.natu
 
 error&&preact.h("div",{"class":"nz-card-error",style:"margin-bottom:8px;"},"\u26A0 ",error),
 
-preact.h(NzMovePanel,{
+preact.h("div",{"class":"nz-tb-tabs"},
+preact.h("button",{
+"class":"nz-tb-tab"+(this.state.activeTab==='moves'||!isInParty?' nz-tb-tab--active':''),
+onClick:function(){return _this2.setState({activeTab:'moves'});}},
+"Moves"),
+isInParty&&preact.h("button",{
+"class":"nz-tb-tab"+(this.state.activeTab==='items'?' nz-tb-tab--active':''),
+onClick:function(){return _this2.setState({activeTab:'items'});}},
+"Items")
+),
+
+(this.state.activeTab==='moves'||!isInParty)&&preact.h(NzMovePanel,{
 moves:selectedMoves,
 legalMoves:legalMoves,
 generation:this.props.game.generation,
@@ -315,18 +319,10 @@ newMoves.forEach(function(id,slot){return _this2.setMove(selectedPokemon.uid,slo
 }}
 ),
 
-isInParty&&preact.h(preact.Fragment,null,
-function(_heldItems$selectedPo){
-var disabledItemIds=game.holdableItems.
-filter(function(_ref3){var id=_ref3.id;return heldByOthers(selectedPokemon.uid,id)>=itemCount(id);}).
-map(function(_ref4){var id=_ref4.id;return id;});
-return preact.h(NzItemTable,{
+this.state.activeTab==='items'&&isInParty&&preact.h(NzItemTable,{
 value:(_heldItems$selectedPo=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo:'',
 items:game.holdableItems,
-disabledIds:disabledItemIds,
 onChange:function(id){return _this2.setItem(selectedPokemon.uid,id);}}
-);
-}()
 ),
 
 preact.h("div",{"class":"nz-tb-detail-actions"},
@@ -475,12 +471,14 @@ body:'Before each battle, set your party, assign moves and held items, and view 
 {
 selector:'.nz-move-panel',
 title:'Move Slots',
-body:'Click a move slot to select it, then click a move in the table to assign it. Each party Pokémon needs at least one move before you can battle.'
+body:'Click a move slot to activate it, then click a move in the table to assign it. Each party Pokémon needs at least one move before you can battle.',
+onActivate:function(){return _this2.setState({activeTab:'moves'});}
 },
 {
 selector:'.nz-item-panel',
 title:'Held Items',
-body:'Assign a held item to your selected Pokémon. Items already held by other party members are dimmed.'
+body:'Click the Items tab to assign a held item to your Pokémon. Items already held by other party members are dimmed.',
+onActivate:function(){return _this2.setState({activeTab:'items'});}
 },
 {
 selector:'.nz-tb-party-col',
