@@ -21,6 +21,7 @@
 
 
 
+
 NzItemTable=function(_preact$Component){function NzItemTable(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 state={query:''};_this.
 wrapRef=null;return _this;}_inheritsLoose(NzItemTable,_preact$Component);var _proto=NzItemTable.prototype;_proto.
@@ -51,14 +52,14 @@ effect&&preact.h("div",{"class":"nz-item-card-desc"},effect)
 };_proto.
 
 render=function render(){var _items$find,_equippedItem$name,_this3=this;
-var _this$props=this.props,value=_this$props.value,items=_this$props.items,onChange=_this$props.onChange;
+var _this$props=this.props,value=_this$props.value,items=_this$props.items,excludeIds=_this$props.excludeIds,onChange=_this$props.onChange;
 var query=this.state.query;
 
 var equippedItem=value?(_items$find=items.find(function(i){return i.id===value;}))!=null?_items$find:null:null;
 var equippedName=(_equippedItem$name=equippedItem==null?void 0:equippedItem.name)!=null?_equippedItem$name:value||null;
 
 var q=query.toLowerCase();
-var available=items.filter(function(i){return i.id!==value;});
+var available=items.filter(function(i){return i.id!==value&&!(excludeIds!=null&&excludeIds.has(i.id));});
 var filtered=q?available.filter(function(item){return item.name.toLowerCase().includes(q);}):available;
 
 return(

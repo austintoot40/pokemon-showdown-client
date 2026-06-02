@@ -139,17 +139,18 @@
   height: 96px;
   margin-bottom: -14px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--nz-accent) 40%, transparent));
 }
 
 /* Player's selected Pokemon panel uses animated GIF */
 .nz-tb-left-col .nz-tb-detail-sprite img {
   width: auto;
+  max-width: 120px;
   height: 96px;
   padding: 0;
   margin-bottom: 0;
-  object-fit: unset;
+  object-fit: contain;
   image-rendering: auto;
 }
 
@@ -311,7 +312,7 @@
   width: 40px;
   height: 40px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
   flex-shrink: 0;
 }
 
@@ -319,7 +320,7 @@
   width: 40px;
   height: 40px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
   flex-shrink: 0;
 }
 
@@ -455,7 +456,7 @@
   width: 36px;
   height: 36px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
   flex-shrink: 0;
 }
 
@@ -1047,7 +1048,36 @@
 }
 
 /* =============================================
-   RESPONSIVE
+   RESPONSIVE — Tablet (≤1300px)
+   Stack detail panel above columns so both get
+   full width; the 3 party/box/opponent columns
+   each get ~400px instead of ~210px.
+   ============================================= */
+
+@media (max-width: 1300px) {
+  /* Detail panel spans full width above the column list */
+  .nz-tb-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Remove sticky + fixed height — panel sizes to its content */
+  .nz-tb-detail {
+    position: static;
+    min-height: auto;
+  }
+
+  .nz-tb-detail-empty {
+    min-height: auto;
+  }
+
+  /* Breathing room between the detail panel and the columns below */
+  .nz-tb-columns {
+    margin-top: 16px;
+  }
+}
+
+/* =============================================
+   RESPONSIVE — Mobile (≤800px)
    ============================================= */
 
 @media (max-width: 800px) {

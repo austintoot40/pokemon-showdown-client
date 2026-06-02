@@ -317,7 +317,7 @@ export function NzPartySlot({
 	].filter(Boolean).join(' ');
 	return <div class={cls} onClick={onSelect} onDblClick={onDoubleClick}>
 		<img
-			src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(pokemon.species)}.png`}
+			src={`https://play.pokemonshowdown.com/sprites/ani/${toID(pokemon.species)}.gif`}
 			alt={pokemon.species}
 		/>
 		<div class="nz-party-slot-info">
@@ -353,7 +353,7 @@ export function NzOpponentSlot({
 	].filter(Boolean).join(' ');
 	return <div class={cls} onClick={onSelect}>
 		<img
-			src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(pokemon.species)}.png`}
+			src={`https://play.pokemonshowdown.com/sprites/ani/${toID(pokemon.species)}.gif`}
 			alt={pokemon.species}
 		/>
 		<div class="nz-party-slot-info">

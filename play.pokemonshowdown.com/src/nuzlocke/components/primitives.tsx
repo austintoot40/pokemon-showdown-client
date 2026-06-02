@@ -190,7 +190,7 @@ export class NzItemSelect extends preact.Component<NzItemSelectProps, DropdownSt
 
 export function NzSprite({ species, size = 60 }: { species: string; size?: number }) {
 	const id = toID(species);
-	const src = `https://play.pokemonshowdown.com/sprites/gen5/${id}.png`;
+	const src = `https://play.pokemonshowdown.com/sprites/ani/${id}.gif`;
 	return <img
 		class="nz-card-sprite"
 		src={src}

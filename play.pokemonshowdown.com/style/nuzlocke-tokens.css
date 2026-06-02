@@ -107,7 +107,20 @@
 }
 
 /* =============================================
-   RESPONSIVE — Mobile (≤768px)
+   RESPONSIVE — Tablet (≤1300px)
+   Token overrides for the middle breakpoint.
+   Structural changes live in each screen's CSS.
+   ============================================= */
+
+@media (max-width: 1300px) {
+  :root {
+    --nz-tb-scroll-max: 420px;
+    --nz-tb-box-size:   68px;
+  }
+}
+
+/* =============================================
+   RESPONSIVE — Mobile (≤800px)
    Overrides layout tokens only. Structural
    changes (grid-template-areas, grid-template-
    columns that need extra context) live in each

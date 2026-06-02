@@ -14,6 +14,7 @@ import { Dex } from "../../battle-dex";
 interface NzItemTableProps {
 	value: string;
 	items: { id: string; name: string; location: string }[];
+	excludeIds?: Set<string>;
 	onChange: (itemId: string) => void;
 }
 
@@ -51,14 +52,14 @@ export class NzItemTable extends preact.Component<NzItemTableProps, NzItemTableS
 	}
 
 	render() {
-		const { value, items, onChange } = this.props;
+		const { value, items, excludeIds, onChange } = this.props;
 		const { query } = this.state;
 
 		const equippedItem = value ? items.find(i => i.id === value) ?? null : null;
 		const equippedName = equippedItem?.name ?? (value || null);
 
 		const q = query.toLowerCase();
-		const available = items.filter(i => i.id !== value);
+		const available = items.filter(i => i.id !== value && !(excludeIds?.has(i.id)));
 		const filtered = q ? available.filter(item => item.name.toLowerCase().includes(q)) : available;
 
 		return (

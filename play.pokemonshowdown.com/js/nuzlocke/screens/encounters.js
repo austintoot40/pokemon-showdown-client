@@ -218,7 +218,7 @@ resolved&&!isCaught&&'nz-encounter-slot-dimmed',
 isCaught&&'nz-encounter-slot-caught'
 )},
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(e.species)+".gif",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(e.species)+".gif",
 alt:e.species}
 ),
 preact.h("div",{"class":"nz-encounter-rate-bar"},
@@ -284,7 +284,7 @@ clickable&&'nz-gift-zone-option-selectable'
 onClick:clickable?sendCmd:undefined},
 
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(e.species)+".gif",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(e.species)+".gif",
 alt:e.species}
 )
 );
@@ -332,13 +332,13 @@ onClick:clickable?function(){return PS.send("/nuzlocke encounter "+routeName+" "
 preact.h("div",{"class":"nz-trade-zone-row"},
 requiredName&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":cls('nz-trade-zone-pokemon',caughtHere&&'nz-trade-zone-pokemon-traded')},
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(requiredName)+".png",alt:requiredName})
+preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(requiredName)+".gif",alt:requiredName})
 ),
 preact.h("div",{"class":"nz-trade-zone-arrow"},"\u2192")
 ),
 newPokemon&&
 preact.h("div",{"class":cls('nz-trade-zone-pokemon',caughtHere&&'nz-trade-zone-pokemon-received')},
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(newPokemon.species)+".png",alt:newPokemon.species})
+preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(newPokemon.species)+".gif",alt:newPokemon.species})
 )
 
 )
@@ -392,7 +392,7 @@ key:toID(species),
 isDupe&&!isCaught&&'nz-route-sprite-dupe',
 isCaught&&'nz-route-sprite-caught'
 ),
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(species)+".gif",
 alt:species,
 title:species}
 ));}
@@ -432,7 +432,7 @@ key:e.species,
 onClick:function(){return PS.send("/nuzlocke choosegift "+giftIndex+" "+toID(e.species));}},
 
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(e.species)+".gif",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(e.species)+".gif",
 alt:e.species}
 )
 );
@@ -486,7 +486,7 @@ return preact.h("div",{"class":"nz-encounter-stats"},
 preact.h("div",{"class":"nz-encounter-stats-header"},
 preact.h("img",{
 "class":"nz-encounter-stats-sprite",
-src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(pokemon.species)+".gif",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(pokemon.species)+".gif",
 alt:pokemon.species}
 ),
 preact.h("div",{"class":"nz-encounter-stats-identity"},

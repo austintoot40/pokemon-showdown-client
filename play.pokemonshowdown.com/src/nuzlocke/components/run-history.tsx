@@ -38,7 +38,7 @@ export function NzBattleBanner({
 		{deaths.length > 0 && <div class="nz-banner-deaths">
 			<div class="nz-banner-deaths-label">Units Lost ({deaths.length})</div>
 			{deaths.map(d => {
-				const src = `https://play.pokemonshowdown.com/sprites/gen5/${toID(d.species)}.png`;
+				const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(d.species)}.gif`;
 				return <div key={d.uid} class="nz-death-entry">
 					<img src={src} alt={d.species} />
 					<span><strong>{d.nickname}</strong> — {d.killedBy}</span>
@@ -108,7 +108,7 @@ export function NzRunEntry({
 				<div class="nz-label" style="margin-bottom:4px;">Survivors</div>
 				<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px;color:var(--nz-text-muted);">
 					{run.survivors.map((s, i) => {
-						const src = `https://play.pokemonshowdown.com/sprites/gen5/${toID(s.species)}.png`;
+						const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(s.species)}.gif`;
 						return <span key={i} style="display:flex;align-items:center;gap:3px;">
 							<img src={src} alt={s.species} style="width:22px;height:22px;image-rendering:pixelated;object-fit:contain;" />
 							{s.nickname !== s.species ? `${s.nickname} (${s.species})` : s.species}
@@ -120,7 +120,7 @@ export function NzRunEntry({
 				<div class="nz-label" style="margin-bottom:4px;">Graveyard</div>
 				<div class="nz-run-grave-chips">
 					{run.graveyard.map(d => {
-						const src = `https://play.pokemonshowdown.com/sprites/gen5/${toID(d.species)}.png`;
+						const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(d.species)}.gif`;
 						const seg = segmentNames?.[d.segment] ?? d.segment;
 						return <div key={d.uid} class="nz-run-grave-chip">
 							<img src={src} alt={d.species} />
@@ -165,7 +165,7 @@ export function NzActiveRunWidget({
 		</div>
 		<div class="nz-run-widget-party">
 			{partySpecies.map(s => {
-				const src = `https://play.pokemonshowdown.com/sprites/gen5/${toID(s)}.png`;
+				const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(s)}.gif`;
 				return <img key={s} src={src} alt={s} />;
 			})}
 		</div>

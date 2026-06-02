@@ -82,7 +82,7 @@
   width: 112%;
   height: 159%;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
   opacity: 0.05;
   pointer-events: none;
   filter: saturate(0.3);
@@ -184,7 +184,7 @@
   width: 48px;
   height: 48px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
   flex-shrink: 0;
 }
 
@@ -451,7 +451,7 @@
   width: 140px;
   height: 140px;
   object-fit: contain;
-  image-rendering: pixelated;
+  image-rendering: auto;
   opacity: 0.13;
   pointer-events: none;
   filter: saturate(0.5);
@@ -527,9 +527,14 @@
   transition: all 0.15s;
 }
 
-.nz-difficulty-btn:hover {
+.nz-difficulty-btn:hover:not(:disabled) {
   border-color: var(--nz-accent);
   color: var(--nz-accent);
+}
+
+.nz-difficulty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .nz-difficulty-btn.active {
@@ -587,6 +592,39 @@
 .nz-team-slot-loading {
   pointer-events: none;
 }
+
+/* =============================================
+   CONNECTING STATE
+   ============================================= */
+
+.nz-active-run-panel-connecting {
+  border-left-color: var(--nz-border);
+  background: var(--nz-surface);
+  justify-content: center;
+  min-height: 120px;
+}
+
+@keyframes nz-dot-pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40%           { opacity: 1;   transform: scale(1); }
+}
+
+.nz-connecting-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.nz-connecting-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--nz-accent);
+  animation: nz-dot-pulse 1.4s ease-in-out infinite both;
+}
+
+.nz-connecting-dots span:nth-child(2) { animation-delay: 0.2s; }
+.nz-connecting-dots span:nth-child(3) { animation-delay: 0.4s; }
 
 /* =============================================
    LOGIN GATE

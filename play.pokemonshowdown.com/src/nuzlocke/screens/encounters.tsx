@@ -218,7 +218,7 @@ function StandardZoneCard({
 					isCaught && 'nz-encounter-slot-caught',
 				)}>
 					<img
-						src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(e.species)}.gif`}
+						src={`https://play.pokemonshowdown.com/sprites/ani/${toID(e.species)}.gif`}
 						alt={e.species}
 					/>
 					<div class="nz-encounter-rate-bar">
@@ -284,7 +284,7 @@ function GiftZoneCard({
 					onClick={clickable ? sendCmd : undefined}
 				>
 					<img
-						src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(e.species)}.gif`}
+						src={`https://play.pokemonshowdown.com/sprites/ani/${toID(e.species)}.gif`}
 						alt={e.species}
 					/>
 				</div>;
@@ -332,13 +332,13 @@ function TradeZoneCard({
 		<div class="nz-trade-zone-row">
 			{requiredName && <>
 				<div class={cls('nz-trade-zone-pokemon', caughtHere && 'nz-trade-zone-pokemon-traded')}>
-					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(requiredName)}.png`} alt={requiredName} />
+					<img src={`https://play.pokemonshowdown.com/sprites/ani/${toID(requiredName)}.gif`} alt={requiredName} />
 				</div>
 				<div class="nz-trade-zone-arrow">→</div>
 			</>}
 			{newPokemon && (
 				<div class={cls('nz-trade-zone-pokemon', caughtHere && 'nz-trade-zone-pokemon-received')}>
-					<img src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(newPokemon.species)}.png`} alt={newPokemon.species} />
+					<img src={`https://play.pokemonshowdown.com/sprites/ani/${toID(newPokemon.species)}.gif`} alt={newPokemon.species} />
 				</div>
 			)}
 		</div>
@@ -392,7 +392,7 @@ function RouteListItem({
 								isDupe && !isCaught && 'nz-route-sprite-dupe',
 								isCaught && 'nz-route-sprite-caught',
 							)}
-							src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(species)}.png`}
+							src={`https://play.pokemonshowdown.com/sprites/ani/${toID(species)}.gif`}
 							alt={species}
 							title={species}
 						/>
@@ -432,7 +432,7 @@ function GiftChoicePicker({
 					onClick={() => PS.send(`/nuzlocke choosegift ${giftIndex} ${toID(e.species)}`)}
 				>
 					<img
-						src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(e.species)}.gif`}
+						src={`https://play.pokemonshowdown.com/sprites/ani/${toID(e.species)}.gif`}
 						alt={e.species}
 					/>
 				</div>;
@@ -486,7 +486,7 @@ class EncounterPokemonStats extends preact.Component<{
 			<div class="nz-encounter-stats-header">
 				<img
 					class="nz-encounter-stats-sprite"
-					src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(pokemon.species)}.gif`}
+					src={`https://play.pokemonshowdown.com/sprites/ani/${toID(pokemon.species)}.gif`}
 					alt={pokemon.species}
 				/>
 				<div class="nz-encounter-stats-identity">

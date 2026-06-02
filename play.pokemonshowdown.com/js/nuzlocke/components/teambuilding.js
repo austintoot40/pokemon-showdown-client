@@ -317,7 +317,7 @@ canEvolve?'nz-party-slot-evolve':''].
 filter(Boolean).join(' ');
 return preact.h("div",{"class":cls,onClick:onSelect,onDblClick:onDoubleClick},
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(pokemon.species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(pokemon.species)+".gif",
 alt:pokemon.species}
 ),
 preact.h("div",{"class":"nz-party-slot-info"},
@@ -353,7 +353,7 @@ selected?'nz-opponent-slot-selected':''].
 filter(Boolean).join(' ');
 return preact.h("div",{"class":cls,onClick:onSelect},
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(pokemon.species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(pokemon.species)+".gif",
 alt:pokemon.species}
 ),
 preact.h("div",{"class":"nz-party-slot-info"},

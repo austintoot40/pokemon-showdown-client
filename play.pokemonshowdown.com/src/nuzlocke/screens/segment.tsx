@@ -119,7 +119,7 @@ class PreviewCarousel extends preact.Component<{ items: PreviewItem[] }, Carouse
 			<div class={`nz-carousel-row${this.state.visible ? ' nz-carousel-visible' : ''}`}>
 				{slots.map((item, i) => {
 					const id = nzToID(item.species);
-					const src = `https://play.pokemonshowdown.com/sprites/gen5ani/${id}.gif`;
+					const src = `https://play.pokemonshowdown.com/sprites/ani/${id}.gif`;
 					return <div key={`${item.species}-${i}`} class={`nz-carousel-item nz-carousel-item-${i}`}>
 						<img class="nz-carousel-sprite" src={src} alt={item.species} />
 						<div class="nz-carousel-species">{item.species}</div>
@@ -264,7 +264,7 @@ function TimelineNode({ summary, index }: {
 		{isDone && summary.deaths.length > 0 && <PokemonCarousel
 			variant="death"
 			items={summary.deaths.map(d => ({
-				src: `https://play.pokemonshowdown.com/sprites/gen5/${nzToID(d.species)}.png`,
+				src: `https://play.pokemonshowdown.com/sprites/ani/${nzToID(d.species)}.gif`,
 				label: d.nickname,
 			}))}
 		/>}
@@ -286,7 +286,7 @@ export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
 
 	const colorStyle = game.scenarioColor ? `--scenario-color:${game.scenarioColor}` : '';
 	const bgSpriteSrc = game.scenarioPokemon
-		? `https://play.pokemonshowdown.com/sprites/gen5/${nzToID(game.scenarioPokemon)}.png`
+		? `https://play.pokemonshowdown.com/sprites/ani/${nzToID(game.scenarioPokemon)}.gif`
 		: null;
 
 	return <NzRoot>

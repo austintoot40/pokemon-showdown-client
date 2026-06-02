@@ -12,7 +12,7 @@ import type { NuzlockePanelPayload, OwnedPokemon } from "../types";
 
 function SpriteSlot({ mon, index }: { mon: OwnedPokemon; index: number }) {
 	const speciesId = mon.species.toLowerCase().replace(/[^a-z0-9]/g, '');
-	const src = `https://play.pokemonshowdown.com/sprites/gen5/${speciesId}.png`;
+	const src = `https://play.pokemonshowdown.com/sprites/ani/${speciesId}.gif`;
 	return (
 		<div class="nz-victory-slot" style={`animation-delay:${index}s`}>
 			<div class="nz-victory-sprite-wrap">

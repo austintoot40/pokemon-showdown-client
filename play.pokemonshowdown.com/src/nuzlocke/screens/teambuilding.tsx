@@ -169,7 +169,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					<div class="nz-tb-detail-header">
 						<div class="nz-tb-detail-sprite">
 							<img
-								src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(opp.species)}.png`}
+								src={`https://play.pokemonshowdown.com/sprites/ani/${toID(opp.species)}.gif`}
 								alt={opp.species}
 							/>
 						</div>
@@ -256,7 +256,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 						<div class="nz-tb-detail-header">
 							<div class="nz-tb-detail-sprite">
 								<img
-									src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(selectedPokemon.species)}.gif`}
+									src={`https://play.pokemonshowdown.com/sprites/ani/${toID(selectedPokemon.species)}.gif`}
 									alt={selectedPokemon.species}
 								/>
 							</div>
@@ -408,7 +408,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 										onDblClick={boxDisabled ? undefined : () => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${mon.uid}`)}
 									>
 										<img
-											src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(mon.species)}.png`}
+											src={`https://play.pokemonshowdown.com/sprites/ani/${toID(mon.species)}.gif`}
 											alt={mon.species}
 										/>
 										<div class="nz-tb-box-card-name">{mon.nickname}</div>

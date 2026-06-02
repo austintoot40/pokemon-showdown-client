@@ -38,7 +38,7 @@ preact.h("div",{"class":"nz-banner-sub"},sub),
 deaths.length>0&&preact.h("div",{"class":"nz-banner-deaths"},
 preact.h("div",{"class":"nz-banner-deaths-label"},"Units Lost (",deaths.length,")"),
 deaths.map(function(d){
-var src="https://play.pokemonshowdown.com/sprites/gen5/"+toID(d.species)+".png";
+var src="https://play.pokemonshowdown.com/sprites/ani/"+toID(d.species)+".gif";
 return preact.h("div",{key:d.uid,"class":"nz-death-entry"},
 preact.h("img",{src:src,alt:d.species}),
 preact.h("span",null,preact.h("strong",null,d.nickname)," \u2014 ",d.killedBy)
@@ -108,7 +108,7 @@ run.survivors.length>0&&preact.h("div",{style:"margin-bottom:8px;"},
 preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"Survivors"),
 preact.h("div",{style:"display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px;color:var(--nz-text-muted);"},
 run.survivors.map(function(s,i){
-var src="https://play.pokemonshowdown.com/sprites/gen5/"+toID(s.species)+".png";
+var src="https://play.pokemonshowdown.com/sprites/ani/"+toID(s.species)+".gif";
 return preact.h("span",{key:i,style:"display:flex;align-items:center;gap:3px;"},
 preact.h("img",{src:src,alt:s.species,style:"width:22px;height:22px;image-rendering:pixelated;object-fit:contain;"}),
 s.nickname!==s.species?s.nickname+" ("+s.species+")":s.species
@@ -120,7 +120,7 @@ run.graveyard.length>0&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-label",style:"margin-bottom:4px;"},"Graveyard"),
 preact.h("div",{"class":"nz-run-grave-chips"},
 run.graveyard.map(function(d){var _segmentNames$d$segme;
-var src="https://play.pokemonshowdown.com/sprites/gen5/"+toID(d.species)+".png";
+var src="https://play.pokemonshowdown.com/sprites/ani/"+toID(d.species)+".gif";
 var seg=(_segmentNames$d$segme=segmentNames==null?void 0:segmentNames[d.segment])!=null?_segmentNames$d$segme:d.segment;
 return preact.h("div",{key:d.uid,"class":"nz-run-grave-chip"},
 preact.h("img",{src:src,alt:d.species}),
@@ -165,7 +165,7 @@ preact.h(NzBadge,{variant:"active"},"Active")
 ),
 preact.h("div",{"class":"nz-run-widget-party"},
 partySpecies.map(function(s){
-var src="https://play.pokemonshowdown.com/sprites/gen5/"+toID(s)+".png";
+var src="https://play.pokemonshowdown.com/sprites/ani/"+toID(s)+".gif";
 return preact.h("img",{key:s,src:src,alt:s});
 })
 ),

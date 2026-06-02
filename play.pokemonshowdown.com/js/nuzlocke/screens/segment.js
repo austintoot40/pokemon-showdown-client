@@ -119,7 +119,7 @@ return preact.h("div",{"class":"nz-carousel"},
 preact.h("div",{"class":"nz-carousel-row"+(this.state.visible?' nz-carousel-visible':'')},
 slots.map(function(item,i){
 var id=nzToID(item.species);
-var src="https://play.pokemonshowdown.com/sprites/gen5ani/"+id+".gif";
+var src="https://play.pokemonshowdown.com/sprites/ani/"+id+".gif";
 return preact.h("div",{key:item.species+"-"+i,"class":"nz-carousel-item nz-carousel-item-"+i},
 preact.h("img",{"class":"nz-carousel-sprite",src:src,alt:item.species}),
 preact.h("div",{"class":"nz-carousel-species"},item.species)
@@ -264,7 +264,7 @@ preact.h(TrainerCarousel,{sprites:trainerSprites})
 isDone&&summary.deaths.length>0&&preact.h(PokemonCarousel,{
 variant:"death",
 items:summary.deaths.map(function(d){return{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+nzToID(d.species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+nzToID(d.species)+".gif",
 label:d.nickname
 };})}
 )
@@ -285,8 +285,8 @@ PS.send('/nuzlocke proceed');
 }
 
 var colorStyle=game.scenarioColor?"--scenario-color:"+game.scenarioColor:'';
-var bgSpriteSrc=game.scenarioPokemon?"https://play.pokemonshowdown.com/sprites/gen5/"+
-nzToID(game.scenarioPokemon)+".png":
+var bgSpriteSrc=game.scenarioPokemon?"https://play.pokemonshowdown.com/sprites/ani/"+
+nzToID(game.scenarioPokemon)+".gif":
 null;
 
 return preact.h(NzRoot,null,

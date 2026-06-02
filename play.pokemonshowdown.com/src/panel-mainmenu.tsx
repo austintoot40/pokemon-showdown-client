@@ -77,9 +77,10 @@ function setLocalGenerationPreference(mode: string) {
 interface RandomizerSettings {
     mode: 'shuffle' | 'fully-random';
     bstVariance: 'low' | 'medium' | 'high';
+    dexPool: 'regional' | 'national' | 'all';
 }
 
-const DEFAULT_RANDOMIZER: RandomizerSettings = { mode: 'shuffle', bstVariance: 'medium' };
+const DEFAULT_RANDOMIZER: RandomizerSettings = { mode: 'shuffle', bstVariance: 'medium', dexPool: 'national' };
 
 function getLocalRandomizerSettings(): RandomizerSettings {
     try {
@@ -131,6 +132,7 @@ export class MainMenuRoom extends PSRoom {
     disallowSpectators: boolean | null = PS.prefs.disallowspectators;
     lastChallenged: number | null = null;
     nuzlockeMenuPayload: NuzlockeMenuPayload | null = null;
+    serverConnected: boolean = false;
     constructor(options: RoomOptions) {
         super(options);
         if (this.backlog) {
@@ -207,6 +209,8 @@ export class MainMenuRoom extends PSRoom {
         case 'challstr': {
             const [, challstr] = args;
             PS.user.challstr = challstr;
+            this.serverConnected = true;
+            this.update(null);
             if (!PS.server.registered) {
                 // Unregistered (local) servers skip the login server to avoid a blocking remote XHR.
                 // Restore the last-used username from localStorage so returning users auto-login.
@@ -650,6 +654,18 @@ function NuzlockeLoadingPanel() {
     );
 }
 
+function NuzlockeConnectingPanel() {
+    return (
+        <div class="nz-active-run-panel nz-active-run-panel-connecting" aria-busy="true" aria-label="Connecting to server">
+            <div class="nz-connecting-dots">
+                <span /><span /><span />
+            </div>
+            <div class="nz-loading-skel nz-loading-skel-title" style="margin-top:12px;" />
+            <div class="nz-loading-skel nz-loading-skel-meta" />
+        </div>
+    );
+}
+
 function NuzlockeLoginGate() {
     return (
         <div class="nz-active-run-panel nz-login-gate" aria-label="Login required">
@@ -659,28 +675,28 @@ function NuzlockeLoginGate() {
             </div>
             <ul class="nz-login-gate-features">
                 <li class="nz-login-gate-feature nz-login-gate-feature--ninjask">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/ninjask.png" alt="" aria-hidden="true" />
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/ninjask.gif" alt="" aria-hidden="true" />
                     <div>
                         <div class="nz-login-gate-feature-name">Runs in Under an Hour</div>
                         <div class="nz-login-gate-feature-desc">No grinding, no overworld, no filler, just the decisions that matter.</div>
                     </div>
                 </li>
                 <li class="nz-login-gate-feature nz-login-gate-feature--alakazam">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/alakazam.png" alt="" aria-hidden="true" />
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/alakazam.gif" alt="" aria-hidden="true" />
                     <div>
                         <div class="nz-login-gate-feature-name">Built for Nuzlockes</div>
                         <div class="nz-login-gate-feature-desc">Every screen is designed around teambuilding and encounter strategy, nothing else in the way.</div>
                     </div>
                 </li>
                 <li class="nz-login-gate-feature nz-login-gate-feature--charizard">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/charizard.png" alt="" aria-hidden="true" />
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/charizard.gif" alt="" aria-hidden="true" />
                     <div>
                         <div class="nz-login-gate-feature-name">Official Game Scenarios</div>
                         <div class="nz-login-gate-feature-desc">Faithful transcriptions of mainline Pokemon games, routes and all.</div>
                     </div>
                 </li>
                 <li class="nz-login-gate-feature nz-login-gate-feature--smeargle">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/gen5/smeargle.png" alt="" aria-hidden="true" />
+                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/smeargle.gif" alt="" aria-hidden="true" />
                     <div>
                         <div class="nz-login-gate-feature-name">Custom Scenarios</div>
                         <div class="nz-login-gate-feature-desc">Build and share your own scenarios with the community (coming soon!).</div>
@@ -742,6 +758,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     };
     clickCancelRandomizer = () => {
         this.selectedStarter = null;
+        if (this.randomizerSettings.dexPool === 'all') {
+            this.randomizerSettings = { ...this.randomizerSettings, dexPool: 'national' };
+            setLocalRandomizerSettings(this.randomizerSettings);
+        }
         PS.send('/nuzlocke randomizercancel');
         this.forceUpdate();
     };
@@ -763,12 +783,21 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
         setLocalRandomizerSettings(this.randomizerSettings);
         this.forceUpdate();
     };
+    setRandomizerDexPool = (dexPool: 'regional' | 'national' | 'all') => {
+        this.randomizerSettings = { ...this.randomizerSettings, dexPool };
+        setLocalRandomizerSettings(this.randomizerSettings);
+        this.forceUpdate();
+    };
     clickRandomize = () => {
         const scenarioId = this.effectiveSelectedScenario;
         if (!scenarioId) return;
         this.selectedStarter = null;
-        const { mode, bstVariance } = this.randomizerSettings;
-        PS.send(`/nuzlocke randomizerpreview ${scenarioId} ${mode} ${bstVariance}`);
+        const { mode, bstVariance, dexPool } = this.randomizerSettings;
+        if (dexPool === 'all') {
+            this.selectedGeneration = 'modern';
+            setLocalGenerationPreference('modern');
+        }
+        PS.send(`/nuzlocke randomizerpreview ${scenarioId} ${mode} ${bstVariance} ${dexPool}`);
         this.showRandomizerModal = false;
         this.forceUpdate();
     };
@@ -816,14 +845,16 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                         <div class="nz-dashboard nz-dashboard-has-run">
 
                             <div class="nz-dashboard-run">
-                                {!isFullyAuthenticated() ? (
+                                {!this.props.room.serverConnected ? (
+                                    <NuzlockeConnectingPanel />
+                                ) : !isFullyAuthenticated() ? (
                                     <NuzlockeLoginGate />
                                 ) : status === null ? (
                                     <NuzlockeLoadingPanel />
                                 ) : !activeRun ? (
                                     selectedScenarioData ? (
                                         <div class="nz-active-run-panel" style={`--scenario-color:${selectedScenarioData.color};`}>
-                                            <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(selectedScenarioData.pokemon)}.png`} alt="" aria-hidden="true" />
+                                            <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/ani/${toID(selectedScenarioData.pokemon)}.gif`} alt="" aria-hidden="true" />
                                             <div class="nz-panel-sections">
 
                                                 {/* Left column: Scenario + Configuration */}
@@ -859,7 +890,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                             onClick={() => this.selectStarter(i)}
                                                                         >
                                                                             <img
-                                                                                src={`https://play.pokemonshowdown.com/sprites/gen5ani/${toID(species)}.gif`}
+                                                                                src={`https://play.pokemonshowdown.com/sprites/ani/${toID(species)}.gif`}
                                                                                 alt={species}
                                                                             />
                                                                             <div class="nz-starter-pick-name">{species}</div>
@@ -890,14 +921,16 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                             <div>
                                                                 <div class="nz-label" style="margin-bottom:6px;">Generation</div>
                                                                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                                                    {GENERATION_OPTIONS.map(g => (
-                                                                        <button
+                                                                    {GENERATION_OPTIONS.map(g => {
+                                                                        const lockedOut = hasActivePreview && this.randomizerSettings.dexPool === 'all' && g.id === 'original';
+                                                                        return <button
                                                                             key={g.id}
                                                                             class={`nz-difficulty-btn${this.selectedGeneration === g.id ? ' active' : ''}`}
                                                                             onClick={() => this.setGeneration(g.id)}
-                                                                            title={g.tooltip}
-                                                                        >{g.label}</button>
-                                                                    ))}
+                                                                            title={lockedOut ? 'All Pokémon pool requires Modern mechanics' : g.tooltip}
+                                                                            disabled={lockedOut}
+                                                                        >{g.label}</button>;
+                                                                    })}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -933,7 +966,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                     )
                                 ) : (
                                     <div class="nz-active-run-panel" style={`--scenario-color:${serverScenarios.find(s => s.id === activeRun.scenarioId)?.color ?? ''};`}>
-                                        <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(serverScenarios.find(s => s.id === activeRun.scenarioId)?.pokemon ?? '')}.png`} alt="" aria-hidden="true" />
+                                        <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/ani/${toID(serverScenarios.find(s => s.id === activeRun.scenarioId)?.pokemon ?? '')}.gif`} alt="" aria-hidden="true" />
                                         <div class="nz-active-run-header">
                                             <div>
                                                 <div class="nz-active-run-title">{activeRun.scenarioName}</div>
@@ -971,7 +1004,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                 const types = Dex.forGen(activeRun.generation).species.get(species)?.types ?? [];
                                                 return <div key={i} class="nz-team-slot">
                                                     <img
-                                                        src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(species)}.png`}
+                                                        src={`https://play.pokemonshowdown.com/sprites/ani/${toID(species)}.gif`}
                                                         alt={species}
                                                     />
                                                     <div class="nz-team-slot-info">
@@ -1017,7 +1050,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                         >
                                             <img
                                                 class="nz-scenario-card-sprite"
-                                                src={`https://play.pokemonshowdown.com/sprites/gen5/${toID(scenario.pokemon)}.png`}
+                                                src={`https://play.pokemonshowdown.com/sprites/ani/${toID(scenario.pokemon)}.gif`}
                                                 alt=""
                                                 aria-hidden="true"
                                             />
@@ -1046,6 +1079,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     onConfirm={this.clickRandomize}
                     onSetMode={this.setRandomizerMode}
                     onSetBst={this.setRandomizerBst}
+                    onSetDexPool={this.setRandomizerDexPool}
                 />
             )}
         </PSPanelWrapper>;
@@ -1058,12 +1092,56 @@ function RandomizerModal(props: {
     onConfirm: () => void;
     onSetMode: (mode: 'shuffle' | 'fully-random') => void;
     onSetBst: (bst: 'low' | 'medium' | 'high') => void;
+    onSetDexPool: (dexPool: 'regional' | 'national' | 'all') => void;
 }) {
-    const { settings, onClose, onConfirm, onSetMode, onSetBst } = props;
+    const { settings, onClose, onConfirm, onSetMode, onSetBst, onSetDexPool } = props;
     return (
         <div class="nz-modal-overlay" onClick={onClose}>
             <div class="nz-modal" onClick={(e: Event) => e.stopPropagation()}>
                 <div class="nz-modal-title">Randomizer Settings</div>
+
+                <fieldset class="nz-modal-fieldset">
+                    <legend class="nz-modal-legend">
+                        Pokémon Pool
+                        <span
+                            class="nz-tooltip"
+                            data-tooltip="Regional: only Pokémon introduced in this game's generation. National: all Pokémon up to this game's generation. All: every Pokémon — requires Modern mechanics."
+                        >?</span>
+                    </legend>
+                    <div class="nz-modal-radio-group">
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-pool"
+                                value="regional"
+                                checked={settings.dexPool === 'regional'}
+                                onChange={() => onSetDexPool('regional')}
+                            />
+                            Regional Dex
+                        </label>
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-pool"
+                                value="national"
+                                checked={settings.dexPool === 'national'}
+                                onChange={() => onSetDexPool('national')}
+                            />
+                            National Dex
+                        </label>
+                        <label class="nz-modal-radio">
+                            <input
+                                type="radio"
+                                name="nz-rand-pool"
+                                value="all"
+                                checked={settings.dexPool === 'all'}
+                                onChange={() => onSetDexPool('all')}
+                            />
+                            All Pokémon
+                            <span class="nz-badge nz-badge-warning" style="margin-left:6px;font-size:10px;padding:1px 5px;">Modern only</span>
+                        </label>
+                    </div>
+                </fieldset>
 
                 <fieldset class="nz-modal-fieldset">
                     <legend class="nz-modal-legend">

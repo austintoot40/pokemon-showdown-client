@@ -190,7 +190,7 @@ onBlur:this.handleBlur}
 
 function NzSprite(_ref5){var species=_ref5.species,_ref5$size=_ref5.size,size=_ref5$size===void 0?60:_ref5$size;
 var id=toID(species);
-var src="https://play.pokemonshowdown.com/sprites/gen5/"+id+".png";
+var src="https://play.pokemonshowdown.com/sprites/ani/"+id+".gif";
 return preact.h("img",{
 "class":"nz-card-sprite",
 src:src,

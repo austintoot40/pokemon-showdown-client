@@ -169,7 +169,7 @@ preact.h("div",{"class":"nz-tb-info-stats"},
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(opp.species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(opp.species)+".gif",
 alt:opp.species}
 )
 ),
@@ -256,7 +256,7 @@ preact.h("div",{"class":"nz-tb-left-col"},
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5ani/"+toID(selectedPokemon.species)+".gif",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(selectedPokemon.species)+".gif",
 alt:selectedPokemon.species}
 )
 ),
@@ -408,7 +408,7 @@ onClick:function(){return _this2.select(mon.uid);},
 onDblClick:boxDisabled?undefined:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+mon.uid);}},
 
 preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/gen5/"+toID(mon.species)+".png",
+src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(mon.species)+".gif",
 alt:mon.species}
 ),
 preact.h("div",{"class":"nz-tb-box-card-name"},mon.nickname)
