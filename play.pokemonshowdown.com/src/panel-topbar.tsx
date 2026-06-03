@@ -101,10 +101,6 @@ export class PSHeader extends preact.Component<{}, PSHeaderState> {
 			break;
 		case 'html':
 		default:
-			if (room.id === 'view-nuzlocke') {
-				icon = <i class="fa fa-gamepad" aria-hidden></i>;
-				break;
-			}
 			if (title.startsWith('[')) {
 				let closeBracketIndex = title.indexOf(']');
 				if (closeBracketIndex > 0) {

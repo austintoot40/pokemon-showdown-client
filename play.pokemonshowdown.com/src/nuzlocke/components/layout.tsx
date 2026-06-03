@@ -99,3 +99,41 @@ export class NzTimeline extends preact.Component<{ game: NuzlockePanelPayload }>
 		</div>;
 	}
 }
+
+export function NzLoadingScreen() {
+	return (
+		<NzRoot>
+			<NzScreen>
+				<div class="nz-loading-screen">
+					<div class="nz-loading-timeline">
+						{[0,1,2,3,4].map(i => (
+							<div key={i} class="nz-loading-timeline-node">
+								<div class="nz-loading-skel nz-loading-skel-pip" style={i === 2 ? 'opacity:1' : `opacity:${0.35 + i * 0.1}`} />
+								{i < 4 && <div class="nz-loading-skel nz-loading-skel-connector" />}
+							</div>
+						))}
+					</div>
+					<div class="nz-loading-body">
+						<div class="nz-loading-skel nz-loading-skel-title" />
+						<div class="nz-loading-skel nz-loading-skel-meta" style="margin-top:6px;" />
+						<div class="nz-loading-skel nz-loading-skel-bar" style="margin-top:20px;" />
+						<div class="nz-loading-cards">
+							{[0,1,2].map(i => (
+								<div key={i} class="nz-loading-card">
+									<div class="nz-loading-skel nz-loading-skel-sprite" />
+									<div class="nz-loading-card-lines">
+										<div class="nz-loading-skel nz-loading-skel-name" />
+										<div class="nz-loading-skel nz-loading-skel-type" />
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+					<div class="nz-connecting-dots" style="margin-top:auto;padding-top:24px;">
+						<span /><span /><span />
+					</div>
+				</div>
+			</NzScreen>
+		</NzRoot>
+	);
+}

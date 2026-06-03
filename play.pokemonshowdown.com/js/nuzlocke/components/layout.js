@@ -98,4 +98,43 @@ preact.h("div",{"class":"nz-timeline-label"},isCurrent?s.name:'')
 )
 );
 };return NzTimeline;}(preact.Component);
+
+
+function NzLoadingScreen(){
+return(
+preact.h(NzRoot,null,
+preact.h(NzScreen,null,
+preact.h("div",{"class":"nz-loading-screen"},
+preact.h("div",{"class":"nz-loading-timeline"},
+[0,1,2,3,4].map(function(i){return(
+preact.h("div",{key:i,"class":"nz-loading-timeline-node"},
+preact.h("div",{"class":"nz-loading-skel nz-loading-skel-pip",style:i===2?'opacity:1':"opacity:"+(0.35+i*0.1)}),
+i<4&&preact.h("div",{"class":"nz-loading-skel nz-loading-skel-connector"})
+));}
+)
+),
+preact.h("div",{"class":"nz-loading-body"},
+preact.h("div",{"class":"nz-loading-skel nz-loading-skel-title"}),
+preact.h("div",{"class":"nz-loading-skel nz-loading-skel-meta",style:"margin-top:6px;"}),
+preact.h("div",{"class":"nz-loading-skel nz-loading-skel-bar",style:"margin-top:20px;"}),
+preact.h("div",{"class":"nz-loading-cards"},
+[0,1,2].map(function(i){return(
+preact.h("div",{key:i,"class":"nz-loading-card"},
+preact.h("div",{"class":"nz-loading-skel nz-loading-skel-sprite"}),
+preact.h("div",{"class":"nz-loading-card-lines"},
+preact.h("div",{"class":"nz-loading-skel nz-loading-skel-name"}),
+preact.h("div",{"class":"nz-loading-skel nz-loading-skel-type"})
+)
+));}
+)
+)
+),
+preact.h("div",{"class":"nz-connecting-dots",style:"margin-top:auto;padding-top:24px;"},
+preact.h("span",null),preact.h("span",null),preact.h("span",null)
+)
+)
+)
+));
+
+}
 //# sourceMappingURL=layout.js.map

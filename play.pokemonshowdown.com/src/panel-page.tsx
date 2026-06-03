@@ -11,6 +11,7 @@ import { PS, PSRoom, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel, PSView } from "./panels";
 import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
+import { NzLoadingScreen } from "./nuzlocke/components/layout";
 
 export function SanitizedHTML(props: { children: string }) {
 	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
@@ -164,8 +165,10 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	override render() {
 		const { room } = this.props;
 		let renderPage;
-		if (room.page === 'nuzlocke' && PagePanel.nuzlockeRenderer) {
-			renderPage = PagePanel.nuzlockeRenderer(room.nuzlockeState);
+		if (room.page === 'nuzlocke') {
+			renderPage = PagePanel.nuzlockeRenderer
+				? PagePanel.nuzlockeRenderer(room.nuzlockeState)
+				: <NzLoadingScreen />;
 		} else if (room.page !== undefined && PagePanel.clientRooms[room.page]) {
 			renderPage = PagePanel.clientRooms[room.page];
 		} else {

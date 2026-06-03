@@ -8,7 +8,7 @@
 
 import preact from "../js/lib/preact";
 import { PS } from "./client-main";
-import { NzRoot, NzScreen } from "./nuzlocke/components/layout";
+import { NzRoot, NzScreen, NzLoadingScreen } from "./nuzlocke/components/layout";
 import { FeedbackFab, FeedbackModal } from "./nuzlocke/components/feedback-modal";
 import { SegmentScreen } from "./nuzlocke/screens/segment";
 import { EncountersScreen } from "./nuzlocke/screens/encounters";
@@ -66,7 +66,7 @@ window.addEventListener('unhandledrejection', e => {
 // ---------------------------------------------------------------------------
 
 function NuzlockeGamePanel({ gameState, onFeedback }: { gameState: NuzlockePanelPayload | null, onFeedback: () => void }) {
-	if (!gameState) return <NzRoot><NzScreen><p class="nz-notice">Loading...</p></NzScreen></NzRoot>;
+	if (!gameState) return <NzLoadingScreen />;
 
 	let screen: preact.VNode;
 	switch (gameState.curScreen) {
