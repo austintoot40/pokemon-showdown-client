@@ -116,7 +116,7 @@
 		})();
 	</script>
 	<script nomodule src="/js/lib/ps-polyfill.js"></script>
-	<script src="../config/testclient-key.js"></script>
+	<script>if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') document.write('<script src="../config/testclient-key.js"><\/script>');</script>
 	<script src="js/client-core.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
 
 	<script src="js/battle-dex-data.js"></script>
