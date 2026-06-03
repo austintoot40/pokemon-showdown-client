@@ -839,6 +839,7 @@
   max-width: var(--nz-modal-max-w);
   width: 100%;
   box-shadow: var(--nz-shadow);
+  color: var(--nz-text);
 }
 
 .nz-modal-title {

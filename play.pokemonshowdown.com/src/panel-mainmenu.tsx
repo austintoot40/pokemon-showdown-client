@@ -1008,6 +1008,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             </div>
 
                         </div>
+                        <FeedbackFab onClick={() => { this.showFeedbackModal = true; this.forceUpdate(); }} />
                     </div>
                 </div>
             </div>
@@ -1021,7 +1022,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     onSetDexPool={this.setRandomizerDexPool}
                 />
             )}
-            <FeedbackFab onClick={() => { this.showFeedbackModal = true; this.forceUpdate(); }} />
             {this.showFeedbackModal && (
                 <FeedbackModal onClose={() => { this.showFeedbackModal = false; this.forceUpdate(); }} />
             )}

@@ -1,7 +1,7 @@
-/* Bug report floating action button */
+/* Bug report button — positioned at the bottom of the page content */
 
 .nz-feedback-fab {
-	position: fixed;
+	position: absolute;
 	bottom: 20px;
 	right: 20px;
 	z-index: 900;
@@ -22,6 +22,15 @@
 	color: var(--nz-accent);
 	border-color: var(--nz-accent);
 	background: var(--nz-elevated);
+}
+
+@media (max-width: 800px) {
+	.nz-feedback-fab {
+		position: static;
+		display: block;
+		margin-left: auto;
+		margin-top: 16px;
+	}
 }
 
 /* Nav bar bug report button — and align all userbar buttons consistently */

@@ -65,7 +65,7 @@ window.addEventListener('unhandledrejection', e => {
 // Components
 // ---------------------------------------------------------------------------
 
-function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | null }) {
+function NuzlockeGamePanel({ gameState, onFeedback }: { gameState: NuzlockePanelPayload | null, onFeedback: () => void }) {
 	if (!gameState) return <NzRoot><NzScreen><p class="nz-notice">Loading...</p></NzScreen></NzRoot>;
 
 	let screen: preact.VNode;
@@ -80,7 +80,7 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | nu
 		screen = <NzScreen><p class="nz-notice">Unknown screen: {(gameState as any).curScreen}</p></NzScreen>;
 	}
 
-	return <NzRoot>{screen}</NzRoot>;
+	return <NzRoot>{screen}<FeedbackFab onClick={onFeedback} /></NzRoot>;
 }
 
 interface NuzlockeErrorBoundaryState {
@@ -97,8 +97,7 @@ class NuzlockeErrorBoundary extends preact.Component<{ gameState: NuzlockePanelP
 		const { showFeedbackModal } = this.state;
 		return (
 			<>
-				<NuzlockeGamePanel gameState={this.props.gameState} />
-				<FeedbackFab onClick={() => this.setState({ showFeedbackModal: true })} />
+				<NuzlockeGamePanel gameState={this.props.gameState} onFeedback={() => this.setState({ showFeedbackModal: true })} />
 				{showFeedbackModal && (
 					<FeedbackModal
 						curScreen={this.props.gameState?.curScreen}
