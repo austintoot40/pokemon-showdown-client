@@ -52,7 +52,7 @@
   /* Layout — Dashboard */
   --nz-dash-pad:            36px 48px;
   --nz-dash-gap:            32px;
-  --nz-dash-cols-run:       1fr 460px;
+  --nz-dash-cols-run:       2fr 1fr;
   --nz-scenario-cols:       repeat(2, 1fr);
   --nz-starter-h:           120px;
 
