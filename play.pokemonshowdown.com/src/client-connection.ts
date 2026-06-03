@@ -107,8 +107,10 @@ export class PSConnection {
 		if (this.worker) return; // must be one or the other
 
 		const server = PS.server;
-		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport ?? server.port}`;
-		const url = `${server.protocol}://${server.host}${port}${server.prefix}`;
+		const isSecure = window.location.protocol === 'https:';
+		const protocol = isSecure ? 'https' : server.protocol;
+		const port = isSecure ? `:${server.port}` : `:${server.httpport ?? server.port}`;
+		const url = `${protocol}://${server.host}${port}${server.prefix}`;
 
 		console.log(`[direct] connecting to ${url}`);
 		try {

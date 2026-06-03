@@ -27,8 +27,10 @@ self.onmessage = (event: MessageEvent) => {
 function connectToServer() {
 	if (!serverInfo) return;
 
-	const port = serverInfo.protocol === 'https' ? '' : `:${serverInfo.port}`;
-	const url = `${serverInfo.protocol}://${serverInfo.host}${port}${serverInfo.prefix}`;
+	const isSecure = self.location.protocol === 'https:';
+	const protocol = isSecure ? 'https' : serverInfo.protocol;
+	const port = isSecure ? `:${serverInfo.port}` : `:${serverInfo.port}`;
+	const url = `${protocol}://${serverInfo.host}${port}${serverInfo.prefix}`;
 
 	console.log(`[worker] connecting to ${url}`);
 	try {
