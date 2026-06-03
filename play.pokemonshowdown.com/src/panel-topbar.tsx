@@ -11,6 +11,7 @@
 
 import preact from "../js/lib/preact";
 import { Config, PS, type PSRoom, type RoomID } from "./client-main";
+import { FeedbackModal } from "./nuzlocke/components/feedback-modal";
 import { NARROW_MODE_HEADER_WIDTH, PSView, VERTICAL_HEADER_WIDTH } from "./panels";
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log"; // optional
@@ -20,7 +21,15 @@ window.addEventListener('dragover', e => {
 	e.preventDefault();
 });
 
-export class PSHeader extends preact.Component {
+interface PSHeaderState {
+	showFeedbackModal: boolean;
+}
+
+export class PSHeader extends preact.Component<{}, PSHeaderState> {
+	state: PSHeaderState = { showFeedbackModal: false };
+	openFeedback = () => this.setState({ showFeedbackModal: true });
+	closeFeedback = () => this.setState({ showFeedbackModal: false });
+
 	static toggleMute = (e: Event) => {
 		PS.prefs.set('mute', !PS.prefs.mute);
 		PS.update();
@@ -237,6 +246,9 @@ export class PSHeader extends preact.Component {
 			<div class="userbar">
 				{this.renderUser()} {}
 				<div style="float:right">
+					<button class="button nz-topbar-bugreport" title="Report a bug" onClick={this.openFeedback}>
+						Report Bug
+					</button> {}
 					<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 					</button> {}
@@ -245,6 +257,7 @@ export class PSHeader extends preact.Component {
 					</button>
 				</div>
 			</div>
+			{this.state.showFeedbackModal && <FeedbackModal onClose={this.closeFeedback} />}
 		</div>;
 	}
 	override render() {
@@ -277,6 +290,9 @@ export class PSHeader extends preact.Component {
 			</div>
 			<div class="userbar">
 				{this.renderUser()} {}
+				<button class="button nz-topbar-bugreport" title="Report a bug" onClick={this.openFeedback}>
+					Report Bug
+				</button> {}
 				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
@@ -284,6 +300,7 @@ export class PSHeader extends preact.Component {
 					<i class="fa fa-cog" aria-hidden></i>
 				</button>
 			</div>
+			{this.state.showFeedbackModal && <FeedbackModal onClose={this.closeFeedback} />}
 		</div>;
 	}
 }

@@ -9,6 +9,7 @@
 import preact from "../js/lib/preact";
 import { PS } from "./client-main";
 import { NzRoot, NzScreen } from "./nuzlocke/components/layout";
+import { FeedbackFab, FeedbackModal } from "./nuzlocke/components/feedback-modal";
 import { SegmentScreen } from "./nuzlocke/screens/segment";
 import { EncountersScreen } from "./nuzlocke/screens/encounters";
 import { TeambuildingScreen } from "./nuzlocke/screens/teambuilding";
@@ -82,12 +83,31 @@ function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | nu
 	return <NzRoot>{screen}</NzRoot>;
 }
 
-class NuzlockeErrorBoundary extends preact.Component<{ gameState: NuzlockePanelPayload | null }> {
+interface NuzlockeErrorBoundaryState {
+	showFeedbackModal: boolean;
+}
+
+class NuzlockeErrorBoundary extends preact.Component<{ gameState: NuzlockePanelPayload | null }, NuzlockeErrorBoundaryState> {
+	state: NuzlockeErrorBoundaryState = { showFeedbackModal: false };
+
 	componentDidCatch(err: Error) {
 		sendNuzlockeError(err, { type: 'render', screen: this.props.gameState?.curScreen });
 	}
 	render() {
-		return <NuzlockeGamePanel gameState={this.props.gameState} />;
+		const { showFeedbackModal } = this.state;
+		return (
+			<>
+				<NuzlockeGamePanel gameState={this.props.gameState} />
+				<FeedbackFab onClick={() => this.setState({ showFeedbackModal: true })} />
+				{showFeedbackModal && (
+					<FeedbackModal
+						curScreen={this.props.gameState?.curScreen}
+						recentCommands={[...recentCommands]}
+						onClose={() => this.setState({ showFeedbackModal: false })}
+					/>
+				)}
+			</>
+		);
 	}
 }
 

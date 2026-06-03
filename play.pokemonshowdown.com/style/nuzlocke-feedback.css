@@ -1,0 +1,93 @@
+/* Bug report floating action button */
+
+.nz-feedback-fab {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 900;
+	padding: 8px 14px;
+	font-weight: 600;
+	background: var(--nz-surface);
+	color: var(--nz-text);
+	border: 1px solid var(--nz-border);
+	font-family: var(--nz-font);
+	font-size: 12px;
+	letter-spacing: 0.06em;
+	cursor: pointer;
+	clip-path: polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0% 100%, 0% 6px);
+	transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.nz-feedback-fab:hover {
+	color: var(--nz-accent);
+	border-color: var(--nz-accent);
+	background: var(--nz-elevated);
+}
+
+/* Nav bar bug report button — and align all userbar buttons consistently */
+
+.userbar button,
+.userbar .username {
+	vertical-align: middle;
+}
+
+.nz-topbar-bugreport {
+	white-space: nowrap;
+	margin-left: 6px;
+	font-weight: 600;
+}
+
+/* Bug report modal — bugcatcher background + subtitle */
+
+.nz-feedback-modal {
+	position: relative;
+	overflow: hidden;
+}
+
+.nz-feedback-modal::after {
+	content: '';
+	position: absolute;
+	bottom: -10px;
+	right: -10px;
+	width: 200px;
+	height: 200px;
+	background: url('https://play.pokemonshowdown.com/sprites/trainers/bugcatcher.png') no-repeat bottom right / contain;
+	opacity: 0.07;
+	pointer-events: none;
+}
+
+.nz-feedback-subtitle {
+	font-size: 14px;
+	font-style: italic;
+	color: var(--nz-muted);
+	margin: -10px 0 12px;
+	letter-spacing: 0.03em;
+}
+
+/* Textarea inside the bug report modal */
+
+.nz-feedback-textarea {
+	width: 100%;
+	min-height: 90px;
+	resize: vertical;
+	background: var(--nz-bg);
+	color: var(--nz-text);
+	border: 1px solid var(--nz-border);
+	font-family: var(--nz-font);
+	font-size: 13px;
+	padding: 8px 10px;
+	box-sizing: border-box;
+	outline: none;
+}
+
+.nz-feedback-textarea:focus {
+	border-color: var(--nz-accent);
+}
+
+.nz-feedback-sent-msg {
+	color: var(--nz-success);
+	text-align: center;
+	padding: 16px 0;
+	margin: 0;
+	font-size: 15px;
+}

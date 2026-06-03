@@ -6,6 +6,7 @@
  */
 
 import preact from "../js/lib/preact";
+import { FeedbackFab, FeedbackModal } from "./nuzlocke/components/feedback-modal";
 import { PSLoginServer } from "./client-connection";
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
@@ -723,6 +724,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     selectedGeneration: string = getLocalGenerationPreference();
     confirmAbandon: boolean = false;
     showRandomizerModal: boolean = false;
+    showFeedbackModal: boolean = false;
     randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
     get effectiveSelectedScenario(): string | null {
         if (this.selectedScenario) return this.selectedScenario;
@@ -1081,6 +1083,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     onSetBst={this.setRandomizerBst}
                     onSetDexPool={this.setRandomizerDexPool}
                 />
+            )}
+            <FeedbackFab onClick={() => { this.showFeedbackModal = true; this.forceUpdate(); }} />
+            {this.showFeedbackModal && (
+                <FeedbackModal onClose={() => { this.showFeedbackModal = false; this.forceUpdate(); }} />
             )}
         </PSPanelWrapper>;
     }
