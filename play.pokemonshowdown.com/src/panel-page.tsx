@@ -8,7 +8,7 @@
  */
 
 import { PS, PSRoom, type RoomOptions } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSPanelWrapper, PSRoomPanel, PSView } from "./panels";
 import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
 
@@ -113,6 +113,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 		if (this.props.room.id === 'view-nuzlocke') {
 			PS.hideRightRoom();
 			PS.send('/nuzlocke refresh');
+			PSView.scrollToRoom();
 		}
 	}
 

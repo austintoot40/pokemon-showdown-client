@@ -172,6 +172,7 @@ export class PSHeader extends preact.Component<{}, PSHeaderState> {
 			document.documentElement.style.width = PSView.narrowMode ? `${width + NARROW_MODE_HEADER_WIDTH}px` : 'auto';
 			if (oldNarrowMode !== PSView.narrowMode) {
 				PS.update();
+				if (PSView.narrowMode) PSView.scrollToRoom();
 			}
 			return;
 		}
