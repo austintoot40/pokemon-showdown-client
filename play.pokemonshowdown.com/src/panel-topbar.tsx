@@ -209,13 +209,7 @@ export class PSHeader extends preact.Component<{}, PSHeaderState> {
 		if (PS.user.initializing) {
 			return <button class="button" disabled><em>Connecting...</em></button>;
 		}
-		if (!PS.user.named) {
-			return <a class="button" href="login">Choose name</a>;
-		}
-		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
-		return <span class="username" style={userColor}>
-			<span class="usernametext">{PS.user.name}</span>
-		</span>;
+		return null;
 	}
 	renderVertical() {
 		return <div
@@ -325,7 +319,6 @@ export class PSMiniHeader extends preact.Component {
 			if (miniNotifications?.length) notificationsCount++;
 		}
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
-		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;
 		const notifying = (
 			!showMenuButton && !window.scrollX && Object.values(PS.rooms).some(room => room!.notifications.length)
@@ -346,7 +339,7 @@ export class PSMiniHeader extends preact.Component {
 			{menuButton}
 			{icon} {title}
 			<button data-href="options" class="mini-header-right" aria-label="Options">
-				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
+				<i class="fa fa-cog" aria-hidden></i>
 			</button>
 		</div>;
 	}

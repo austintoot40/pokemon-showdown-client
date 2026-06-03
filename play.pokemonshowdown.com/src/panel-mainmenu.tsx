@@ -212,43 +212,20 @@ export class MainMenuRoom extends PSRoom {
             PS.user.challstr = challstr;
             this.serverConnected = true;
             this.update(null);
-            if (!PS.server.registered) {
-                // Unregistered (local) servers skip the login server to avoid a blocking remote XHR.
-                // Restore the last-used username from localStorage so returning users auto-login.
-                // First-time visitors get the guest state and must choose a name via the login UI.
-                const savedName = localStorage.getItem('nuzlocke_username');
-                if (savedName) {
-                    PS.send(`/trn ${savedName}`);
-                } else {
-                    PS.user.initializing = false;
-                    PS.update();
-                    PS.send('/nuzlocke status');
-                }
-                return;
+            let uuid = localStorage.getItem('nuzlocke_uuid');
+            if (!uuid) {
+                const bytes = crypto.getRandomValues(new Uint8Array(8));
+                const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+                uuid = `nz${hex}`;
+                localStorage.setItem('nuzlocke_uuid', uuid);
             }
-            PSLoginServer.query(
-                'upkeep', { challstr }
-            ).then(res => {
-                if (!res?.username) {
-                    PS.user.initializing = false;
-                    return;
-                }
-                // | , ; are not valid characters in names
-                res.username = res.username.replace(/[|,;]+/g, '');
-                if (res.loggedin) {
-                    PS.user.registered = { name: res.username, userid: toID(res.username) };
-                }
-                PS.user.handleAssertion(res.username, res.assertion);
-            });
+            PS.send(`/trn ${uuid}`);
             return;
         } case 'updateuser': {
             const [, fullName, namedCode, avatar] = args;
             const named = namedCode === '1';
             if (named) PS.user.initializing = false;
             PS.user.setName(fullName, named, avatar);
-            if (named && !PS.server.registered) {
-                localStorage.setItem('nuzlocke_username', PS.user.name);
-            }
             PS.teams.loadRemoteTeams();
             this.update(null);
             return;
@@ -629,10 +606,6 @@ class NewsPanel extends PSRoomPanel {
     }
 }
 
-function isFullyAuthenticated(): boolean {
-    if (PS.server.registered) return PS.user.registered !== null;
-    return PS.user.named;
-}
 
 function NuzlockeLoadingPanel() {
     return (
@@ -667,51 +640,6 @@ function NuzlockeConnectingPanel() {
     );
 }
 
-function NuzlockeLoginGate() {
-    return (
-        <div class="nz-active-run-panel nz-login-gate" aria-label="Login required">
-            <div class="nz-login-gate-header">
-                <div class="nz-login-gate-eyebrow">Pokemon Showdown</div>
-                <div class="nz-login-gate-title">Nuzlocke Simulator</div>
-            </div>
-            <ul class="nz-login-gate-features">
-                <li class="nz-login-gate-feature nz-login-gate-feature--ninjask">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/ninjask.gif" alt="" aria-hidden="true" />
-                    <div>
-                        <div class="nz-login-gate-feature-name">Runs in Under an Hour</div>
-                        <div class="nz-login-gate-feature-desc">No grinding, no overworld, no filler, just the decisions that matter.</div>
-                    </div>
-                </li>
-                <li class="nz-login-gate-feature nz-login-gate-feature--alakazam">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/alakazam.gif" alt="" aria-hidden="true" />
-                    <div>
-                        <div class="nz-login-gate-feature-name">Built for Nuzlockes</div>
-                        <div class="nz-login-gate-feature-desc">Every screen is designed around teambuilding and encounter strategy, nothing else in the way.</div>
-                    </div>
-                </li>
-                <li class="nz-login-gate-feature nz-login-gate-feature--charizard">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/charizard.gif" alt="" aria-hidden="true" />
-                    <div>
-                        <div class="nz-login-gate-feature-name">Official Game Scenarios</div>
-                        <div class="nz-login-gate-feature-desc">Faithful transcriptions of mainline Pokemon games, routes and all.</div>
-                    </div>
-                </li>
-                <li class="nz-login-gate-feature nz-login-gate-feature--smeargle">
-                    <img class="nz-login-gate-feature-sprite" src="https://play.pokemonshowdown.com/sprites/ani/smeargle.gif" alt="" aria-hidden="true" />
-                    <div>
-                        <div class="nz-login-gate-feature-name">Custom Scenarios</div>
-                        <div class="nz-login-gate-feature-desc">Build and share your own scenarios with the community (coming soon!).</div>
-                    </div>
-                </li>
-            </ul>
-            <div class="nz-login-gate-cta">
-                <button class="nz-btn nz-btn-primary nz-login-gate-btn" data-href="login">
-                    Log In to Play
-                </button>
-            </div>
-        </div>
-    );
-}
 
 class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     static readonly id = 'mainmenu';
@@ -849,8 +777,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             <div class="nz-dashboard-run">
                                 {!this.props.room.serverConnected ? (
                                     <NuzlockeConnectingPanel />
-                                ) : !isFullyAuthenticated() ? (
-                                    <NuzlockeLoginGate />
                                 ) : status === null ? (
                                     <NuzlockeLoadingPanel />
                                 ) : !activeRun ? (
