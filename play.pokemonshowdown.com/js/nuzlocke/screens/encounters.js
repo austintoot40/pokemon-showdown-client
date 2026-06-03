@@ -20,6 +20,7 @@
 
 
 
+
 function hasZonePrereq(zone,tmMoves,items,ownedSpecies,completedBattles){
 var prereq=zone.requires;
 if(!prereq)return true;
@@ -453,8 +454,8 @@ EncounterPokemonStats=function(_preact$Component){function EncounterPokemonStats
 
 
 state={editing:false};_this.
-startEdit=function(){return _this.setState({editing:true});};_this.
-stopEdit=function(){return _this.setState({editing:false});};return _this;}_inheritsLoose(EncounterPokemonStats,_preact$Component);var _proto=EncounterPokemonStats.prototype;_proto.
+startEdit=function(){PSView.setTextboxFocused(true);_this.setState({editing:true});};_this.
+stopEdit=function(){PSView.setTextboxFocused(false);_this.setState({editing:false});};return _this;}_inheritsLoose(EncounterPokemonStats,_preact$Component);var _proto=EncounterPokemonStats.prototype;_proto.
 
 render=function render(){var _BattleNatures;
 var _this$props=this.props,pokemon=_this$props.pokemon,generation=_this$props.generation,nickname=_this$props.nickname,onNickChange=_this$props.onNickChange;

@@ -7,6 +7,7 @@
 
 
 
+
 function NzTypeBadges(_ref){var species=_ref.species,generation=_ref.generation;
 var dex=generation?Dex.forGen(generation):Dex;
 var sp=dex.species.get(species);
@@ -112,9 +113,9 @@ portalEl=null;_this.
 
 
 
-handleFocus=function(){_this.setState({open:true,query:''});};_this.
+handleFocus=function(){PSView.setTextboxFocused(true);_this.setState({open:true,query:''});};_this.
 handleInput=function(e){_this.setState({query:e.target.value});};_this.
-handleBlur=function(){_this.setState({open:false,query:''});};return _this;}_inheritsLoose(NzItemSelect,_preact$Component);var _proto=NzItemSelect.prototype;_proto.componentDidMount=function componentDidMount(){this.portalEl=document.createElement('div');document.body.appendChild(this.portalEl);};_proto.componentDidUpdate=function componentDidUpdate(){this.updatePortal();};_proto.componentWillUnmount=function componentWillUnmount(){if(this.portalEl){preact.render('',this.portalEl);document.body.removeChild(this.portalEl);this.portalEl=null;}};_proto.
+handleBlur=function(){PSView.setTextboxFocused(false);_this.setState({open:false,query:''});};return _this;}_inheritsLoose(NzItemSelect,_preact$Component);var _proto=NzItemSelect.prototype;_proto.componentDidMount=function componentDidMount(){this.portalEl=document.createElement('div');document.body.appendChild(this.portalEl);};_proto.componentDidUpdate=function componentDidUpdate(){this.updatePortal();};_proto.componentWillUnmount=function componentWillUnmount(){if(this.portalEl){preact.render('',this.portalEl);document.body.removeChild(this.portalEl);this.portalEl=null;}};_proto.
 
 select=function select(id){
 this.props.onChange(id);
