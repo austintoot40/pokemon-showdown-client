@@ -93,14 +93,6 @@
   padding: 20px 24px 16px;
 }
 
-.nz-seg-section-label {
-  font-family: var(--nz-font-mono);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--nz-text-dim);
-  margin-bottom: 16px;
-}
 
 .nz-seg-timeline {
   display: flex;
@@ -276,83 +268,6 @@
 }
 
 /* =============================================
-   ENCOUNTER PREVIEW CAROUSEL
-   ============================================= */
-
-.nz-seg-preview {
-  background: var(--nz-surface);
-  border: 1px solid var(--nz-border);
-  clip-path: var(--nz-clip);
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-
-.nz-carousel {
-  width: 100%;
-}
-
-.nz-carousel-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 24px;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.nz-carousel-row.nz-carousel-visible {
-  opacity: 1;
-}
-
-.nz-carousel-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.nz-carousel-sprite {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 0 6px rgba(74, 158, 255, 0.25));
-}
-
-/* Center item (index 2 of 5) gets a subtle emphasis */
-.nz-carousel-item-2 .nz-carousel-sprite {
-  width: 96px;
-  height: 96px;
-  filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.4));
-}
-
-.nz-carousel-species {
-  font-family: var(--nz-font-ui);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--nz-text-muted);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-.nz-carousel-item-2 .nz-carousel-species {
-  font-size: 15px;
-  color: var(--nz-text);
-}
-
-.nz-carousel-empty {
-  font-family: var(--nz-font-mono);
-  font-size: 12px;
-  color: var(--nz-text-dim);
-  padding: 16px 0;
-  text-align: center;
-}
-
-/* =============================================
    PROCEED BUTTON
    ============================================= */
 
@@ -511,34 +426,6 @@
     width: 14px;
   }
 
-  /* Tablet: hide 4th and 5th carousel items, show 3 */
-  .nz-carousel-item-3,
-  .nz-carousel-item-4 {
-    display: none;
-  }
-
-  /* Re-center emphasis on middle of 3 */
-  .nz-carousel-item-1 .nz-carousel-sprite {
-    width: 96px;
-    height: 96px;
-    filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.4));
-  }
-
-  .nz-carousel-item-1 .nz-carousel-species {
-    font-size: 15px;
-    color: var(--nz-text);
-  }
-
-  .nz-carousel-item-2 .nz-carousel-sprite {
-    width: 80px;
-    height: 80px;
-    filter: drop-shadow(0 0 6px rgba(74, 158, 255, 0.25));
-  }
-
-  .nz-carousel-item-2 .nz-carousel-species {
-    font-size: 13px;
-    color: var(--nz-text-muted);
-  }
 }
 
 /* =============================================
@@ -607,25 +494,6 @@
   /* Vertical connector: hide horizontal lines, show vertical */
   .nz-tl-line {
     display: none;
-  }
-
-  /* Mobile: show only center item (index 0), hide the rest */
-  .nz-carousel-item-1,
-  .nz-carousel-item-2,
-  .nz-carousel-item-3,
-  .nz-carousel-item-4 {
-    display: none;
-  }
-
-  .nz-carousel-item-0 .nz-carousel-sprite {
-    width: 96px;
-    height: 96px;
-    filter: drop-shadow(0 0 10px rgba(74, 158, 255, 0.4));
-  }
-
-  .nz-carousel-item-0 .nz-carousel-species {
-    font-size: 15px;
-    color: var(--nz-text);
   }
 
   /* Proceed button: full width */

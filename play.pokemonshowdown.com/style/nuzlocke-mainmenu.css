@@ -21,6 +21,33 @@
 }
 
 /* =============================================
+   TITLE HEADER
+   ============================================= */
+
+.nz-title-header {
+  padding: 20px 0 var(--nz-dash-pad);
+  padding-bottom: 0;
+}
+
+.nz-title-heading {
+  margin: 0;
+  font-family: var(--nz-font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--nz-accent);
+}
+
+.nz-title-subheading {
+  margin: 4px 0 0;
+  font-family: var(--nz-font-mono);
+  font-size: 0.75rem;
+  color: var(--nz-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* =============================================
    DASHBOARD GRID
    ============================================= */
 

@@ -2,8 +2,7 @@
  * Nuzlocke — Segment Overview Screen
  *
  * Shown at the start of each segment (curScreen === 'segment').
- * Displays the full run timeline, a preview carousel of available
- * encounters, and a button to begin exploration.
+ * Displays the full run timeline and a button to begin exploration.
  */
 
 import preact from "../../../js/lib/preact";
@@ -14,120 +13,6 @@ import type { NuzlockePanelPayload } from "../types";
 function nzToID(str: string): string {
 	if (!str || typeof str !== 'string') return '';
 	return str.toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-// -----------------------------------------------------------------------
-// Preview carousel
-// -----------------------------------------------------------------------
-
-interface PreviewItem {
-	species: string;
-	route: string;
-}
-
-function isZoneAccessible(zone: import('../types').ZoneEncounter, game: NuzlockePanelPayload): boolean {
-	const req = zone.requires;
-	if (!req) return true;
-	if (req.type === 'hm' || req.type === 'move') return game.tmMoves.includes(req.name);
-	if (req.type === 'pokemon') return game.box.some(p => nzToID(p.species) === nzToID(req.name));
-	if (req.type === 'battle') return game.completedBattles.includes(req.name);
-	return game.items.includes(req.name);
-}
-
-function getPreviewItems(game: NuzlockePanelPayload): PreviewItem[] {
-	const current = (game.segmentSummaries ?? []).find(s => s.status === 'current');
-	if (!current) return [];
-	const seen = new Set<string>();
-	const result: PreviewItem[] = [];
-	for (const enc of current.availableEncounters) {
-		for (const zone of enc.zones) {
-			if (!isZoneAccessible(zone, game)) continue;
-			for (const entry of zone.pokemon) {
-				const id = nzToID(entry.species);
-				if (!seen.has(id)) {
-					seen.add(id);
-					result.push({ species: entry.species, route: enc.route });
-				}
-			}
-		}
-	}
-	// Shuffle for variety; cap at 40 to avoid infinite cycling on large sets
-	for (let i = result.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[result[i], result[j]] = [result[j], result[i]];
-	}
-	return result.slice(0, 40);
-}
-
-interface CarouselState {
-	index: number;
-	visible: boolean;
-}
-
-// Number of pokemon shown simultaneously; excess items hidden on smaller screens via CSS.
-const CAROUSEL_VISIBLE = 5;
-
-class PreviewCarousel extends preact.Component<{ items: PreviewItem[] }, CarouselState> {
-	private timer: ReturnType<typeof setInterval> | null = null;
-	private fadeTimer: ReturnType<typeof setTimeout> | null = null;
-
-	constructor(props: any) {
-		super(props);
-		this.state = { index: 0, visible: true };
-	}
-
-	override componentDidMount() {
-		if (this.props.items.length > 1) {
-			this.timer = setInterval(() => this.advance(), 3000);
-		}
-	}
-
-	override componentWillUnmount() {
-		if (this.timer !== null) clearInterval(this.timer);
-		if (this.fadeTimer !== null) clearTimeout(this.fadeTimer);
-	}
-
-	private visibleCount(): number {
-		if (window.innerWidth <= 600) return 1;
-		if (window.innerWidth <= 900) return 3;
-		return 5;
-	}
-
-	advance() {
-		this.setState({ visible: false });
-		const step = this.visibleCount();
-		this.fadeTimer = setTimeout(() => {
-			this.setState((s: CarouselState) => ({
-				index: (s.index + step) % this.props.items.length,
-				visible: true,
-			}));
-		}, 250);
-	}
-
-	render() {
-		const { items } = this.props;
-		if (items.length === 0) {
-			return <div class="nz-carousel-empty">No wild encounters available yet.</div>;
-		}
-
-		const count = Math.min(CAROUSEL_VISIBLE, items.length);
-		const slots = Array.from({ length: count }, (_, i) =>
-			items[(this.state.index + i) % items.length]
-		);
-
-		return <div class="nz-carousel">
-			<div class={`nz-carousel-row${this.state.visible ? ' nz-carousel-visible' : ''}`}>
-				{slots.map((item, i) => {
-					const id = nzToID(item.species);
-					const src = `https://play.pokemonshowdown.com/sprites/ani/${id}.gif`;
-					return <div key={`${item.species}-${i}`} class={`nz-carousel-item nz-carousel-item-${i}`}>
-						<img class="nz-carousel-sprite" src={src} alt={item.species} />
-						<div class="nz-carousel-species">{item.species}</div>
-					</div>;
-				})}
-			</div>
-		</div>;
-	}
 }
 
 // -----------------------------------------------------------------------
@@ -278,7 +163,6 @@ function TimelineNode({ summary, index }: {
 export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
 	const summaries = game.segmentSummaries ?? [];
 	const current = summaries.find(s => s.status === 'current');
-	const previewItems = getPreviewItems(game);
 
 	function handleProceed() {
 		PS.send('/nuzlocke proceed');
@@ -309,12 +193,6 @@ export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
 						</preact.Fragment>)}
 					</div>
 				</div>
-
-				{/* Encounter preview */}
-				{previewItems.length > 0 && <div class="nz-seg-preview">
-					<div class="nz-seg-section-label">Available This Segment</div>
-					<PreviewCarousel items={previewItems} />
-				</div>}
 
 				<div class="nz-seg-footer">
 					<button class="nz-btn nz-btn-primary" onClick={handleProceed}>

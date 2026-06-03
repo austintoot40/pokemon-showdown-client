@@ -56,6 +56,7 @@ interface NuzlockeMenuPayload {
     scenarios: NuzlockeScenarioCard[];
     beatenScenarios: string[];
     randomizerPreview: { scenarioId: string; starters: string[] } | null;
+    totalRunsStarted: number;
 }
 
 function getLocalAiPreference(): string {
@@ -772,6 +773,16 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
             <div class="mainmenu">
                 <div class="mainmenu-left">
                     <div class="nz-root">
+                        <header class="nz-title-header">
+                            <h1 class="nz-title-heading">Nuzlocke Simulator</h1>
+                            {status !== null && (
+                                <p class="nz-title-subheading">
+                                    {status.totalRunsStarted === 1
+                                        ? '1 run attempted worldwide'
+                                        : `${status.totalRunsStarted} runs attempted worldwide`}
+                                </p>
+                            )}
+                        </header>
                         <div class="nz-dashboard nz-dashboard-has-run">
 
                             <div class="nz-dashboard-run">
@@ -806,7 +817,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                 <div class="nz-label" style="margin-bottom:6px;">
                                                                     Starter
                                                                     {hasActivePreview && (
-                                                                        <span class="nz-badge nz-badge-warning" style="margin-left:6px;padding-top:0;padding-bottom:0;line-height:1;vertical-align:middle;">Randomized</span>
+                                                                        <span class="nz-badge nz-badge-warning" style="margin-left:6px;padding-top:0;padding-bottom:0;line-height:1;vertical-align:middle;background:none;border:none">Randomized</span>
                                                                     )}
                                                                 </div>
                                                                 <div class="nz-starter-picker">
