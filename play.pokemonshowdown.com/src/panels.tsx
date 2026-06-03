@@ -650,9 +650,9 @@ export class PSView extends preact.Component {
 		}
 	}
 	static scrollToRoom() {
-		if (PSView.narrowMode && window.scrollX === 0) {
-			// rAF so the document width set by handleResize has reflowed before scrollTo runs
-			requestAnimationFrame(() => window.scrollTo(NARROW_MODE_HEADER_WIDTH, 0));
+		if (PSView.narrowMode && window.scrollX < 1) {
+			// double-rAF: first ensures the document width reflow has completed, second ensures paint
+			requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(NARROW_MODE_HEADER_WIDTH, 0)));
 		}
 	}
 	static initScrollSnap() {

@@ -8,6 +8,7 @@
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { toID, Dex } from "../../battle-dex";
+import { PSView } from "../../panels";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzTimeline } from "../components/layout";
 import { NzBtn, NzTypeBadges } from "../components/primitives";
@@ -453,8 +454,8 @@ class EncounterPokemonStats extends preact.Component<{
 	onNickChange: (uid: string, value: string) => void;
 }, { editing: boolean }> {
 	override state = { editing: false };
-	startEdit = () => this.setState({ editing: true });
-	stopEdit = () => this.setState({ editing: false });
+	startEdit = () => { PSView.setTextboxFocused(true); this.setState({ editing: true }); };
+	stopEdit = () => { PSView.setTextboxFocused(false); this.setState({ editing: false }); };
 
 	render() {
 		const { pokemon, generation, nickname, onNickChange } = this.props;

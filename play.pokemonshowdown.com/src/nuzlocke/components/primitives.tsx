@@ -6,6 +6,7 @@
 
 import preact from "../../../js/lib/preact";
 import { Dex, toID } from "../../battle-dex";
+import { PSView } from "../../panels";
 
 export function NzTypeBadges({ species, generation }: { species: string; generation?: number }) {
 	const dex = generation ? Dex.forGen(generation) : Dex;
@@ -112,9 +113,9 @@ export class NzItemSelect extends preact.Component<NzItemSelectProps, DropdownSt
 		}
 	}
 
-	handleFocus = () => { this.setState({ open: true, query: '' }); };
+	handleFocus = () => { PSView.setTextboxFocused(true); this.setState({ open: true, query: '' }); };
 	handleInput = (e: Event) => { this.setState({ query: (e.target as HTMLInputElement).value }); };
-	handleBlur = () => { this.setState({ open: false, query: '' }); };
+	handleBlur = () => { PSView.setTextboxFocused(false); this.setState({ open: false, query: '' }); };
 
 	select(id: string) {
 		this.props.onChange(id);
