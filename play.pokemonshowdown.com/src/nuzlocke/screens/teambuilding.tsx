@@ -16,6 +16,19 @@ import { calcIvScore, calcNatureQuality, calcCombinedPercentile } from "./encoun
 import type { NuzlockePanelPayload } from "../types";
 
 
+type DragSource = { kind: 'party'; uid: string; fromIdx: number } | { kind: 'box'; uid: string };
+
+interface DragState {
+	source: DragSource;
+	overPartyIdx: number;
+	overBox: boolean;
+	clientX: number;
+	clientY: number;
+	startX: number;
+	startY: number;
+	active: boolean;
+}
+
 interface TeambuildingState {
 	moves: Record<string, string[]>;
 	heldItems: Record<string, string>;
@@ -24,10 +37,15 @@ interface TeambuildingState {
 	selectedOpponent: { battleIdx: number; slotIdx: number } | null;
 	showTutorial: boolean;
 	activeTab: 'moves' | 'items';
+	drag: DragState | null;
 }
 
 export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
-	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves' };
+	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves', drag: null };
+
+	// Instance variable tracks drag state synchronously — avoids reading stale Preact state in document event handlers.
+	_drag: DragState | null = null;
+	_dragJustEnded = false;
 
 	override componentDidMount() {
 		try {
@@ -36,6 +54,124 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			if (!seen.teambuilding) this.setState({ showTutorial: true });
 		} catch {}
 	}
+
+	override componentWillUnmount() {
+		this.cancelDrag();
+	}
+
+	_startDrag(initialState: DragState) {
+		this._drag = initialState;
+		this.setState({ drag: this._drag });
+		document.addEventListener('pointermove', this.onDragMove);
+		document.addEventListener('pointerup', this.onDragEnd);
+		document.addEventListener('pointercancel', this.cancelDrag);
+	}
+
+	cancelDrag = () => {
+		document.removeEventListener('pointermove', this.onDragMove);
+		document.removeEventListener('pointerup', this.onDragEnd);
+		document.removeEventListener('pointercancel', this.cancelDrag);
+		this._drag = null;
+		this.setState({ drag: null });
+	};
+
+	startPartyDrag = (uid: string, fromIdx: number, e: PointerEvent) => {
+		this._startDrag({
+			source: { kind: 'party', uid, fromIdx },
+			overPartyIdx: fromIdx,
+			overBox: false,
+			clientX: e.clientX,
+			clientY: e.clientY,
+			startX: e.clientX,
+			startY: e.clientY,
+			active: false,
+		});
+	};
+
+	startBoxDrag = (uid: string, e: PointerEvent) => {
+		const { game } = this.props;
+		if (game.boxDisabled || game.party.length >= 6) return;
+		e.preventDefault();
+		e.stopPropagation();
+		this._startDrag({
+			source: { kind: 'box', uid },
+			overPartyIdx: game.party.length,
+			overBox: false,
+			clientX: e.clientX,
+			clientY: e.clientY,
+			startX: e.clientX,
+			startY: e.clientY,
+			active: false,
+		});
+	};
+
+	onDragMove = (e: PointerEvent) => {
+		const drag = this._drag;
+		if (!drag) return;
+		e.preventDefault();
+		const dx = e.clientX - drag.startX;
+		const dy = e.clientY - drag.startY;
+		const nowActive = drag.active || Math.hypot(dx, dy) > 5;
+		const overPartyIdx = nowActive ? this.computeOverPartyIdx(e.clientY) : drag.overPartyIdx;
+		const overBox = nowActive && drag.source.kind === 'party' && this.isOverBox(e.clientX, e.clientY);
+		this._drag = { ...drag, overPartyIdx, overBox, clientX: e.clientX, clientY: e.clientY, active: nowActive };
+		this.setState({ drag: this._drag });
+	};
+
+	onDragEnd = (_e: PointerEvent) => {
+		document.removeEventListener('pointermove', this.onDragMove);
+		document.removeEventListener('pointerup', this.onDragEnd);
+		document.removeEventListener('pointercancel', this.cancelDrag);
+		const drag = this._drag;
+		this._drag = null;
+		this.setState({ drag: null });
+		if (!drag?.active) return;
+		this._dragJustEnded = true;
+		setTimeout(() => { this._dragJustEnded = false; }, 50);
+
+		const { game } = this.props;
+		if (drag.source.kind === 'party') {
+			if (drag.overBox) {
+				PS.send(`/nuzlocke removefromparty ${drag.source.uid}`);
+			} else {
+				const fromIdx = drag.source.fromIdx;
+				const toIdx = drag.overPartyIdx;
+				if (fromIdx !== toIdx) {
+					const newParty = [...game.party];
+					const [moved] = newParty.splice(fromIdx, 1);
+					newParty.splice(toIdx, 0, moved);
+					PS.send(`/nuzlocke partyreorder ${newParty.join(' ')}`);
+				}
+			}
+		} else {
+			if (!drag.overBox) {
+				const newParty = [...game.party];
+				newParty.splice(drag.overPartyIdx, 0, drag.source.uid);
+				PS.send(`/nuzlocke partyreorder ${newParty.slice(0, 6).join(' ')}`);
+			}
+		}
+	};
+
+	computeOverPartyIdx = (clientY: number): number => {
+		const partyLen = this.props.game.party.length;
+		const slots = document.querySelectorAll<HTMLElement>('.nz-tb-party-col .nz-party-slot:not(.nz-party-slot-empty)');
+		let overIdx = partyLen;
+		for (let i = 0; i < slots.length; i++) {
+			const rect = slots[i].getBoundingClientRect();
+			if (clientY < rect.top + rect.height / 2) {
+				overIdx = i;
+				break;
+			}
+		}
+		return Math.max(0, Math.min(overIdx, partyLen));
+	};
+
+	isOverBox = (clientX: number, clientY: number): boolean => {
+		const boxScroll = document.querySelector<HTMLElement>('.nz-tb-box-col .nz-tb-col-scroll');
+		if (!boxScroll) return false;
+		const rect = boxScroll.getBoundingClientRect();
+		return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+	};
 
 	dismissTeambuildingTutorial = () => {
 		try {
@@ -86,7 +222,10 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 		return changed ? { moves, heldItems, selectedUid } : null;
 	}
 
-	select = (uid: string) => this.setState({ selectedUid: uid, selectedOpponent: null, activeTab: 'moves' });
+	select = (uid: string) => {
+		if (this._dragJustEnded) return;
+		this.setState({ selectedUid: uid, selectedOpponent: null, activeTab: 'moves' });
+	};
 	selectOpponent = (battleIdx: number, slotIdx: number) => this.setState({ selectedOpponent: { battleIdx, slotIdx }, selectedUid: null });
 
 	setMove = (uid: string, slot: number, value: string) => {
@@ -138,7 +277,9 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 	render() {
 		const { game } = this.props;
-		const { moves, heldItems, errors, selectedUid, selectedOpponent } = this.state;
+		const { moves, heldItems, errors, selectedUid, selectedOpponent, drag } = this.state;
+		const isDragging = !!(drag?.active);
+		const dragUid = isDragging ? drag!.source.uid : null;
 		const boxDisabled = game.boxDisabled;
 		const segment = game.segment!;
 		const battle = segment.battles[game.currentBattleIndex];
@@ -365,41 +506,49 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				<div class="nz-tb-columns">
 
 					<div class="nz-tb-party-col">
-						<div class="nz-section-title">Party ({partyPokemon.length}/6){!boxDisabled && <span class="nz-tb-hint">double-click to move to box</span>}</div>
-						<div class="nz-tb-col-scroll">
+						<div class="nz-section-title">Party ({partyPokemon.length}/6)</div>
+						<div class={`nz-tb-col-scroll${isDragging && drag!.overBox ? ' nz-party-col-drop-box' : ''}`}>
 							{([0, 1, 2, 3, 4, 5] as const).map(i => {
 								const pok = partyPokemon[i];
-								return pok
-									? <NzPartySlot
+								const isLast = i === partyPokemon.length - 1;
+								const dropIndicator = isDragging && !drag!.overBox
+									? drag!.overPartyIdx === i ? 'before' as const
+									: isLast && drag!.overPartyIdx >= partyPokemon.length ? 'after' as const
+									: null
+									: null;
+								if (pok) {
+									return <NzPartySlot
 										key={pok.uid}
 										pokemon={pok}
 										levelCap={segment.levelCap}
 										generation={this.props.game.generation}
 										selected={selectedUid === pok.uid}
-										isFirst={i === 0}
-										isLast={i === partyPokemon.length - 1}
+										isDragging={isDragging && pok.uid === dragUid}
+										dropIndicator={dropIndicator}
 										onSelect={() => this.select(pok.uid)}
-										onDoubleClick={boxDisabled ? undefined : () => PS.send(`/nuzlocke removefromparty ${pok.uid}`)}
-										onMoveUp={() => PS.send(`/nuzlocke partymove ${pok.uid} left`)}
-										onMoveDown={() => PS.send(`/nuzlocke partymove ${pok.uid} right`)}
+										onDragPointerDown={(e: PointerEvent) => this.startPartyDrag(pok.uid, i, e)}
 										hasError={!!errors[pok.uid]}
 										canEvolve={!!(game.availableEvolutions[pok.uid]?.length)}
-									/>
-									: <div key={i} class="nz-party-slot nz-party-slot-empty">— empty —</div>;
+									/>;
+								}
+								return <div key={i} class="nz-party-slot nz-party-slot-empty">— empty —</div>;
 							})}
 						</div>
 					</div>
 
 					<div class="nz-tb-box-col">
-						<div class="nz-section-title">Box ({boxOnly.length}){boxDisabled ? <span class="nz-tb-hint">locked during battle sequence</span> : <span class="nz-tb-hint">double-click to add to party</span>}</div>
-						<div class="nz-tb-col-scroll">
+						<div class="nz-section-title">
+							Box ({boxOnly.length})
+							{boxDisabled && <span class="nz-tb-hint">locked during battle sequence</span>}
+						</div>
+						<div class={`nz-tb-col-scroll${isDragging && drag!.overBox ? ' nz-box-drop-target' : ''}`}>
 							<div class="nz-tb-box-grid">
 								{boxOnly.map(mon => (
 									<div
 										key={mon.uid}
-										class={`nz-tb-box-card${selectedUid === mon.uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[mon.uid]?.length ? ' nz-tb-box-card-evolve' : ''}${boxDisabled ? ' nz-tb-box-card-disabled' : ''}`}
-										onClick={() => this.select(mon.uid)}
-										onDblClick={boxDisabled ? undefined : () => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${mon.uid}`)}
+										class={`nz-tb-box-card${selectedUid === mon.uid ? ' nz-tb-box-card-selected' : ''}${game.availableEvolutions[mon.uid]?.length ? ' nz-tb-box-card-evolve' : ''}${boxDisabled ? ' nz-tb-box-card-disabled' : ''}${isDragging && mon.uid === dragUid ? ' nz-tb-box-card-dragging' : ''}`}
+										onClick={() => !isDragging && this.select(mon.uid)}
+										onPointerDown={!boxDisabled && game.party.length < 6 ? (e: PointerEvent) => this.startBoxDrag(mon.uid, e) : undefined}
 									>
 										<NzSprite species={mon.species} size={40} />
 										<div class="nz-tb-box-card-name">{mon.nickname}</div>
@@ -453,6 +602,18 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				</div>
 			</div>
 
+			{isDragging && (() => {
+				const pok = game.box.find(p => p.uid === dragUid);
+				if (!pok) return null;
+				return <div
+					class={`nz-drag-ghost${drag!.overBox ? ' nz-drag-ghost-remove' : ''}`}
+					style={`left:${drag!.clientX + 14}px;top:${drag!.clientY + 14}px`}
+				>
+					<NzSprite species={pok.species} size={32} />
+					<span class="nz-drag-ghost-name">{pok.nickname}</span>
+				</div>;
+			})()}
+
 			{this.state.showTutorial && (() => {
 				const TEAMBUILDING_STEPS: TutorialStep[] = [
 					{
@@ -474,7 +635,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					{
 						selector: '.nz-tb-party-col',
 						title: 'Your Party',
-						body: 'Double-click a box Pokémon to add it to your party, or double-click a party slot to move them back to the box.',
+						body: 'Drag a box Pokémon into the party to add it, drag a party slot to reorder, or drag a party Pokémon into the box to swap it out.',
 					},
 					{
 						selector: '.nz-tb-opponent-col',

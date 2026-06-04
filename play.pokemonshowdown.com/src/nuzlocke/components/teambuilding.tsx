@@ -287,12 +287,10 @@ export function NzPartySlot({
 	levelCap,
 	generation,
 	selected,
-	isFirst,
-	isLast,
+	isDragging,
+	dropIndicator,
 	onSelect,
-	onDoubleClick,
-	onMoveUp,
-	onMoveDown,
+	onDragPointerDown,
 	hasError,
 	canEvolve,
 }: {
@@ -300,12 +298,10 @@ export function NzPartySlot({
 	levelCap: number;
 	generation?: number;
 	selected: boolean;
-	isFirst: boolean;
-	isLast: boolean;
+	isDragging?: boolean;
+	dropIndicator?: 'before' | 'after' | null;
 	onSelect: () => void;
-	onDoubleClick?: () => void;
-	onMoveUp: () => void;
-	onMoveDown: () => void;
+	onDragPointerDown?: (e: PointerEvent) => void;
 	hasError?: boolean;
 	canEvolve?: boolean;
 }) {
@@ -314,8 +310,11 @@ export function NzPartySlot({
 		selected ? 'nz-party-slot-selected' : '',
 		hasError ? 'nz-party-slot-error' : '',
 		canEvolve ? 'nz-party-slot-evolve' : '',
+		isDragging ? 'nz-party-slot-dragging' : '',
+		dropIndicator === 'before' ? 'nz-party-slot-drop-before' : '',
+		dropIndicator === 'after' ? 'nz-party-slot-drop-after' : '',
 	].filter(Boolean).join(' ');
-	return <div class={cls} onClick={onSelect} onDblClick={onDoubleClick}>
+	return <div class={cls} onClick={onSelect} onPointerDown={onDragPointerDown}>
 		<NzSprite species={pokemon.species} />
 		<div class="nz-party-slot-info">
 			<div class="nz-party-slot-name">
@@ -325,10 +324,6 @@ export function NzPartySlot({
 				{pokemon.nickname !== pokemon.species ? `${pokemon.species} · ` : ''}Lv.{levelCap}
 			</div>
 			<div class="nz-party-slot-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
-		</div>
-		<div class="nz-party-slot-arrows" onClick={e => e.stopPropagation()}>
-			<button class="nz-party-arrow" onClick={onMoveUp} disabled={isFirst}>▲</button>
-			<button class="nz-party-arrow" onClick={onMoveDown} disabled={isLast}>▼</button>
 		</div>
 	</div>;
 }

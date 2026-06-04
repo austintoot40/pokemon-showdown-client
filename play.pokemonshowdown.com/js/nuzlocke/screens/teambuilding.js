@@ -26,8 +26,26 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
-state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves'};_this.
+state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves',drag:null};_this.
+
+
+_drag=null;_this.
+_dragJustEnded=false;_this.
 
 
 
@@ -36,6 +54,124 @@ state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,sh
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+cancelDrag=function(){
+document.removeEventListener('pointermove',_this.onDragMove);
+document.removeEventListener('pointerup',_this.onDragEnd);
+document.removeEventListener('pointercancel',_this.cancelDrag);
+_this._drag=null;
+_this.setState({drag:null});
+};_this.
+
+startPartyDrag=function(uid,fromIdx,e){
+_this._startDrag({
+source:{kind:'party',uid:uid,fromIdx:fromIdx},
+overPartyIdx:fromIdx,
+overBox:false,
+clientX:e.clientX,
+clientY:e.clientY,
+startX:e.clientX,
+startY:e.clientY,
+active:false
+});
+};_this.
+
+startBoxDrag=function(uid,e){
+var game=_this.props.game;
+if(game.boxDisabled||game.party.length>=6)return;
+e.preventDefault();
+e.stopPropagation();
+_this._startDrag({
+source:{kind:'box',uid:uid},
+overPartyIdx:game.party.length,
+overBox:false,
+clientX:e.clientX,
+clientY:e.clientY,
+startX:e.clientX,
+startY:e.clientY,
+active:false
+});
+};_this.
+
+onDragMove=function(e){
+var drag=_this._drag;
+if(!drag)return;
+e.preventDefault();
+var dx=e.clientX-drag.startX;
+var dy=e.clientY-drag.startY;
+var nowActive=drag.active||Math.hypot(dx,dy)>5;
+var overPartyIdx=nowActive?_this.computeOverPartyIdx(e.clientY):drag.overPartyIdx;
+var overBox=nowActive&&drag.source.kind==='party'&&_this.isOverBox(e.clientX,e.clientY);
+_this._drag=Object.assign({},drag,{overPartyIdx:overPartyIdx,overBox:overBox,clientX:e.clientX,clientY:e.clientY,active:nowActive});
+_this.setState({drag:_this._drag});
+};_this.
+
+onDragEnd=function(_e){
+document.removeEventListener('pointermove',_this.onDragMove);
+document.removeEventListener('pointerup',_this.onDragEnd);
+document.removeEventListener('pointercancel',_this.cancelDrag);
+var drag=_this._drag;
+_this._drag=null;
+_this.setState({drag:null});
+if(!(drag!=null&&drag.active))return;
+_this._dragJustEnded=true;
+setTimeout(function(){_this._dragJustEnded=false;},50);
+
+var game=_this.props.game;
+if(drag.source.kind==='party'){
+if(drag.overBox){
+PS.send("/nuzlocke removefromparty "+drag.source.uid);
+}else{
+var fromIdx=drag.source.fromIdx;
+var toIdx=drag.overPartyIdx;
+if(fromIdx!==toIdx){
+var newParty=[].concat(game.party);
+var _newParty$splice=newParty.splice(fromIdx,1),moved=_newParty$splice[0];
+newParty.splice(toIdx,0,moved);
+PS.send("/nuzlocke partyreorder "+newParty.join(' '));
+}
+}
+}else{
+if(!drag.overBox){
+var _newParty=[].concat(game.party);
+_newParty.splice(drag.overPartyIdx,0,drag.source.uid);
+PS.send("/nuzlocke partyreorder "+_newParty.slice(0,6).join(' '));
+}
+}
+};_this.
+
+computeOverPartyIdx=function(clientY){
+var partyLen=_this.props.game.party.length;
+var slots=document.querySelectorAll('.nz-tb-party-col .nz-party-slot:not(.nz-party-slot-empty)');
+var overIdx=partyLen;
+for(var i=0;i<slots.length;i++){
+var rect=slots[i].getBoundingClientRect();
+if(clientY<rect.top+rect.height/2){
+overIdx=i;
+break;
+}
+}
+return Math.max(0,Math.min(overIdx,partyLen));
+};_this.
+
+isOverBox=function(clientX,clientY){
+var boxScroll=document.querySelector('.nz-tb-box-col .nz-tb-col-scroll');
+if(!boxScroll)return false;
+var rect=boxScroll.getBoundingClientRect();
+return clientX>=rect.left&&clientX<=rect.right&&clientY>=rect.top&&clientY<=rect.bottom;
+};_this.
 
 dismissTeambuildingTutorial=function(){
 try{var _localStorage$getItem;
@@ -86,7 +222,10 @@ _this.setState({showTutorial:false});
 
 
 
-select=function(uid){return _this.setState({selectedUid:uid,selectedOpponent:null,activeTab:'moves'});};_this.
+select=function(uid){
+if(_this._dragJustEnded)return;
+_this.setState({selectedUid:uid,selectedOpponent:null,activeTab:'moves'});
+};_this.
 selectOpponent=function(battleIdx,slotIdx){return _this.setState({selectedOpponent:{battleIdx:battleIdx,slotIdx:slotIdx},selectedUid:null});};_this.
 
 setMove=function(uid,slot,value){
@@ -134,11 +273,13 @@ var item=heldItems[uid]||'none';
 return uid+" "+m+" "+item;
 }).join(' ');
 PS.send("/nuzlocke battlewithmoves "+parts);
-};return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);var _proto=TeambuildingScreen.prototype;_proto.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.teambuilding)this.setState({showTutorial:true});}catch(_unused2){}};TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref,_props$game$party$,_props$game$box$find;var defaultUid=(_ref=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
+};return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);var _proto=TeambuildingScreen.prototype;_proto.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.teambuilding)this.setState({showTutorial:true});}catch(_unused2){}};_proto.componentWillUnmount=function componentWillUnmount(){this.cancelDrag();};_proto._startDrag=function _startDrag(initialState){this._drag=initialState;this.setState({drag:this._drag});document.addEventListener('pointermove',this.onDragMove);document.addEventListener('pointerup',this.onDragEnd);document.addEventListener('pointercancel',this.cancelDrag);};TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref,_props$game$party$,_props$game$box$find;var defaultUid=(_ref=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
 
 render=function render(){var _game$box$find,_remainingBattles$sel,_this2=this,_battle$trainer;
 var game=this.props.game;
-var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponent=_this$state2.selectedOpponent;
+var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponent=_this$state2.selectedOpponent,drag=_this$state2.drag;
+var isDragging=!!(drag!=null&&drag.active);
+var dragUid=isDragging?drag.source.uid:null;
 var boxDisabled=game.boxDisabled;
 var segment=game.segment;
 var battle=segment.battles[game.currentBattleIndex];
@@ -365,41 +506,49 @@ detailContent
 preact.h("div",{"class":"nz-tb-columns"},
 
 preact.h("div",{"class":"nz-tb-party-col"},
-preact.h("div",{"class":"nz-section-title"},"Party (",partyPokemon.length,"/6)",!boxDisabled&&preact.h("span",{"class":"nz-tb-hint"},"double-click to move to box")),
-preact.h("div",{"class":"nz-tb-col-scroll"},
-[0,1,2,3,4,5].map(function(i){var _game$availableEvolut3;
+preact.h("div",{"class":"nz-section-title"},"Party (",partyPokemon.length,"/6)"),
+preact.h("div",{"class":"nz-tb-col-scroll"+(isDragging&&drag.overBox?' nz-party-col-drop-box':'')},
+[0,1,2,3,4,5].map(function(i){
 var pok=partyPokemon[i];
-return pok?
-preact.h(NzPartySlot,{
+var isLast=i===partyPokemon.length-1;
+var dropIndicator=isDragging&&!drag.overBox?
+drag.overPartyIdx===i?'before':
+isLast&&drag.overPartyIdx>=partyPokemon.length?'after':
+null:
+null;
+if(pok){var _game$availableEvolut3;
+return preact.h(NzPartySlot,{
 key:pok.uid,
 pokemon:pok,
 levelCap:segment.levelCap,
 generation:_this2.props.game.generation,
 selected:selectedUid===pok.uid,
-isFirst:i===0,
-isLast:i===partyPokemon.length-1,
+isDragging:isDragging&&pok.uid===dragUid,
+dropIndicator:dropIndicator,
 onSelect:function(){return _this2.select(pok.uid);},
-onDoubleClick:boxDisabled?undefined:function(){return PS.send("/nuzlocke removefromparty "+pok.uid);},
-onMoveUp:function(){return PS.send("/nuzlocke partymove "+pok.uid+" left");},
-onMoveDown:function(){return PS.send("/nuzlocke partymove "+pok.uid+" right");},
+onDragPointerDown:function(e){return _this2.startPartyDrag(pok.uid,i,e);},
 hasError:!!errors[pok.uid],
 canEvolve:!!((_game$availableEvolut3=game.availableEvolutions[pok.uid])!=null&&_game$availableEvolut3.length)}
-):
-preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty \u2014");
+);
+}
+return preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty \u2014");
 })
 )
 ),
 
 preact.h("div",{"class":"nz-tb-box-col"},
-preact.h("div",{"class":"nz-section-title"},"Box (",boxOnly.length,")",boxDisabled?preact.h("span",{"class":"nz-tb-hint"},"locked during battle sequence"):preact.h("span",{"class":"nz-tb-hint"},"double-click to add to party")),
-preact.h("div",{"class":"nz-tb-col-scroll"},
+preact.h("div",{"class":"nz-section-title"},"Box (",
+boxOnly.length,")",
+boxDisabled&&preact.h("span",{"class":"nz-tb-hint"},"locked during battle sequence")
+),
+preact.h("div",{"class":"nz-tb-col-scroll"+(isDragging&&drag.overBox?' nz-box-drop-target':'')},
 preact.h("div",{"class":"nz-tb-box-grid"},
 boxOnly.map(function(mon){var _game$availableEvolut4;return(
 preact.h("div",{
 key:mon.uid,
-"class":"nz-tb-box-card"+(selectedUid===mon.uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[mon.uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':'')+(boxDisabled?' nz-tb-box-card-disabled':''),
-onClick:function(){return _this2.select(mon.uid);},
-onDblClick:boxDisabled?undefined:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+mon.uid);}},
+"class":"nz-tb-box-card"+(selectedUid===mon.uid?' nz-tb-box-card-selected':'')+((_game$availableEvolut4=game.availableEvolutions[mon.uid])!=null&&_game$availableEvolut4.length?' nz-tb-box-card-evolve':'')+(boxDisabled?' nz-tb-box-card-disabled':'')+(isDragging&&mon.uid===dragUid?' nz-tb-box-card-dragging':''),
+onClick:function(){return!isDragging&&_this2.select(mon.uid);},
+onPointerDown:!boxDisabled&&game.party.length<6?function(e){return _this2.startBoxDrag(mon.uid,e);}:undefined},
 
 preact.h(NzSprite,{species:mon.species,size:40}),
 preact.h("div",{"class":"nz-tb-box-card-name"},mon.nickname)
@@ -453,6 +602,18 @@ title:partyPokemon.length===0?'Add Pokémon to party first':''},
 )
 ),
 
+isDragging&&function(){
+var pok=game.box.find(function(p){return p.uid===dragUid;});
+if(!pok)return null;
+return preact.h("div",{
+"class":"nz-drag-ghost"+(drag.overBox?' nz-drag-ghost-remove':''),
+style:"left:"+(drag.clientX+14)+"px;top:"+(drag.clientY+14)+"px"},
+
+preact.h(NzSprite,{species:pok.species,size:32}),
+preact.h("span",{"class":"nz-drag-ghost-name"},pok.nickname)
+);
+}(),
+
 this.state.showTutorial&&function(){
 var TEAMBUILDING_STEPS=[
 {
@@ -474,7 +635,7 @@ onActivate:function(){return _this2.setState({activeTab:'items'});}
 {
 selector:'.nz-tb-party-col',
 title:'Your Party',
-body:'Double-click a box Pokémon to add it to your party, or double-click a party slot to move them back to the box.'
+body:'Drag a box Pokémon into the party to add it, drag a party slot to reorder, or drag a party Pokémon into the box to swap it out.'
 },
 {
 selector:'.nz-tb-opponent-col',

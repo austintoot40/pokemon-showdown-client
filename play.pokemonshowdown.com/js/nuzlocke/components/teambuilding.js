@@ -304,18 +304,17 @@ function NzPartySlot(_ref8)
 
 
 
-
-
-
-
-{var pokemon=_ref8.pokemon,levelCap=_ref8.levelCap,generation=_ref8.generation,selected=_ref8.selected,isFirst=_ref8.isFirst,isLast=_ref8.isLast,onSelect=_ref8.onSelect,onDoubleClick=_ref8.onDoubleClick,onMoveUp=_ref8.onMoveUp,onMoveDown=_ref8.onMoveDown,hasError=_ref8.hasError,canEvolve=_ref8.canEvolve;
+{var pokemon=_ref8.pokemon,levelCap=_ref8.levelCap,generation=_ref8.generation,selected=_ref8.selected,isDragging=_ref8.isDragging,dropIndicator=_ref8.dropIndicator,onSelect=_ref8.onSelect,onDragPointerDown=_ref8.onDragPointerDown,hasError=_ref8.hasError,canEvolve=_ref8.canEvolve;
 var cls=[
 'nz-party-slot',
 selected?'nz-party-slot-selected':'',
 hasError?'nz-party-slot-error':'',
-canEvolve?'nz-party-slot-evolve':''].
+canEvolve?'nz-party-slot-evolve':'',
+isDragging?'nz-party-slot-dragging':'',
+dropIndicator==='before'?'nz-party-slot-drop-before':'',
+dropIndicator==='after'?'nz-party-slot-drop-after':''].
 filter(Boolean).join(' ');
-return preact.h("div",{"class":cls,onClick:onSelect,onDblClick:onDoubleClick},
+return preact.h("div",{"class":cls,onClick:onSelect,onPointerDown:onDragPointerDown},
 preact.h(NzSprite,{species:pokemon.species}),
 preact.h("div",{"class":"nz-party-slot-info"},
 preact.h("div",{"class":"nz-party-slot-name"},
@@ -325,10 +324,6 @@ preact.h("div",{"class":"nz-party-slot-sub"},
 pokemon.nickname!==pokemon.species?pokemon.species+" \xB7 ":'',"Lv.",levelCap
 ),
 preact.h("div",{"class":"nz-party-slot-types"},preact.h(NzTypeBadges,{species:pokemon.species,generation:generation}))
-),
-preact.h("div",{"class":"nz-party-slot-arrows",onClick:function(e){return e.stopPropagation();}},
-preact.h("button",{"class":"nz-party-arrow",onClick:onMoveUp,disabled:isFirst},"\u25B2"),
-preact.h("button",{"class":"nz-party-arrow",onClick:onMoveDown,disabled:isLast},"\u25BC")
 )
 );
 }
