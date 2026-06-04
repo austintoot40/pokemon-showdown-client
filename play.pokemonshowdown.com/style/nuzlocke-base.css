@@ -7,6 +7,34 @@
  */
 
 /* =============================================
+   SPRITE ANIMATION
+   ============================================= */
+
+@keyframes nz-sprite-bounce {
+  0%,  100% { transform: translateY(0);    }
+  50%        { transform: translateY(-3px); }
+}
+
+/* Direct sprite hover — for sprites not inside a hoverable card */
+.nz-sprite-animated:hover {
+  animation: nz-sprite-bounce 0.8s steps(1, start) infinite;
+}
+
+/* Card-hover triggers — sprite animates when its parent card is hovered */
+.nz-card:hover .nz-sprite-animated,
+.nz-starter-card:hover .nz-sprite-animated,
+.nz-scenario-card:hover .nz-sprite-animated,
+.nz-starter-pick:hover .nz-sprite-animated,
+.nz-party-slot:hover .nz-sprite-animated,
+.nz-opponent-slot:hover .nz-sprite-animated,
+.nz-tb-box-card:hover .nz-sprite-animated,
+.nz-route-list-row:hover .nz-sprite-animated,
+.nz-zone-card-selectable:hover .nz-sprite-animated,
+.nz-gift-zone-option-selectable:hover .nz-sprite-animated {
+  animation: nz-sprite-bounce 0.8s steps(1, start) infinite;
+}
+
+/* =============================================
    ROOT & GLOBAL OVERRIDES
    ============================================= */
 

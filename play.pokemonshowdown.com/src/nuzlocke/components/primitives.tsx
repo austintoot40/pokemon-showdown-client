@@ -189,12 +189,13 @@ export class NzItemSelect extends preact.Component<NzItemSelectProps, DropdownSt
 	}
 }
 
-export function NzSprite({ species, size = 50, class: extraClass, style: extraStyle, decorative }: {
+export function NzSprite({ species, size = 50, class: extraClass, style: extraStyle, decorative, animate = true }: {
 	species: string;
 	size?: number;
 	class?: string;
 	style?: string;
 	decorative?: boolean;
+	animate?: boolean;
 }) {
 	const id = toID(species);
 	const num = Dex.getPokemonIconNum(id);
@@ -208,10 +209,11 @@ export function NzSprite({ species, size = 50, class: extraClass, style: extraSt
 	const bgY = Math.round(row * 30 * scale);
 	const bgSize = scale !== 1 ? `;background-size:${Math.round(480 * scale)}px auto` : '';
 	const spriteStyle = `display:inline-block;width:${w}px;height:${h}px;image-rendering:pixelated;background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v21) no-repeat scroll -${bgX}px -${bgY}px${bgSize}`;
-	const cls = extraClass !== undefined ? extraClass : 'nz-card-sprite';
+	const baseCls = extraClass !== undefined ? extraClass : 'nz-card-sprite';
+	const cls = [baseCls, animate && !decorative && 'nz-sprite-animated'].filter(Boolean).join(' ') || undefined;
 	const combinedStyle = [spriteStyle, extraStyle].filter(Boolean).join(';');
 	return <span
-		class={cls || undefined}
+		class={cls}
 		style={combinedStyle}
 		role={decorative ? undefined : 'img'}
 		aria-label={decorative ? undefined : species}
