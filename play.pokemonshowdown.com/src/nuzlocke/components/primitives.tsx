@@ -189,13 +189,32 @@ export class NzItemSelect extends preact.Component<NzItemSelectProps, DropdownSt
 	}
 }
 
-export function NzSprite({ species, size = 60 }: { species: string; size?: number }) {
+export function NzSprite({ species, size = 50, class: extraClass, style: extraStyle, decorative }: {
+	species: string;
+	size?: number;
+	class?: string;
+	style?: string;
+	decorative?: boolean;
+}) {
 	const id = toID(species);
-	const src = `https://play.pokemonshowdown.com/sprites/ani/${id}.gif`;
-	return <img
-		class="nz-card-sprite"
-		src={src}
-		alt={species}
-		style={`width:${size}px;height:${size}px;`}
+	const num = Dex.getPokemonIconNum(id);
+	const col = num % 12;
+	const row = Math.floor(num / 12);
+	// size is treated as icon height; icons are 40×30 (4:3) at native scale
+	const scale = size !== undefined ? size / 30 : 1;
+	const w = Math.round(40 * scale);
+	const h = Math.round(30 * scale);
+	const bgX = Math.round(col * 40 * scale);
+	const bgY = Math.round(row * 30 * scale);
+	const bgSize = scale !== 1 ? `;background-size:${Math.round(480 * scale)}px auto` : '';
+	const spriteStyle = `display:inline-block;width:${w}px;height:${h}px;image-rendering:pixelated;background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v21) no-repeat scroll -${bgX}px -${bgY}px${bgSize}`;
+	const cls = extraClass !== undefined ? extraClass : 'nz-card-sprite';
+	const combinedStyle = [spriteStyle, extraStyle].filter(Boolean).join(';');
+	return <span
+		class={cls || undefined}
+		style={combinedStyle}
+		role={decorative ? undefined : 'img'}
+		aria-label={decorative ? undefined : species}
+		aria-hidden={decorative ? 'true' : undefined}
 	/>;
 }

@@ -218,10 +218,12 @@ dupe&&'nz-encounter-slot-dupe',
 resolved&&!isCaught&&'nz-encounter-slot-dimmed',
 isCaught&&'nz-encounter-slot-caught'
 )},
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(e.species)+".gif",
-alt:e.species}
-),
+preact.h(NzSprite,{species:e.species,"class":cls(
+'nz-encounter-slot-sprite',
+dupe&&'nz-encounter-slot-sprite-dupe',
+resolved&&!isCaught&&'nz-encounter-slot-sprite-dimmed',
+isCaught&&'nz-encounter-slot-sprite-caught'
+)}),
 preact.h("div",{"class":"nz-encounter-rate-bar"},
 preact.h("div",{"class":"nz-encounter-rate-fill",style:"width:"+pct+"%"})
 ),
@@ -284,10 +286,12 @@ clickable&&'nz-gift-zone-option-selectable'
 ),
 onClick:clickable?sendCmd:undefined},
 
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(e.species)+".gif",
-alt:e.species}
-)
+preact.h(NzSprite,{species:e.species,"class":cls(
+'nz-gift-zone-sprite',
+isDupe&&'nz-gift-zone-sprite-dupe',
+isCaught&&'nz-gift-zone-sprite-caught',
+dimmed&&!isDupe&&'nz-gift-zone-sprite-dimmed'
+)})
 );
 })
 )
@@ -333,13 +337,13 @@ onClick:clickable?function(){return PS.send("/nuzlocke encounter "+routeName+" "
 preact.h("div",{"class":"nz-trade-zone-row"},
 requiredName&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":cls('nz-trade-zone-pokemon',caughtHere&&'nz-trade-zone-pokemon-traded')},
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(requiredName)+".gif",alt:requiredName})
+preact.h(NzSprite,{species:requiredName,"class":cls('nz-trade-zone-sprite',caughtHere&&'nz-trade-zone-sprite-traded')})
 ),
 preact.h("div",{"class":"nz-trade-zone-arrow"},"\u2192")
 ),
 newPokemon&&
 preact.h("div",{"class":cls('nz-trade-zone-pokemon',caughtHere&&'nz-trade-zone-pokemon-received')},
-preact.h("img",{src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(newPokemon.species)+".gif",alt:newPokemon.species})
+preact.h(NzSprite,{species:newPokemon.species,"class":cls('nz-trade-zone-sprite',caughtHere&&'nz-trade-zone-sprite-received')})
 )
 
 )
@@ -386,16 +390,15 @@ sprites.length>0&&
 preact.h("div",{"class":"nz-route-list-sprites"},
 preact.h("div",{"class":"nz-route-sprite-group"},
 sprites.map(function(_ref6){var species=_ref6.species,isDupe=_ref6.isDupe,isCaught=_ref6.isCaught;return(
-preact.h("img",{
+preact.h(NzSprite,{
 key:toID(species),
+species:species,
 "class":cls(
 'nz-route-sprite',
 isDupe&&!isCaught&&'nz-route-sprite-dupe',
 isCaught&&'nz-route-sprite-caught'
 ),
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(species)+".gif",
-alt:species,
-title:species}
+size:40}
 ));}
 )
 )
@@ -432,10 +435,7 @@ key:e.species,
 "class":cls('nz-gift-zone-option','nz-gift-zone-option-selectable',isDupe&&'nz-gift-zone-option-dupe'),
 onClick:function(){return PS.send("/nuzlocke choosegift "+giftIndex+" "+toID(e.species));}},
 
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(e.species)+".gif",
-alt:e.species}
-)
+preact.h(NzSprite,{species:e.species,"class":cls('nz-gift-zone-sprite',isDupe&&'nz-gift-zone-sprite-dupe')})
 );
 })
 )
@@ -485,11 +485,7 @@ var worsePercentile=combinedPct!==null&&combinedPct>=0.95?combinedPct:null;
 return preact.h("div",{"class":"nz-encounter-stats"},
 
 preact.h("div",{"class":"nz-encounter-stats-header"},
-preact.h("img",{
-"class":"nz-encounter-stats-sprite",
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(pokemon.species)+".gif",
-alt:pokemon.species}
-),
+preact.h(NzSprite,{species:pokemon.species,"class":"nz-encounter-stats-sprite",size:60}),
 preact.h("div",{"class":"nz-encounter-stats-identity"},
 editing?
 preact.h("input",{

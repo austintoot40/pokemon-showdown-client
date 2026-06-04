@@ -168,10 +168,7 @@ detailContent=preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-tb-info-stats"},
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(opp.species)+".gif",
-alt:opp.species}
-)
+preact.h(NzSprite,{species:opp.species,size:60})
 ),
 preact.h("div",{"class":"nz-tb-detail-info"},
 preact.h("div",{"class":"nz-card-nickname"},opp.species),
@@ -255,10 +252,7 @@ preact.h("div",{"class":"nz-tb-info-stats"},
 preact.h("div",{"class":"nz-tb-left-col"},
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(selectedPokemon.species)+".gif",
-alt:selectedPokemon.species}
-)
+preact.h(NzSprite,{species:selectedPokemon.species,size:60})
 ),
 preact.h("div",{"class":"nz-tb-detail-info"},
 preact.h("div",{"class":"nz-card-nickname"},
@@ -407,10 +401,7 @@ key:mon.uid,
 onClick:function(){return _this2.select(mon.uid);},
 onDblClick:boxDisabled?undefined:function(){return game.party.length<6&&PS.send("/nuzlocke addtoparty "+mon.uid);}},
 
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(mon.species)+".gif",
-alt:mon.species}
-),
+preact.h(NzSprite,{species:mon.species,size:40}),
 preact.h("div",{"class":"nz-tb-box-card-name"},mon.nickname)
 ));}
 )

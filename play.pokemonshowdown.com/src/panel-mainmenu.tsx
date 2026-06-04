@@ -7,6 +7,7 @@
 
 import preact from "../js/lib/preact";
 import { FeedbackFab, FeedbackModal } from "./nuzlocke/components/feedback-modal";
+import { NzSprite } from "./nuzlocke/components/primitives";
 import { PSLoginServer } from "./client-connection";
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
@@ -793,7 +794,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                 ) : !activeRun ? (
                                     selectedScenarioData ? (
                                         <div class="nz-active-run-panel" style={`--scenario-color:${selectedScenarioData.color};`}>
-                                            <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/ani/${toID(selectedScenarioData.pokemon)}.gif`} alt="" aria-hidden="true" />
+                                            <NzSprite species={selectedScenarioData.pokemon} class="nz-panel-sprite" size={500} decorative />
                                             <div class="nz-panel-sections">
 
                                                 {/* Left column: Scenario + Configuration */}
@@ -828,10 +829,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                             class={`nz-starter-pick${this.selectedStarter === i ? ' nz-starter-pick-selected' : ''}`}
                                                                             onClick={() => this.selectStarter(i)}
                                                                         >
-                                                                            <img
-                                                                                src={`https://play.pokemonshowdown.com/sprites/ani/${toID(species)}.gif`}
-                                                                                alt={species}
-                                                                            />
+                                                                            <NzSprite species={species} size={50} />
                                                                             <div class="nz-starter-pick-name">{species}</div>
                                                                             <div class="nz-starter-pick-types">
                                                                                 {types.map((t: string) => (
@@ -905,7 +903,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                     )
                                 ) : (
                                     <div class="nz-active-run-panel" style={`--scenario-color:${serverScenarios.find(s => s.id === activeRun.scenarioId)?.color ?? ''};`}>
-                                        <img class="nz-panel-sprite" src={`https://play.pokemonshowdown.com/sprites/ani/${toID(serverScenarios.find(s => s.id === activeRun.scenarioId)?.pokemon ?? '')}.gif`} alt="" aria-hidden="true" />
+                                        <NzSprite species={serverScenarios.find(s => s.id === activeRun.scenarioId)?.pokemon ?? ''} class="nz-panel-sprite" size={500} decorative />
                                         <div class="nz-active-run-header">
                                             <div>
                                                 <div class="nz-active-run-title">{activeRun.scenarioName}</div>
@@ -942,10 +940,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                             {activeRun.partySpecies.map((species, i) => {
                                                 const types = Dex.forGen(activeRun.generation).species.get(species)?.types ?? [];
                                                 return <div key={i} class="nz-team-slot">
-                                                    <img
-                                                        src={`https://play.pokemonshowdown.com/sprites/ani/${toID(species)}.gif`}
-                                                        alt={species}
-                                                    />
+                                                    <NzSprite species={species} size={50} />
                                                     <div class="nz-team-slot-info">
                                                         <div class="nz-team-slot-name">{species}</div>
                                                         <div class="nz-team-slot-types">
@@ -987,12 +982,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                             style={`--scenario-color:${scenario.color};`}
                                             onClick={() => this.selectScenario(scenario.id)}
                                         >
-                                            <img
-                                                class="nz-scenario-card-sprite"
-                                                src={`https://play.pokemonshowdown.com/sprites/ani/${toID(scenario.pokemon)}.gif`}
-                                                alt=""
-                                                aria-hidden="true"
-                                            />
+                                            <NzSprite species={scenario.pokemon} class="nz-scenario-card-sprite" size={90} decorative />
                                             <div class="nz-scenario-card-content">
                                                 <div class="nz-scenario-card-title">
                                                     {scenario.name}

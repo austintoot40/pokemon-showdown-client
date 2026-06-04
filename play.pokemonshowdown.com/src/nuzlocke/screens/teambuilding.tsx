@@ -7,7 +7,7 @@ import { PS } from "../../client-main";
 import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzTimeline } from "../components/layout";
-import { NzBtn, NzTypeBadges } from "../components/primitives";
+import { NzBtn, NzSprite, NzTypeBadges } from "../components/primitives";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
 import { NzItemTable } from "../components/item-table";
 import { NzMovePanel, formatTarget } from "../components/move-panel";
@@ -168,10 +168,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				<div class="nz-tb-info-stats">
 					<div class="nz-tb-detail-header">
 						<div class="nz-tb-detail-sprite">
-							<img
-								src={`https://play.pokemonshowdown.com/sprites/ani/${toID(opp.species)}.gif`}
-								alt={opp.species}
-							/>
+							<NzSprite species={opp.species} size={60} />
 						</div>
 						<div class="nz-tb-detail-info">
 							<div class="nz-card-nickname">{opp.species}</div>
@@ -255,10 +252,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					<div class="nz-tb-left-col">
 						<div class="nz-tb-detail-header">
 							<div class="nz-tb-detail-sprite">
-								<img
-									src={`https://play.pokemonshowdown.com/sprites/ani/${toID(selectedPokemon.species)}.gif`}
-									alt={selectedPokemon.species}
-								/>
+								<NzSprite species={selectedPokemon.species} size={60} />
 							</div>
 							<div class="nz-tb-detail-info">
 								<div class="nz-card-nickname">
@@ -407,10 +401,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 										onClick={() => this.select(mon.uid)}
 										onDblClick={boxDisabled ? undefined : () => game.party.length < 6 && PS.send(`/nuzlocke addtoparty ${mon.uid}`)}
 									>
-										<img
-											src={`https://play.pokemonshowdown.com/sprites/ani/${toID(mon.species)}.gif`}
-											alt={mon.species}
-										/>
+										<NzSprite species={mon.species} size={40} />
 										<div class="nz-tb-box-card-name">{mon.nickname}</div>
 									</div>
 								))}

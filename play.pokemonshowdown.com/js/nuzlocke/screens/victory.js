@@ -10,18 +10,15 @@
 
 
 
+
 function SpriteSlot(_ref){var mon=_ref.mon,index=_ref.index;
-var speciesId=mon.species.toLowerCase().replace(/[^a-z0-9]/g,'');
-var src="https://play.pokemonshowdown.com/sprites/ani/"+speciesId+".gif";
 return(
 preact.h("div",{"class":"nz-victory-slot",style:"animation-delay:"+index+"s"},
 preact.h("div",{"class":"nz-victory-sprite-wrap"},
-preact.h("img",{
+preact.h(NzSprite,{
+species:mon.species,
 "class":"nz-victory-sprite",
-src:src,
-alt:mon.species,
-width:120,
-height:120}
+size:60}
 )
 ),
 preact.h("div",{"class":"nz-victory-mon-name"},mon.nickname||mon.species),

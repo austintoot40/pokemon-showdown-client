@@ -1,4 +1,4 @@
-"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}
+"use strict";function _inheritsLoose(t,o){t.prototype=Object.create(o.prototype),t.prototype.constructor=t,_setPrototypeOf(t,o);}function _setPrototypeOf(t,e){return _setPrototypeOf=Object.setPrototypeOf?Object.setPrototypeOf.bind():function(t,e){return t.__proto__=e,t;},_setPrototypeOf(t,e);}var
 
 
 
@@ -10,10 +10,7 @@
 
 
 
-function nzToID(str){
-if(!str||typeof str!=='string')return'';
-return str.toLowerCase().replace(/[^a-z0-9]/g,'');
-}var
+
 
 
 
@@ -113,7 +110,7 @@ if(items.length===0)return null;
 var item=items[this.state.index];
 var wrapCls="nz-pkmn-carousel nz-pkmn-carousel--"+variant+(this.state.visible?' nz-pkmn-carousel-visible':'');
 return preact.h("div",{"class":wrapCls},
-preact.h("img",{"class":"nz-pkmn-carousel-sprite",src:item.src,alt:item.label}),
+preact.h(NzSprite,{species:item.species,"class":"nz-pkmn-carousel-sprite"}),
 preact.h("div",{"class":"nz-pkmn-carousel-label"},item.label)
 );
 };return PokemonCarousel;}(preact.Component);
@@ -149,7 +146,7 @@ preact.h(TrainerCarousel,{sprites:trainerSprites})
 isDone&&summary.deaths.length>0&&preact.h(PokemonCarousel,{
 variant:"death",
 items:summary.deaths.map(function(d){return{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+nzToID(d.species)+".gif",
+species:d.species,
 label:d.nickname
 };})}
 )
@@ -160,7 +157,7 @@ label:d.nickname
 
 
 
-function SegmentScreen(_ref3){var _game$segmentSummarie,_current$name;var game=_ref3.game;
+function SegmentScreen(_ref3){var _game$segmentSummarie,_game$scenarioPokemon,_current$name;var game=_ref3.game;
 var summaries=(_game$segmentSummarie=game.segmentSummaries)!=null?_game$segmentSummarie:[];
 var current=summaries.find(function(s){return s.status==='current';});
 
@@ -169,16 +166,14 @@ PS.send('/nuzlocke proceed');
 }
 
 var colorStyle=game.scenarioColor?"--scenario-color:"+game.scenarioColor:'';
-var bgSpriteSrc=game.scenarioPokemon?"https://play.pokemonshowdown.com/sprites/ani/"+
-nzToID(game.scenarioPokemon)+".gif":
-null;
+var bgSpriteSrc=(_game$scenarioPokemon=game.scenarioPokemon)!=null?_game$scenarioPokemon:null;
 
 return preact.h(NzRoot,null,
 preact.h(NzScreen,null,
 preact.h("div",{"class":"nz-seg-screen",style:colorStyle},
 
 preact.h("div",{"class":"nz-seg-header"},
-bgSpriteSrc&&preact.h("img",{"class":"nz-seg-bg-sprite",src:bgSpriteSrc,alt:"","aria-hidden":"true"}),
+bgSpriteSrc&&preact.h(NzSprite,{species:bgSpriteSrc,"class":"nz-seg-bg-sprite",size:120,decorative:true}),
 preact.h("div",{"class":"nz-seg-scenario"},game.scenarioName),
 preact.h("div",{"class":"nz-seg-title"},(_current$name=current==null?void 0:current.name)!=null?_current$name:'New Segment'),
 preact.h("div",{"class":"nz-seg-progress"},game.currentSegmentIndex+1," / ",game.totalSegments)

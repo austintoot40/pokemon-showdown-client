@@ -5,8 +5,7 @@
  */
 
 import preact from "../../../js/lib/preact";
-import { toID } from "../../battle-dex";
-import { NzBadge, NzBtn } from "./primitives";
+import { NzBadge, NzBtn, NzSprite } from "./primitives";
 import type { DeadPokemon } from "../types";
 
 export function NzBattleBanner({
@@ -37,13 +36,12 @@ export function NzBattleBanner({
 		<div class="nz-banner-sub">{sub}</div>
 		{deaths.length > 0 && <div class="nz-banner-deaths">
 			<div class="nz-banner-deaths-label">Units Lost ({deaths.length})</div>
-			{deaths.map(d => {
-				const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(d.species)}.gif`;
-				return <div key={d.uid} class="nz-death-entry">
-					<img src={src} alt={d.species} />
+			{deaths.map(d => (
+				<div key={d.uid} class="nz-death-entry">
+					<NzSprite species={d.species} class="" />
 					<span><strong>{d.nickname}</strong> — {d.killedBy}</span>
-				</div>;
-			})}
+				</div>
+			))}
 		</div>}
 	</div>;
 }
@@ -107,23 +105,21 @@ export function NzRunEntry({
 			{run.survivors.length > 0 && <div style="margin-bottom:8px;">
 				<div class="nz-label" style="margin-bottom:4px;">Survivors</div>
 				<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px;color:var(--nz-text-muted);">
-					{run.survivors.map((s, i) => {
-						const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(s.species)}.gif`;
-						return <span key={i} style="display:flex;align-items:center;gap:3px;">
-							<img src={src} alt={s.species} style="width:22px;height:22px;image-rendering:pixelated;object-fit:contain;" />
+					{run.survivors.map((s, i) => (
+						<span key={i} style="display:flex;align-items:center;gap:3px;">
+							<NzSprite species={s.species} size={22} style="image-rendering:pixelated;object-fit:contain;" class="" />
 							{s.nickname !== s.species ? `${s.nickname} (${s.species})` : s.species}
-						</span>;
-					})}
+						</span>
+					))}
 				</div>
 			</div>}
 			{run.graveyard.length > 0 && <>
 				<div class="nz-label" style="margin-bottom:4px;">Graveyard</div>
 				<div class="nz-run-grave-chips">
 					{run.graveyard.map(d => {
-						const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(d.species)}.gif`;
 						const seg = segmentNames?.[d.segment] ?? d.segment;
 						return <div key={d.uid} class="nz-run-grave-chip">
-							<img src={src} alt={d.species} />
+							<NzSprite species={d.species} class="" />
 							{d.nickname} <em>· {seg}</em>
 						</div>;
 					})}
@@ -164,10 +160,9 @@ export function NzActiveRunWidget({
 			<NzBadge variant="active">Active</NzBadge>
 		</div>
 		<div class="nz-run-widget-party">
-			{partySpecies.map(s => {
-				const src = `https://play.pokemonshowdown.com/sprites/ani/${toID(s)}.gif`;
-				return <img key={s} src={src} alt={s} />;
-			})}
+			{partySpecies.map(s => (
+				<NzSprite key={s} species={s} class="" />
+			))}
 		</div>
 		{deaths > 0 && <div class="nz-run-widget-deaths">
 			{deaths} unit{deaths !== 1 ? 's' : ''} lost

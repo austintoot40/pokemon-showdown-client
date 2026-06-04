@@ -31,12 +31,7 @@
   transform: translateY(-1px);
 }
 
-.nz-card-sprite {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  image-rendering: auto;
-}
+.nz-card-sprite {}
 
 .nz-card-nickname {
   font-size: 15px;

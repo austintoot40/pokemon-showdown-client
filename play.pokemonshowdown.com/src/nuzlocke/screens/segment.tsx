@@ -8,12 +8,9 @@
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { NzRoot, NzScreen } from "../components/layout";
+import { NzSprite } from "../components/primitives";
 import type { NuzlockePanelPayload } from "../types";
 
-function nzToID(str: string): string {
-	if (!str || typeof str !== 'string') return '';
-	return str.toLowerCase().replace(/[^a-z0-9]/g, '');
-}
 
 // -----------------------------------------------------------------------
 // Trainer carousel (cycles through chained battle sprites)
@@ -68,7 +65,7 @@ class TrainerCarousel extends preact.Component<{ sprites: string[] }, TrainerCar
 // -----------------------------------------------------------------------
 
 interface PokemonCarouselItem {
-	src: string;
+	species: string;
 	label: string;
 }
 
@@ -113,7 +110,7 @@ class PokemonCarousel extends preact.Component<
 		const item = items[this.state.index];
 		const wrapCls = `nz-pkmn-carousel nz-pkmn-carousel--${variant}${this.state.visible ? ' nz-pkmn-carousel-visible' : ''}`;
 		return <div class={wrapCls}>
-			<img class="nz-pkmn-carousel-sprite" src={item.src} alt={item.label} />
+			<NzSprite species={item.species} class="nz-pkmn-carousel-sprite" />
 			<div class="nz-pkmn-carousel-label">{item.label}</div>
 	</div>;
 	}
@@ -149,7 +146,7 @@ function TimelineNode({ summary, index }: {
 		{isDone && summary.deaths.length > 0 && <PokemonCarousel
 			variant="death"
 			items={summary.deaths.map(d => ({
-				src: `https://play.pokemonshowdown.com/sprites/ani/${nzToID(d.species)}.gif`,
+				species: d.species,
 				label: d.nickname,
 			}))}
 		/>}
@@ -169,16 +166,14 @@ export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
 	}
 
 	const colorStyle = game.scenarioColor ? `--scenario-color:${game.scenarioColor}` : '';
-	const bgSpriteSrc = game.scenarioPokemon
-		? `https://play.pokemonshowdown.com/sprites/ani/${nzToID(game.scenarioPokemon)}.gif`
-		: null;
+	const bgSpriteSrc = game.scenarioPokemon ?? null;
 
 	return <NzRoot>
 		<NzScreen>
 			<div class="nz-seg-screen" style={colorStyle}>
 
 				<div class="nz-seg-header">
-					{bgSpriteSrc && <img class="nz-seg-bg-sprite" src={bgSpriteSrc} alt="" aria-hidden="true" />}
+					{bgSpriteSrc && <NzSprite species={bgSpriteSrc} class="nz-seg-bg-sprite" size={120} decorative />}
 					<div class="nz-seg-scenario">{game.scenarioName}</div>
 					<div class="nz-seg-title">{current?.name ?? 'New Segment'}</div>
 					<div class="nz-seg-progress">{game.currentSegmentIndex + 1} / {game.totalSegments}</div>

@@ -189,14 +189,33 @@ onBlur:this.handleBlur}
 };return NzItemSelect;}(preact.Component);
 
 
-function NzSprite(_ref5){var species=_ref5.species,_ref5$size=_ref5.size,size=_ref5$size===void 0?60:_ref5$size;
+function NzSprite(_ref5)
+
+
+
+
+
+{var species=_ref5.species,_ref5$size=_ref5.size,size=_ref5$size===void 0?50:_ref5$size,extraClass=_ref5["class"],extraStyle=_ref5.style,decorative=_ref5.decorative;
 var id=toID(species);
-var src="https://play.pokemonshowdown.com/sprites/ani/"+id+".gif";
-return preact.h("img",{
-"class":"nz-card-sprite",
-src:src,
-alt:species,
-style:"width:"+size+"px;height:"+size+"px;"}
+var num=Dex.getPokemonIconNum(id);
+var col=num%12;
+var row=Math.floor(num/12);
+
+var scale=size!==undefined?size/30:1;
+var w=Math.round(40*scale);
+var h=Math.round(30*scale);
+var bgX=Math.round(col*40*scale);
+var bgY=Math.round(row*30*scale);
+var bgSize=scale!==1?";background-size:"+Math.round(480*scale)+"px auto":'';
+var spriteStyle="display:inline-block;width:"+w+"px;height:"+h+"px;image-rendering:pixelated;background:transparent url("+Dex.resourcePrefix+"sprites/pokemonicons-sheet.png?v21) no-repeat scroll -"+bgX+"px -"+bgY+"px"+bgSize;
+var cls=extraClass!==undefined?extraClass:'nz-card-sprite';
+var combinedStyle=[spriteStyle,extraStyle].filter(Boolean).join(';');
+return preact.h("span",{
+"class":cls||undefined,
+style:combinedStyle,
+role:decorative?undefined:'img',
+"aria-label":decorative?undefined:species,
+"aria-hidden":decorative?'true':undefined}
 );
 }
 //# sourceMappingURL=primitives.js.map

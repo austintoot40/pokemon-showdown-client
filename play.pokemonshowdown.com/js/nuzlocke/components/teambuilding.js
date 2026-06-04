@@ -316,10 +316,7 @@ hasError?'nz-party-slot-error':'',
 canEvolve?'nz-party-slot-evolve':''].
 filter(Boolean).join(' ');
 return preact.h("div",{"class":cls,onClick:onSelect,onDblClick:onDoubleClick},
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(pokemon.species)+".gif",
-alt:pokemon.species}
-),
+preact.h(NzSprite,{species:pokemon.species}),
 preact.h("div",{"class":"nz-party-slot-info"},
 preact.h("div",{"class":"nz-party-slot-name"},
 pokemon.nickname,pokemon.gender==='M'?preact.h("span",{"class":"nz-gender nz-gender-m"},"\u2642"):pokemon.gender==='F'?preact.h("span",{"class":"nz-gender nz-gender-f"},"\u2640"):null
@@ -352,10 +349,7 @@ var cls=[
 selected?'nz-opponent-slot-selected':''].
 filter(Boolean).join(' ');
 return preact.h("div",{"class":cls,onClick:onSelect},
-preact.h("img",{
-src:"https://play.pokemonshowdown.com/sprites/ani/"+toID(pokemon.species)+".gif",
-alt:pokemon.species}
-),
+preact.h(NzSprite,{species:pokemon.species,"class":""}),
 preact.h("div",{"class":"nz-party-slot-info"},
 preact.h("div",{"class":"nz-party-slot-name"},pokemon.species),
 preact.h("div",{"class":"nz-party-slot-sub"},"Lv. ",pokemon.level),

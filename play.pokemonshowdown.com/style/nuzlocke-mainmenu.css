@@ -104,12 +104,8 @@
 /* Large faded sprite anchored to the upper-right of the panel */
 .nz-panel-sprite {
   position: absolute;
-  right: -35%;
-  top: -15%;
-  width: 112%;
-  height: 159%;
-  object-fit: contain;
-  image-rendering: auto;
+  right: -12%;
+  top: 0%;
   opacity: 0.05;
   pointer-events: none;
   filter: saturate(0.3);
@@ -474,11 +470,7 @@
 .nz-scenario-card-sprite {
   position: absolute;
   right: -8px;
-  top: -8px;
-  width: 140px;
-  height: 140px;
-  object-fit: contain;
-  image-rendering: auto;
+  top: 8px;
   opacity: 0.13;
   pointer-events: none;
   filter: saturate(0.5);

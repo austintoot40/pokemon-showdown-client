@@ -8,20 +8,17 @@
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { NzRoot, NzScreen } from "../components/layout";
+import { NzSprite } from "../components/primitives";
 import type { NuzlockePanelPayload, OwnedPokemon } from "../types";
 
 function SpriteSlot({ mon, index }: { mon: OwnedPokemon; index: number }) {
-	const speciesId = mon.species.toLowerCase().replace(/[^a-z0-9]/g, '');
-	const src = `https://play.pokemonshowdown.com/sprites/ani/${speciesId}.gif`;
 	return (
 		<div class="nz-victory-slot" style={`animation-delay:${index}s`}>
 			<div class="nz-victory-sprite-wrap">
-				<img
+				<NzSprite
+					species={mon.species}
 					class="nz-victory-sprite"
-					src={src}
-					alt={mon.species}
-					width={120}
-					height={120}
+					size={60}
 				/>
 			</div>
 			<div class="nz-victory-mon-name">{mon.nickname || mon.species}</div>

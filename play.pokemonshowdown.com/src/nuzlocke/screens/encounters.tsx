@@ -11,7 +11,7 @@ import { toID, Dex } from "../../battle-dex";
 import { PSView } from "../../panels";
 import { BattleNatures } from "../../battle-dex-data";
 import { NzScreen, NzTimeline } from "../components/layout";
-import { NzBtn, NzTypeBadges } from "../components/primitives";
+import { NzBtn, NzSprite, NzTypeBadges } from "../components/primitives";
 import { NzStatPair } from "../components/teambuilding";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
 import type { NuzlockePanelPayload, RouteEncounter, ZoneEncounter, StatsTable } from "../types";
@@ -218,10 +218,12 @@ function StandardZoneCard({
 					resolved && !isCaught && 'nz-encounter-slot-dimmed',
 					isCaught && 'nz-encounter-slot-caught',
 				)}>
-					<img
-						src={`https://play.pokemonshowdown.com/sprites/ani/${toID(e.species)}.gif`}
-						alt={e.species}
-					/>
+					<NzSprite species={e.species} class={cls(
+						'nz-encounter-slot-sprite',
+						dupe && 'nz-encounter-slot-sprite-dupe',
+						resolved && !isCaught && 'nz-encounter-slot-sprite-dimmed',
+						isCaught && 'nz-encounter-slot-sprite-caught',
+					)} />
 					<div class="nz-encounter-rate-bar">
 						<div class="nz-encounter-rate-fill" style={`width:${pct}%`} />
 					</div>
@@ -284,10 +286,12 @@ function GiftZoneCard({
 					)}
 					onClick={clickable ? sendCmd : undefined}
 				>
-					<img
-						src={`https://play.pokemonshowdown.com/sprites/ani/${toID(e.species)}.gif`}
-						alt={e.species}
-					/>
+					<NzSprite species={e.species} class={cls(
+						'nz-gift-zone-sprite',
+						isDupe && 'nz-gift-zone-sprite-dupe',
+						isCaught && 'nz-gift-zone-sprite-caught',
+						dimmed && !isDupe && 'nz-gift-zone-sprite-dimmed',
+					)} />
 				</div>;
 			})}
 		</div>
@@ -333,13 +337,13 @@ function TradeZoneCard({
 		<div class="nz-trade-zone-row">
 			{requiredName && <>
 				<div class={cls('nz-trade-zone-pokemon', caughtHere && 'nz-trade-zone-pokemon-traded')}>
-					<img src={`https://play.pokemonshowdown.com/sprites/ani/${toID(requiredName)}.gif`} alt={requiredName} />
+					<NzSprite species={requiredName} class={cls('nz-trade-zone-sprite', caughtHere && 'nz-trade-zone-sprite-traded')} />
 				</div>
 				<div class="nz-trade-zone-arrow">→</div>
 			</>}
 			{newPokemon && (
 				<div class={cls('nz-trade-zone-pokemon', caughtHere && 'nz-trade-zone-pokemon-received')}>
-					<img src={`https://play.pokemonshowdown.com/sprites/ani/${toID(newPokemon.species)}.gif`} alt={newPokemon.species} />
+					<NzSprite species={newPokemon.species} class={cls('nz-trade-zone-sprite', caughtHere && 'nz-trade-zone-sprite-received')} />
 				</div>
 			)}
 		</div>
@@ -386,16 +390,15 @@ function RouteListItem({
 			<div class="nz-route-list-sprites">
 				<div class="nz-route-sprite-group">
 					{sprites.map(({ species, isDupe, isCaught }) => (
-						<img
+						<NzSprite
 							key={toID(species)}
+							species={species}
 							class={cls(
 								'nz-route-sprite',
 								isDupe && !isCaught && 'nz-route-sprite-dupe',
 								isCaught && 'nz-route-sprite-caught',
 							)}
-							src={`https://play.pokemonshowdown.com/sprites/ani/${toID(species)}.gif`}
-							alt={species}
-							title={species}
+							size={40}
 						/>
 					))}
 				</div>
@@ -432,10 +435,7 @@ function GiftChoicePicker({
 					class={cls('nz-gift-zone-option', 'nz-gift-zone-option-selectable', isDupe && 'nz-gift-zone-option-dupe')}
 					onClick={() => PS.send(`/nuzlocke choosegift ${giftIndex} ${toID(e.species)}`)}
 				>
-					<img
-						src={`https://play.pokemonshowdown.com/sprites/ani/${toID(e.species)}.gif`}
-						alt={e.species}
-					/>
+					<NzSprite species={e.species} class={cls('nz-gift-zone-sprite', isDupe && 'nz-gift-zone-sprite-dupe')} />
 				</div>;
 			})}
 		</div>
@@ -485,11 +485,7 @@ class EncounterPokemonStats extends preact.Component<{
 		return <div class="nz-encounter-stats">
 			{/* Header: sprite + identity */}
 			<div class="nz-encounter-stats-header">
-				<img
-					class="nz-encounter-stats-sprite"
-					src={`https://play.pokemonshowdown.com/sprites/ani/${toID(pokemon.species)}.gif`}
-					alt={pokemon.species}
-				/>
+				<NzSprite species={pokemon.species} class="nz-encounter-stats-sprite" size={60} />
 				<div class="nz-encounter-stats-identity">
 					{editing
 						? <input

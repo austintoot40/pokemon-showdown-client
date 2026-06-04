@@ -76,7 +76,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
 }
 
 .nz-route-sprite-method-icon {
@@ -87,10 +86,6 @@
 }
 
 .nz-route-sprite {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  image-rendering: auto;
   flex-shrink: 0;
 }
 
@@ -243,9 +238,7 @@
 .nz-route-pool {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
   width: 100%;
-  justify-content: center;
 }
 
 /* =============================================
@@ -259,22 +252,9 @@
   gap: 2px;
 }
 
-.nz-encounter-slot img {
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  margin: 12px;
-  object-fit: contain;
-  image-rendering: auto;
-}
-
-.nz-encounter-slot-dupe img {
-  opacity: 0.25;
-}
-
-.nz-encounter-slot-dimmed img {
-  opacity: 0.15;
-}
+.nz-encounter-slot-sprite { margin: 12px; }
+.nz-encounter-slot-sprite-dupe { opacity: 0.25; }
+.nz-encounter-slot-sprite-dimmed { opacity: 0.15; }
 
 .nz-encounter-slot-dimmed .nz-encounter-rate-fill {
   background: var(--nz-text-dim);
@@ -284,9 +264,7 @@
   color: var(--nz-text-dim);
 }
 
-.nz-encounter-slot-caught img {
-  filter: drop-shadow(0 0 6px var(--nz-accent));
-}
+.nz-encounter-slot-sprite-caught { filter: drop-shadow(0 0 6px var(--nz-accent)); }
 
 .nz-encounter-rate-bar {
   width: 64px;
@@ -370,11 +348,7 @@
 }
 
 .nz-encounter-stats-sprite {
-  width: 80px;
-  height: 80px;
   flex-shrink: 0;
-  object-fit: contain;
-  image-rendering: auto;
 }
 
 .nz-encounter-stats-identity {
@@ -491,22 +465,9 @@
   gap: 3px;
 }
 
-.nz-trade-zone-pokemon img {
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  margin: 12px;
-  object-fit: contain;
-  image-rendering: auto;
-}
-
-.nz-trade-zone-pokemon-traded img {
-  opacity: 0.25;
-}
-
-.nz-trade-zone-pokemon-received img {
-  filter: drop-shadow(0 0 4px var(--nz-accent));
-}
+.nz-trade-zone-sprite { margin: 12px; }
+.nz-trade-zone-sprite-traded { opacity: 0.25; }
+.nz-trade-zone-sprite-received { filter: drop-shadow(0 0 4px var(--nz-accent)); }
 
 .nz-trade-zone-arrow {
   font-size: 20px;
@@ -611,33 +572,17 @@
   cursor: default;
 }
 
-.nz-gift-zone-option img {
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  margin: 12px;
-  object-fit: contain;
-  image-rendering: auto;
-}
+.nz-gift-zone-sprite { margin: 12px; }
+.nz-gift-zone-sprite-dupe { opacity: 0.25; }
+.nz-gift-zone-sprite-dimmed { opacity: 0.15; }
+.nz-gift-zone-sprite-caught { filter: drop-shadow(0 0 4px var(--nz-accent)); }
 
 .nz-gift-zone-option-selectable {
   cursor: pointer;
 }
 
-.nz-gift-zone-option-selectable:hover img {
+.nz-gift-zone-option-selectable:hover .nz-gift-zone-sprite {
   filter: drop-shadow(0 0 5px var(--nz-warning));
-}
-
-.nz-gift-zone-option-dupe img {
-  opacity: 0.25;
-}
-
-.nz-gift-zone-option-dimmed img {
-  opacity: 0.15;
-}
-
-.nz-gift-zone-option-caught img {
-  filter: drop-shadow(0 0 4px var(--nz-accent));
 }
 
 /* =============================================
@@ -809,9 +754,9 @@
   }
 
   /* Sprite padding: 24px is excessive on a narrow screen — drop to 6px */
-  .nz-encounter-slot img,
-  .nz-gift-zone-option img {
-    padding: 6px 4px;
+  .nz-encounter-slot-sprite,
+  .nz-gift-zone-sprite {
+    margin: 6px 4px;
   }
 
   /* Zone cards go full-width when stacked vertically */

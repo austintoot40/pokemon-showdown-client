@@ -7,7 +7,7 @@
 import preact from "../../../js/lib/preact";
 import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
-import { NzTypeBadges } from "./primitives";
+import { NzSprite, NzTypeBadges } from "./primitives";
 import type { OwnedPokemon, TrainerPokemon, StatsTable } from "../types";
 
 // ---------------------------------------------------------------------------
@@ -316,10 +316,7 @@ export function NzPartySlot({
 		canEvolve ? 'nz-party-slot-evolve' : '',
 	].filter(Boolean).join(' ');
 	return <div class={cls} onClick={onSelect} onDblClick={onDoubleClick}>
-		<img
-			src={`https://play.pokemonshowdown.com/sprites/ani/${toID(pokemon.species)}.gif`}
-			alt={pokemon.species}
-		/>
+		<NzSprite species={pokemon.species} />
 		<div class="nz-party-slot-info">
 			<div class="nz-party-slot-name">
 				{pokemon.nickname}{pokemon.gender === 'M' ? <span class="nz-gender nz-gender-m">♂</span> : pokemon.gender === 'F' ? <span class="nz-gender nz-gender-f">♀</span> : null}
@@ -352,10 +349,7 @@ export function NzOpponentSlot({
 		selected ? 'nz-opponent-slot-selected' : '',
 	].filter(Boolean).join(' ');
 	return <div class={cls} onClick={onSelect}>
-		<img
-			src={`https://play.pokemonshowdown.com/sprites/ani/${toID(pokemon.species)}.gif`}
-			alt={pokemon.species}
-		/>
+		<NzSprite species={pokemon.species} class="" />
 		<div class="nz-party-slot-info">
 			<div class="nz-party-slot-name">{pokemon.species}</div>
 			<div class="nz-party-slot-sub">Lv. {pokemon.level}</div>
