@@ -1325,3 +1325,207 @@
   justify-content: flex-end;
   margin-top: 4px;
 }
+
+/* =============================================
+   MOBILE TEAMBUILDER (≤800px)
+   3-tab layout: Loadout | Team | Vs.
+   Bottom bar with tab switcher + Battle button.
+   ============================================= */
+
+/* Hidden on desktop, shown on mobile */
+.nz-tb-mobile {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  /* Hide desktop layout elements */
+  .nz-tb-layout,
+  .nz-tb-battle-footer {
+    display: none !important;
+  }
+
+  /* Show mobile layout */
+  .nz-tb-mobile {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+/* Scrollable tab content area */
+.nz-tb-mobile-content {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Each tab is a block-level scroll container */
+.nz-tb-mobile-tab {
+  padding: 12px 12px 80px; /* bottom padding ensures content clears the sticky bar */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---- Party strip ---- */
+.nz-tb-mobile-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px 0 6px;
+}
+
+.nz-tb-strip-slot {
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--nz-elevated);
+  border: 1.5px solid var(--nz-border);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.nz-tb-strip-slot:hover {
+  border-color: var(--nz-accent);
+}
+
+.nz-tb-strip-slot-selected {
+  border-color: var(--nz-accent);
+  background: color-mix(in srgb, var(--nz-accent) 12%, var(--nz-elevated));
+  box-shadow: 0 0 0 1px var(--nz-accent) inset;
+}
+
+.nz-tb-strip-slot-error {
+  border-color: var(--nz-danger);
+}
+
+.nz-tb-strip-slot-empty {
+  font-size: 12px;
+  color: var(--nz-text-muted);
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Item icon in strip slot */
+.nz-tb-strip-item {
+  transform: scale(0.7);
+  transform-origin: center;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.nz-tb-strip-item-empty {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 1.5px dashed var(--nz-text-muted);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+/* ---- Section labels within mobile tabs ---- */
+.nz-tb-mobile-section {
+  font-family: var(--nz-font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nz-text-muted);
+  padding: 4px 0 2px;
+  border-bottom: 1px solid var(--nz-border);
+  margin-top: 4px;
+}
+
+/* ---- Mobile team tab ---- */
+.nz-tb-mobile-party-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: visible;
+}
+
+.nz-tb-mobile-box-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 6px;
+}
+
+/* ---- Mobile vs tab ---- */
+.nz-tb-mobile-opp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nz-tb-mobile-opp-detail {
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-top: 2px solid var(--nz-danger);
+  padding: 14px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---- Bottom bar ---- */
+.nz-tb-mobile-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  background: var(--nz-surface);
+  border-top: 1px solid var(--nz-border);
+}
+
+.nz-tb-mobile-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+
+.nz-tb-mobile-nav {
+  flex: 1;
+  padding: 6px 4px;
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--nz-elevated);
+  color: var(--nz-text-muted);
+  border: 1px solid var(--nz-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.nz-tb-mobile-nav:hover {
+  color: var(--nz-text);
+  border-color: var(--nz-accent);
+}
+
+.nz-tb-mobile-nav-active {
+  background: color-mix(in srgb, var(--nz-accent) 15%, var(--nz-elevated));
+  color: var(--nz-accent);
+  border-color: var(--nz-accent);
+}
+
+.nz-tb-mobile-bar-error {
+  font-family: var(--nz-font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--nz-danger);
+  white-space: nowrap;
+  flex-shrink: 0;
+}

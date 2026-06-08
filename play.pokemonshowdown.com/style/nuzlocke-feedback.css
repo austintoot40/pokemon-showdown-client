@@ -25,8 +25,14 @@
 }
 
 @media (max-width: 800px) {
-	.nz-feedback-fab {
+	/* FAB lives at the bottom of each mobile tab instead of floating */
+	.nz-root > .nz-feedback-fab {
+		display: none;
+	}
+
+	.nz-tb-mobile-tab .nz-feedback-fab {
 		position: static;
+		z-index: 0;
 		display: block;
 		margin-left: auto;
 		margin-top: 16px;

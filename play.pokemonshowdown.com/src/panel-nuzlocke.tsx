@@ -72,7 +72,7 @@ function NuzlockeGamePanel({ gameState, onFeedback }: { gameState: NuzlockePanel
 	switch (gameState.curScreen) {
 	case 'segment':      screen = <SegmentScreen game={gameState} />; break;
 	case 'encounters':   screen = <EncountersScreen game={gameState} />; break;
-	case 'teambuilding': screen = <TeambuildingScreen game={gameState} />; break;
+	case 'teambuilding': screen = <TeambuildingScreen game={gameState} onFeedback={onFeedback} />; break;
 	case 'battle':       screen = <BattleScreen game={gameState} />; break;
 	case 'done':         screen = <VictoryScreen game={gameState} />; break;
 	case 'wipe':         screen = <WipeScreen game={gameState} />; break;
