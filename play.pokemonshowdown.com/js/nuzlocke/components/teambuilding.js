@@ -304,7 +304,9 @@ function NzPartySlot(_ref8)
 
 
 
-{var pokemon=_ref8.pokemon,levelCap=_ref8.levelCap,generation=_ref8.generation,selected=_ref8.selected,isDragging=_ref8.isDragging,dropIndicator=_ref8.dropIndicator,onSelect=_ref8.onSelect,onDragPointerDown=_ref8.onDragPointerDown,hasError=_ref8.hasError,canEvolve=_ref8.canEvolve;
+
+
+{var _Dex$items$get;var pokemon=_ref8.pokemon,levelCap=_ref8.levelCap,generation=_ref8.generation,selected=_ref8.selected,isDragging=_ref8.isDragging,dropIndicator=_ref8.dropIndicator,onSelect=_ref8.onSelect,onDragPointerDown=_ref8.onDragPointerDown,hasError=_ref8.hasError,canEvolve=_ref8.canEvolve,heldItem=_ref8.heldItem;
 var cls=[
 'nz-party-slot',
 selected?'nz-party-slot-selected':'',
@@ -314,6 +316,7 @@ isDragging?'nz-party-slot-dragging':'',
 dropIndicator==='before'?'nz-party-slot-drop-before':'',
 dropIndicator==='after'?'nz-party-slot-drop-after':''].
 filter(Boolean).join(' ');
+var itemName=heldItem?(_Dex$items$get=Dex.items.get(heldItem))==null?void 0:_Dex$items$get.name:null;
 return preact.h("div",{"class":cls,onClick:onSelect,onPointerDown:onDragPointerDown},
 preact.h(NzSprite,{species:pokemon.species}),
 preact.h("div",{"class":"nz-party-slot-info"},
@@ -324,6 +327,12 @@ preact.h("div",{"class":"nz-party-slot-sub"},
 pokemon.nickname!==pokemon.species?pokemon.species+" \xB7 ":'',"Lv.",levelCap
 ),
 preact.h("div",{"class":"nz-party-slot-types"},preact.h(NzTypeBadges,{species:pokemon.species,generation:generation}))
+),
+preact.h("div",{"class":"nz-party-slot-item",title:itemName!=null?itemName:'No item'},
+itemName?
+preact.h("span",{"class":"itemicon",style:Dex.getItemIcon(itemName)}):
+preact.h("span",{"class":"nz-party-slot-item-empty"})
+
 )
 );
 }

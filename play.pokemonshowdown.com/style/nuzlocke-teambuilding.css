@@ -1244,3 +1244,84 @@
     padding: 5px 12px;
   }
 }
+
+/* =============================================
+   PARTY SLOT — ITEM INDICATOR
+   ============================================= */
+
+.nz-party-slot-item {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Item sprite: shrink the standard 24×24 icon to fit */
+.nz-party-slot-item .itemicon {
+  transform: scale(0.75);
+  transform-origin: center;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+/* Empty state: small dashed circle */
+.nz-party-slot-item-empty {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 1.5px dashed var(--nz-text-muted);
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+/* =============================================
+   ITEM WARNING DIALOG
+   ============================================= */
+
+.nz-item-warning-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.nz-item-warning-dialog {
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  border-top: 3px solid var(--nz-warning);
+  clip-path: var(--nz-clip);
+  padding: 24px 28px;
+  max-width: 360px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nz-item-warning-title {
+  font-family: var(--nz-font-ui);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-warning);
+}
+
+.nz-item-warning-body {
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+  color: var(--nz-text-muted);
+  line-height: 1.5;
+}
+
+.nz-item-warning-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}

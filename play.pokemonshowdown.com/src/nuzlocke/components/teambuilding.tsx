@@ -293,6 +293,7 @@ export function NzPartySlot({
 	onDragPointerDown,
 	hasError,
 	canEvolve,
+	heldItem,
 }: {
 	pokemon: OwnedPokemon;
 	levelCap: number;
@@ -304,6 +305,7 @@ export function NzPartySlot({
 	onDragPointerDown?: (e: PointerEvent) => void;
 	hasError?: boolean;
 	canEvolve?: boolean;
+	heldItem?: string;
 }) {
 	const cls = [
 		'nz-party-slot',
@@ -314,6 +316,7 @@ export function NzPartySlot({
 		dropIndicator === 'before' ? 'nz-party-slot-drop-before' : '',
 		dropIndicator === 'after' ? 'nz-party-slot-drop-after' : '',
 	].filter(Boolean).join(' ');
+	const itemName = heldItem ? Dex.items.get(heldItem)?.name : null;
 	return <div class={cls} onClick={onSelect} onPointerDown={onDragPointerDown}>
 		<NzSprite species={pokemon.species} />
 		<div class="nz-party-slot-info">
@@ -324,6 +327,12 @@ export function NzPartySlot({
 				{pokemon.nickname !== pokemon.species ? `${pokemon.species} · ` : ''}Lv.{levelCap}
 			</div>
 			<div class="nz-party-slot-types"><NzTypeBadges species={pokemon.species} generation={generation} /></div>
+		</div>
+		<div class="nz-party-slot-item" title={itemName ?? 'No item'}>
+			{itemName
+				? <span class="itemicon" style={Dex.getItemIcon(itemName)} />
+				: <span class="nz-party-slot-item-empty" />
+			}
 		</div>
 	</div>;
 }

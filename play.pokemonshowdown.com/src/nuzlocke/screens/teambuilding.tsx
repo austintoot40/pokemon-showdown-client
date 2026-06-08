@@ -38,10 +38,11 @@ interface TeambuildingState {
 	showTutorial: boolean;
 	activeTab: 'moves' | 'items';
 	drag: DragState | null;
+	showItemWarning: boolean;
 }
 
 export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
-	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves', drag: null };
+	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves', drag: null, showItemWarning: false };
 
 	// Instance variable tracks drag state synchronously — avoids reading stale Preact state in document event handlers.
 	_drag: DragState | null = null;
@@ -264,6 +265,19 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			return;
 		}
 		const { game } = this.props;
+		const { heldItems } = this.state;
+		const heldSet = new Set(Object.values(heldItems).filter(Boolean));
+		const partyMissingItem = game.party.some(uid => !heldItems[uid]);
+		const itemsAvailable = game.holdableItems.some(i => !heldSet.has(i.id));
+		if (partyMissingItem && itemsAvailable) {
+			this.setState({ showItemWarning: true });
+			return;
+		}
+		this.commitBattle();
+	};
+
+	commitBattle = () => {
+		const { game } = this.props;
 		const { moves, heldItems } = this.state;
 		// Include all alive Pokemon so box moves are persisted; server only uses party for battle
 		const parts = game.box.filter(p => p.alive).map(p => {
@@ -277,7 +291,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 	render() {
 		const { game } = this.props;
-		const { moves, heldItems, errors, selectedUid, selectedOpponent, drag } = this.state;
+		const { moves, heldItems, errors, selectedUid, selectedOpponent, drag, showItemWarning } = this.state;
 		const isDragging = !!(drag?.active);
 		const dragUid = isDragging ? drag!.source.uid : null;
 		const boxDisabled = game.boxDisabled;
@@ -529,6 +543,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 										onDragPointerDown={(e: PointerEvent) => this.startPartyDrag(pok.uid, i, e)}
 										hasError={!!errors[pok.uid]}
 										canEvolve={!!(game.availableEvolutions[pok.uid]?.length)}
+										heldItem={heldItems[pok.uid] ?? ''}
 									/>;
 								}
 								return <div key={i} class="nz-party-slot nz-party-slot-empty">— empty —</div>;
@@ -611,6 +626,32 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				>
 					<NzSprite species={pok.species} size={32} />
 					<span class="nz-drag-ghost-name">{pok.nickname}</span>
+				</div>;
+			})()}
+
+			{showItemWarning && (() => {
+				const missingCount = game.party.filter(uid => !heldItems[uid]).length;
+				return <div class="nz-item-warning-overlay">
+					<div class="nz-item-warning-dialog">
+						<div class="nz-item-warning-title">Items not assigned</div>
+						<div class="nz-item-warning-body">
+							{missingCount === 1
+								? '1 party member has no held item.'
+								: `${missingCount} party members have no held item.`
+							}{' '}There are items available to assign.
+						</div>
+						<div class="nz-item-warning-actions">
+							<NzBtn variant="secondary" size="sm" onClick={() => {
+								this.setState({ showItemWarning: false, activeTab: 'items' });
+								const firstUnequipped = game.party.find(uid => !heldItems[uid]);
+								if (firstUnequipped) this.setState({ selectedUid: firstUnequipped });
+							}}>Assign Items</NzBtn>
+							<NzBtn size="sm" onClick={() => {
+								this.setState({ showItemWarning: false });
+								this.commitBattle();
+							}}>Battle Anyway</NzBtn>
+						</div>
+					</div>
 				</div>;
 			})()}
 

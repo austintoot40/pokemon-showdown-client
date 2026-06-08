@@ -40,8 +40,9 @@
 
 
 
+
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
-state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves',drag:null};_this.
+state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves',drag:null,showItemWarning:false};_this.
 
 
 _drag=null;_this.
@@ -264,6 +265,19 @@ _this.setState({errors:errors});
 return;
 }
 var game=_this.props.game;
+var heldItems=_this.state.heldItems;
+var heldSet=new Set(Object.values(heldItems).filter(Boolean));
+var partyMissingItem=game.party.some(function(uid){return!heldItems[uid];});
+var itemsAvailable=game.holdableItems.some(function(i){return!heldSet.has(i.id);});
+if(partyMissingItem&&itemsAvailable){
+_this.setState({showItemWarning:true});
+return;
+}
+_this.commitBattle();
+};_this.
+
+commitBattle=function(){
+var game=_this.props.game;
 var _this$state=_this.state,moves=_this$state.moves,heldItems=_this$state.heldItems;
 
 var parts=game.box.filter(function(p){return p.alive;}).map(function(p){var _moves$uid;
@@ -277,7 +291,7 @@ PS.send("/nuzlocke battlewithmoves "+parts);
 
 render=function render(){var _game$box$find,_remainingBattles$sel,_this2=this,_battle$trainer;
 var game=this.props.game;
-var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponent=_this$state2.selectedOpponent,drag=_this$state2.drag;
+var _this$state2=this.state,moves=_this$state2.moves,heldItems=_this$state2.heldItems,errors=_this$state2.errors,selectedUid=_this$state2.selectedUid,selectedOpponent=_this$state2.selectedOpponent,drag=_this$state2.drag,showItemWarning=_this$state2.showItemWarning;
 var isDragging=!!(drag!=null&&drag.active);
 var dragUid=isDragging?drag.source.uid:null;
 var boxDisabled=game.boxDisabled;
@@ -516,7 +530,7 @@ drag.overPartyIdx===i?'before':
 isLast&&drag.overPartyIdx>=partyPokemon.length?'after':
 null:
 null;
-if(pok){var _game$availableEvolut3;
+if(pok){var _game$availableEvolut3,_heldItems$pok$uid;
 return preact.h(NzPartySlot,{
 key:pok.uid,
 pokemon:pok,
@@ -528,7 +542,8 @@ dropIndicator:dropIndicator,
 onSelect:function(){return _this2.select(pok.uid);},
 onDragPointerDown:function(e){return _this2.startPartyDrag(pok.uid,i,e);},
 hasError:!!errors[pok.uid],
-canEvolve:!!((_game$availableEvolut3=game.availableEvolutions[pok.uid])!=null&&_game$availableEvolut3.length)}
+canEvolve:!!((_game$availableEvolut3=game.availableEvolutions[pok.uid])!=null&&_game$availableEvolut3.length),
+heldItem:(_heldItems$pok$uid=heldItems[pok.uid])!=null?_heldItems$pok$uid:''}
 );
 }
 return preact.h("div",{key:i,"class":"nz-party-slot nz-party-slot-empty"},"\u2014 empty \u2014");
@@ -611,6 +626,32 @@ style:"left:"+(drag.clientX+14)+"px;top:"+(drag.clientY+14)+"px"},
 
 preact.h(NzSprite,{species:pok.species,size:32}),
 preact.h("span",{"class":"nz-drag-ghost-name"},pok.nickname)
+);
+}(),
+
+showItemWarning&&function(){
+var missingCount=game.party.filter(function(uid){return!heldItems[uid];}).length;
+return preact.h("div",{"class":"nz-item-warning-overlay"},
+preact.h("div",{"class":"nz-item-warning-dialog"},
+preact.h("div",{"class":"nz-item-warning-title"},"Items not assigned"),
+preact.h("div",{"class":"nz-item-warning-body"},
+missingCount===1?
+'1 party member has no held item.':
+missingCount+" party members have no held item.",
+' ',"There are items available to assign."
+),
+preact.h("div",{"class":"nz-item-warning-actions"},
+preact.h(NzBtn,{variant:"secondary",size:"sm",onClick:function(){
+_this2.setState({showItemWarning:false,activeTab:'items'});
+var firstUnequipped=game.party.find(function(uid){return!heldItems[uid];});
+if(firstUnequipped)_this2.setState({selectedUid:firstUnequipped});
+}},"Assign Items"),
+preact.h(NzBtn,{size:"sm",onClick:function(){
+_this2.setState({showItemWarning:false});
+_this2.commitBattle();
+}},"Battle Anyway")
+)
+)
 );
 }(),
 
