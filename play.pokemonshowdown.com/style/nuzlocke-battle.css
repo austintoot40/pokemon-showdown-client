@@ -242,7 +242,7 @@
 .battle-controls .megaevo.cur {
   color: var(--nz-warning);
   border-color: var(--nz-warning);
-  background: rgba(255, 200, 68, 0.10);
+  background: rgba(var(--nz-warning-rgb), 0.10);
 }
 
 /* ─── General control buttons (Play / Pause / Skip / Cancel) */

@@ -11,22 +11,28 @@
   --nz-bg:           #0f1624;
   --nz-surface:      #172035;
   --nz-elevated:       #1e2d47;
-  --nz-elevated-alpha: rgba(30, 45, 71, 0.55);
+  --nz-elevated-rgb:   30, 45, 71;
+  --nz-elevated-alpha: rgba(var(--nz-elevated-rgb), 0.55);
   --nz-overlay:      #253652;
 
   /* Borders */
   --nz-border:       #2e4268;
-  --nz-border-subtle: rgba(74, 158, 255, 0.1);
+  --nz-border-rgb:   46, 66, 104;
+  --nz-border-subtle: rgba(var(--nz-accent-rgb), 0.1);
 
   /* Accent palette */
   --nz-accent:       #4a9eff;
-  --nz-accent-dim:   rgba(74, 158, 255, 0.12);
+  --nz-accent-rgb:   74, 158, 255;
+  --nz-accent-dim:   rgba(var(--nz-accent-rgb), 0.12);
   --nz-danger:       #ff4444;
-  --nz-danger-dim:   rgba(255, 68, 68, 0.12);
+  --nz-danger-rgb:   255, 68, 68;
+  --nz-danger-dim:   rgba(var(--nz-danger-rgb), 0.12);
   --nz-success:      #44cc88;
-  --nz-success-dim:  rgba(68, 204, 136, 0.12);
+  --nz-success-rgb:  68, 204, 136;
+  --nz-success-dim:  rgba(var(--nz-success-rgb), 0.12);
   --nz-warning:      #ffc844;
-  --nz-warning-dim:  rgba(255, 200, 68, 0.12);
+  --nz-warning-rgb:  255, 200, 68;
+  --nz-warning-dim:  rgba(var(--nz-warning-rgb), 0.12);
 
   /* Text */
   --nz-text:         #dce8ff;
@@ -44,7 +50,7 @@
 
   /* Shadows */
   --nz-shadow:       0 4px 16px rgba(0, 0, 0, 0.5);
-  --nz-shadow-hover: 0 6px 24px rgba(74, 158, 255, 0.15);
+  --nz-shadow-hover: 0 6px 24px rgba(var(--nz-accent-rgb), 0.15);
 
   /* Layout — Screen */
   --nz-screen-max:          1920px;

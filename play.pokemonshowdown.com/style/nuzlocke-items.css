@@ -113,7 +113,7 @@
   border-color: var(--nz-accent);
   border-style: solid;
   background: color-mix(in srgb, var(--nz-accent) 18%, var(--nz-bg));
-  box-shadow: 0 0 0 1px rgba(74, 158, 255, 0.4);
+  box-shadow: 0 0 0 1px rgba(var(--nz-accent-rgb), 0.4);
   color: var(--nz-text);
 }
 
@@ -204,7 +204,7 @@
 
 .nz-item-table td {
   padding: 5px 8px;
-  border-bottom: 1px solid rgba(46, 66, 104, 0.4);
+  border-bottom: 1px solid rgba(var(--nz-border-rgb), 0.4);
   vertical-align: middle;
   color: var(--nz-text);
 }
@@ -306,7 +306,7 @@
   /* ── Individual item cards ── */
   .nz-item-card {
     padding: 7px 10px;
-    border-bottom: 1px solid rgba(46, 66, 104, 0.4);
+    border-bottom: 1px solid rgba(var(--nz-border-rgb), 0.4);
     background: var(--nz-bg);
     cursor: pointer;
     transition: background 0.1s;

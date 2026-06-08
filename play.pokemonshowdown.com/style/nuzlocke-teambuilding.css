@@ -492,8 +492,8 @@
 }
 
 @keyframes nz-card-evolve-glow {
-  0%, 100% { border-color: rgba(255, 200, 68, 0.35); box-shadow: 0 0 4px rgba(255, 200, 68, 0.1); }
-  50%       { border-color: rgba(255, 200, 68, 0.85); box-shadow: 0 0 14px rgba(255, 200, 68, 0.55), 0 0 4px rgba(255, 200, 68, 0.3) inset; }
+  0%, 100% { border-color: rgba(var(--nz-warning-rgb), 0.35); box-shadow: 0 0 4px rgba(var(--nz-warning-rgb), 0.1); }
+  50%       { border-color: rgba(var(--nz-warning-rgb), 0.85); box-shadow: 0 0 14px rgba(var(--nz-warning-rgb), 0.55), 0 0 4px rgba(var(--nz-warning-rgb), 0.3) inset; }
 }
 
 .nz-tb-box-card-selected {
@@ -655,7 +655,7 @@
 }
 
 .nz-move-select-option.is-selected {
-  background: rgba(74, 158, 255, 0.1);
+  background: rgba(var(--nz-accent-rgb), 0.1);
 }
 
 .nz-move-select-option.is-disabled {
