@@ -1061,11 +1061,20 @@
 
   .nz-starter-pick-types {
     justify-content: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
   }
 
   /* Reduce active-run-panel internal padding */
   .nz-active-run-panel {
     padding: 16px 18px;
+  }
+
+  /* Push sprite further right and lower so it doesn't bleed into panel content on narrow screens */
+  .nz-panel-sprite {
+    right: -80%;
+    top: 30%;
   }
 
   /* Login gate: reduce title size */

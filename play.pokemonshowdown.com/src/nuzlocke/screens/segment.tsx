@@ -190,8 +190,19 @@ export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
 				</div>
 
 				<div class="nz-seg-footer">
-					<button class="nz-btn nz-btn-primary" onClick={handleProceed}>
-						Continue
+					<button class="nz-btn nz-btn-primary nz-seg-proceed-btn" onClick={handleProceed}>
+						Encounters
+					</button>
+				</div>
+
+				{/* Mobile bottom bar */}
+				<div class="nz-seg-mobile-bar">
+					<div class="nz-seg-mobile-bar-info">
+						<span class="nz-seg-mobile-bar-name">{current?.name ?? 'New Segment'}</span>
+						<span class="nz-seg-mobile-bar-progress">{game.currentSegmentIndex + 1} / {game.totalSegments}</span>
+					</div>
+					<button class="nz-btn nz-btn-primary nz-seg-proceed-btn" onClick={handleProceed}>
+						Encounters
 					</button>
 				</div>
 

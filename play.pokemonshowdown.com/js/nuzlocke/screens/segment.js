@@ -157,7 +157,7 @@ label:d.nickname
 
 
 
-function SegmentScreen(_ref3){var _game$segmentSummarie,_game$scenarioPokemon,_current$name;var game=_ref3.game;
+function SegmentScreen(_ref3){var _game$segmentSummarie,_game$scenarioPokemon,_current$name,_current$name2;var game=_ref3.game;
 var summaries=(_game$segmentSummarie=game.segmentSummaries)!=null?_game$segmentSummarie:[];
 var current=summaries.find(function(s){return s.status==='current';});
 
@@ -190,7 +190,18 @@ preact.h(TimelineNode,{summary:s,index:i})
 ),
 
 preact.h("div",{"class":"nz-seg-footer"},
-preact.h("button",{"class":"nz-btn nz-btn-primary",onClick:handleProceed},"Continue"
+preact.h("button",{"class":"nz-btn nz-btn-primary nz-seg-proceed-btn",onClick:handleProceed},"Encounters"
+
+)
+),
+
+
+preact.h("div",{"class":"nz-seg-mobile-bar"},
+preact.h("div",{"class":"nz-seg-mobile-bar-info"},
+preact.h("span",{"class":"nz-seg-mobile-bar-name"},(_current$name2=current==null?void 0:current.name)!=null?_current$name2:'New Segment'),
+preact.h("span",{"class":"nz-seg-mobile-bar-progress"},game.currentSegmentIndex+1," / ",game.totalSegments)
+),
+preact.h("button",{"class":"nz-btn nz-btn-primary nz-seg-proceed-btn",onClick:handleProceed},"Encounters"
 
 )
 )

@@ -278,6 +278,50 @@
 }
 
 /* =============================================
+   MOBILE BOTTOM BAR — hidden on desktop, fixed on mobile
+   ============================================= */
+
+.nz-seg-mobile-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  background: var(--nz-surface);
+  border-top: 1px solid var(--nz-border);
+}
+
+.nz-seg-mobile-bar-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nz-seg-mobile-bar-name {
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nz-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nz-seg-mobile-bar-progress {
+  font-family: var(--nz-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--nz-text-muted);
+}
+
+/* =============================================
    COMPACT TIMELINE STRIP (game screen header)
    ============================================= */
 
@@ -488,10 +532,20 @@
     display: none;
   }
 
-  /* Proceed button: full width */
-  .nz-seg-proceed-btn {
+  /* Proceed button: full width in footer only */
+  .nz-seg-footer .nz-seg-proceed-btn {
     width: 100%;
     text-align: center;
+  }
+
+  /* In mobile bar: match base .nz-btn sizing */
+  .nz-seg-mobile-bar .nz-seg-proceed-btn {
+    width: auto;
+    flex-shrink: 0;
+    padding: 7px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
   /* Compact timeline strip: show only prev/current/next window */
@@ -510,5 +564,19 @@
 
   .nz-timeline-strip {
     justify-content: center;
+  }
+
+  /* Hide desktop footer, show mobile bar */
+  .nz-seg-footer {
+    display: none;
+  }
+
+  .nz-seg-mobile-bar {
+    display: flex;
+  }
+
+  /* Pad content so last timeline node clears the fixed bar */
+  .nz-seg-screen {
+    padding-bottom: 80px;
   }
 }

@@ -743,7 +743,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		);
 		const encAccessibleZones = encZones.map(zones => zones.filter(z => z.accessible));
 
-		// A route is "pending" (blocks Continue) if:
+		// A route is "pending" (blocks Teambuilding) if:
 		// - encounter route: unresolved, has accessible non-dupe zones, and NOT deferred this session
 		// - gift route: unresolved choice gift (non-choice gifts are auto-resolved by server)
 		const pendingRoutes = allDisplayedRoutes.filter((enc, i) => {
@@ -758,7 +758,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 				)
 			);
 		});
-		const canContinue = pendingRoutes.length === 0;
+		const canTeambuilding = pendingRoutes.length === 0;
 
 		// Detail panel: find selected route in the unified list
 		const selectedEncIdx = allDisplayedRoutes.findIndex(enc => enc.route === selectedRoute);
@@ -980,10 +980,10 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			<div class="nz-tb-battle-footer">
 				<NzBtn
 					onClick={this.submit}
-					disabled={!canContinue}
-					title={canContinue ? '' : `${pendingRoutes.length} route(s) still need action`}
+					disabled={!canTeambuilding}
+					title={canTeambuilding ? '' : `${pendingRoutes.length} route(s) still need action`}
 				>
-					Continue
+					Teambuilding
 				</NzBtn>
 			</div>
 
@@ -1118,9 +1118,9 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 					</div>
 					<NzBtn
 						onClick={this.submit}
-						disabled={!canContinue}
-						title={canContinue ? '' : `${pendingRoutes.length} route(s) still need action`}
-					>Continue</NzBtn>
+						disabled={!canTeambuilding}
+						title={canTeambuilding ? '' : `${pendingRoutes.length} route(s) still need action`}
+					>Teambuilding</NzBtn>
 				</div>
 			</div>
 

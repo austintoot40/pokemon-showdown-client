@@ -758,7 +758,7 @@ zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.ge
 ));
 
 });
-var canContinue=pendingRoutes.length===0;
+var canTeambuilding=pendingRoutes.length===0;
 
 
 var selectedEncIdx=allDisplayedRoutes.findIndex(function(enc){return enc.route===selectedRoute;});
@@ -980,9 +980,9 @@ onNickChange:this.setNick}
 preact.h("div",{"class":"nz-tb-battle-footer"},
 preact.h(NzBtn,{
 onClick:this.submit,
-disabled:!canContinue,
-title:canContinue?'':pendingRoutes.length+" route(s) still need action"},
-"Continue"
+disabled:!canTeambuilding,
+title:canTeambuilding?'':pendingRoutes.length+" route(s) still need action"},
+"Teambuilding"
 
 )
 ),
@@ -1118,9 +1118,9 @@ preact.h("span",{"class":"nz-enc-mobile-expand-icon"},this.state.statsExpanded?'
 ),
 preact.h(NzBtn,{
 onClick:this.submit,
-disabled:!canContinue,
-title:canContinue?'':pendingRoutes.length+" route(s) still need action"},
-"Continue")
+disabled:!canTeambuilding,
+title:canTeambuilding?'':pendingRoutes.length+" route(s) still need action"},
+"Teambuilding")
 )
 ),
 
