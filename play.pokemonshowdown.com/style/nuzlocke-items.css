@@ -107,6 +107,21 @@
   font-style: italic;
 }
 
+/* Drop target highlight when dragging an item row over the equipped slot */
+.nz-item-equipped-filled.nz-item-equipped--drag-over,
+.nz-item-equipped-empty.nz-item-equipped--drag-over {
+  border-color: var(--nz-accent);
+  border-style: solid;
+  background: color-mix(in srgb, var(--nz-accent) 18%, var(--nz-bg));
+  box-shadow: 0 0 0 1px rgba(74, 158, 255, 0.4);
+  color: var(--nz-text);
+}
+
+/* Row being dragged */
+.nz-item-table tbody tr.nz-item-row--dragging {
+  opacity: 0.4;
+}
+
 /* =============================================
    SEARCH BAR
    ============================================= */

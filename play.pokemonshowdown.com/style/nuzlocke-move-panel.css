@@ -38,6 +38,7 @@
   margin-top: 0;
   clip-path: var(--nz-clip-sm);
   border-radius: 0;
+  user-select: none;
 }
 
 /* Empty move slot */
@@ -117,6 +118,37 @@
 .nz-move-btn--active {
   filter: brightness(1.15) !important;
   transform: none !important;
+}
+
+/* Slot being dragged: faded out with dashed border */
+.nz-move-btn--dragging {
+  opacity: 0.35 !important;
+  transform: none !important;
+  border-style: dashed !important;
+  cursor: grabbing;
+}
+
+/* Slot that is the current drop target */
+.nz-move-btn--drag-over {
+  filter: brightness(1.3) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 0 0 2px var(--nz-accent), 0 4px 12px rgba(74, 158, 255, 0.35) !important;
+}
+
+/* Row being dragged: faded out */
+.nz-move-table tbody tr.nz-move-row--dragging {
+  opacity: 0.4;
+}
+
+/* Row that a slot drag is hovering over */
+.nz-move-table tbody tr.nz-move-row--drag-over {
+  background: rgba(74, 158, 255, 0.15) !important;
+  box-shadow: inset 2px 0 0 var(--nz-accent);
+}
+
+/* Cursor hint while a row drag is in progress */
+.nz-move-drag-active .nz-move-table tbody tr:not(.nz-move-row--equipped):not(.nz-move-row--dragging) {
+  cursor: grabbing;
 }
 
 /* Dimmed siblings: clearly de-emphasized, but hover lifts them to show they're clickable */
@@ -263,6 +295,7 @@
   background: var(--nz-bg);
   cursor: pointer;
   transition: background 0.1s;
+  user-select: none;
 }
 
 .nz-move-table tbody tr:hover {
@@ -432,6 +465,7 @@
     background: var(--nz-bg);
     cursor: pointer;
     transition: background 0.1s;
+    user-select: none;
   }
 
   .nz-move-item:last-child { border-bottom: none; }
@@ -448,6 +482,11 @@
 
   .nz-move-item--equipped { opacity: 0.5; cursor: default; }
   .nz-move-item--equipped:hover { background: var(--nz-bg); opacity: 0.65; }
+  .nz-move-item--dragging { opacity: 0.4; }
+  .nz-move-item--drag-over {
+    background: rgba(74, 158, 255, 0.15) !important;
+    box-shadow: inset 2px 0 0 var(--nz-accent);
+  }
 
   /* Line 1: name + type badge + category badge */
   .nz-move-item-header {

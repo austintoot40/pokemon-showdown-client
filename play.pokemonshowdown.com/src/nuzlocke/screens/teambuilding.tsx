@@ -622,14 +622,14 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					},
 					{
 						selector: '.nz-move-panel',
-						title: 'Move Slots',
-						body: 'Click a move slot to activate it, then click a move in the table to assign it. Each party Pokémon needs at least one move before you can battle.',
+						title: 'Assigning Moves',
+						body: 'Click a slot, then click a move to assign it — the pulsing outline shows where to click next. On desktop you can also drag: pull a move row onto a slot, drag a slot onto a row to swap, or drag one slot onto another to reorder.',
 						onActivate: () => this.setState({ activeTab: 'moves' }),
 					},
 					{
 						selector: '.nz-item-panel',
 						title: 'Held Items',
-						body: 'Click the Items tab to assign a held item to your Pokémon. Items already held by other party members are dimmed.',
+						body: 'Click any item in the list to equip it. On desktop you can also drag an item row onto the equipped slot at the top. Each Pokémon can hold one item.',
 						onActivate: () => this.setState({ activeTab: 'items' }),
 					},
 					{

@@ -6,8 +6,13 @@
  *   - Search bar (name search, or exact type/category/target filter)
  *   - Scrollable table with sortable headers and new-move highlights
  *
- * Bidirectional selection: click a button then a row, or a row then a button.
+ * Bidirectional click selection: click a button then a row, or a row then a button.
  * Swapping: clicking a row that's already in another slot moves it to the new slot.
+ *
+ * Drag (mouse/desktop only for row-to-slot; all devices for slot-to-slot reorder):
+ *   - Drag a filled slot onto another slot to swap move order.
+ *   - Drag a table row (mouse only) onto a slot to assign.
+ * Click paths remain fully functional on all devices.
  */
 
 import preact from "../../../js/lib/preact";
@@ -15,6 +20,10 @@ import { Dex, toID } from "../../battle-dex";
 import type { LegalMove } from "../types";
 
 type SortCol = 'acquired' | 'name' | 'type' | 'category' | 'power' | 'accuracy' | 'pp';
+
+type MoveDrag =
+	| { kind: 'slot'; fromSlot: number; overSlot: number | null; overRow: string | null; active: boolean; clientX: number; clientY: number; startX: number; startY: number }
+	| { kind: 'row'; moveId: string; overSlot: number | null; active: boolean; clientX: number; clientY: number; startX: number; startY: number };
 
 interface MovePanelProps {
 	moves: string[];
@@ -29,6 +38,7 @@ interface MovePanelState {
 	query: string;
 	sortCol: SortCol;
 	sortDir: 'asc' | 'desc';
+	drag: MoveDrag | null;
 }
 
 const TYPES = new Set([
@@ -65,9 +75,14 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 		query: '',
 		sortCol: 'acquired',
 		sortDir: 'asc',
+		drag: null,
 	};
 
 	private panelRef = preact.createRef<HTMLDivElement>();
+
+	_drag: MoveDrag | null = null;
+	_dragJustEnded = false;
+	private _ghostEl: HTMLDivElement | null = null;
 
 	override componentDidMount() {
 		document.addEventListener('click', this.handleOutsideClick, true);
@@ -75,6 +90,8 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 
 	override componentWillUnmount() {
 		document.removeEventListener('click', this.handleOutsideClick, true);
+		this.cancelDrag();
+		this._removeGhost();
 	}
 
 	handleOutsideClick = (e: MouseEvent) => {
@@ -90,7 +107,172 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 		}
 	}
 
+	// ---- Ghost (appended to body to escape clip-path on .nz-tb-detail) ----
+
+	private _removeGhost() {
+		if (this._ghostEl) {
+			this._ghostEl.remove();
+			this._ghostEl = null;
+		}
+	}
+
+	private _updateGhost(x: number, y: number, moveId: string) {
+		if (!this._ghostEl) {
+			this._ghostEl = document.createElement('div');
+			this._ghostEl.className = 'nz-drag-ghost';
+			document.body.appendChild(this._ghostEl);
+		}
+		const move = Dex.forGen(this.props.generation).moves.get(moveId);
+		const name = move?.name ?? moveId;
+		const type = move?.type ?? '';
+		const typeLower = type.toLowerCase();
+		this._ghostEl.innerHTML = type
+			? `<span class="nz-type nz-type-${typeLower}" style="font-size:10px;padding:1px 5px">${type}</span><span class="nz-drag-ghost-name">${name}</span>`
+			: `<span class="nz-drag-ghost-name">${name}</span>`;
+		this._ghostEl.style.left = `${x + 14}px`;
+		this._ghostEl.style.top = `${y - 10}px`;
+		this._ghostEl.style.display = 'flex';
+	}
+
+	// ---- Drag lifecycle ----
+
+	_startDrag(state: MoveDrag) {
+		this._drag = state;
+		this.setState({ drag: this._drag });
+		document.addEventListener('pointermove', this.onDragMove);
+		document.addEventListener('pointerup', this.onDragEnd);
+		document.addEventListener('pointercancel', this.cancelDrag);
+	}
+
+	cancelDrag = () => {
+		document.removeEventListener('pointermove', this.onDragMove);
+		document.removeEventListener('pointerup', this.onDragEnd);
+		document.removeEventListener('pointercancel', this.cancelDrag);
+		this._removeGhost();
+		this._drag = null;
+		this.setState({ drag: null });
+	};
+
+	startSlotDrag = (slot: number, e: PointerEvent) => {
+		if (!this.props.moves[slot]) return;
+		this._startDrag({
+			kind: 'slot',
+			fromSlot: slot,
+			overSlot: null,
+			overRow: null,
+			active: false,
+			clientX: e.clientX,
+			clientY: e.clientY,
+			startX: e.clientX,
+			startY: e.clientY,
+		});
+	};
+
+	startRowDrag = (moveId: string, e: PointerEvent) => {
+		if (e.pointerType !== 'mouse') return;
+		if (this.props.moves.includes(moveId)) return;
+		this._startDrag({
+			kind: 'row',
+			moveId,
+			overSlot: null,
+			active: false,
+			clientX: e.clientX,
+			clientY: e.clientY,
+			startX: e.clientX,
+			startY: e.clientY,
+		});
+	};
+
+	onDragMove = (e: PointerEvent) => {
+		const drag = this._drag;
+		if (!drag) return;
+		e.preventDefault();
+		const dx = e.clientX - drag.startX;
+		const dy = e.clientY - drag.startY;
+		const nowActive = drag.active || Math.hypot(dx, dy) > 5;
+		const overSlot = nowActive ? this.computeOverSlot(e.clientX, e.clientY) : null;
+
+		if (drag.kind === 'slot') {
+			const overRow = nowActive && overSlot === null ? this.computeOverRow(e.clientX, e.clientY) : null;
+			this._drag = { ...drag, overSlot, overRow, active: nowActive, clientX: e.clientX, clientY: e.clientY };
+		} else {
+			this._drag = { ...drag, overSlot, active: nowActive, clientX: e.clientX, clientY: e.clientY };
+		}
+		this.setState({ drag: this._drag });
+
+		if (nowActive) {
+			const moveId = drag.kind === 'slot' ? this.props.moves[drag.fromSlot] : drag.moveId;
+			if (moveId) this._updateGhost(e.clientX, e.clientY, moveId);
+		}
+	};
+
+	onDragEnd = (_e: PointerEvent) => {
+		document.removeEventListener('pointermove', this.onDragMove);
+		document.removeEventListener('pointerup', this.onDragEnd);
+		document.removeEventListener('pointercancel', this.cancelDrag);
+		this._removeGhost();
+		const drag = this._drag;
+		this._drag = null;
+		this.setState({ drag: null });
+		if (!drag?.active) return;
+
+		this._dragJustEnded = true;
+		setTimeout(() => { this._dragJustEnded = false; }, 50);
+
+		const { moves, onChange } = this.props;
+
+		if (drag.kind === 'slot') {
+			const { fromSlot, overSlot, overRow } = drag;
+			if (overSlot !== null && overSlot !== fromSlot) {
+				// Dropped on another slot — swap the two moves
+				const newMoves = [...moves];
+				const temp = newMoves[fromSlot];
+				newMoves[fromSlot] = newMoves[overSlot];
+				newMoves[overSlot] = temp;
+				onChange(newMoves);
+			} else if (overRow !== null && overRow !== moves[fromSlot]) {
+				// Dropped on a table row — assign that move to this slot; if it was
+				// already in another slot, put the dragged move there (true swap).
+				const newMoves = [...moves];
+				const targetSlot = newMoves.findIndex(m => m === overRow);
+				if (targetSlot !== -1) newMoves[targetSlot] = newMoves[fromSlot];
+				newMoves[fromSlot] = overRow;
+				onChange(newMoves);
+			}
+		} else {
+			const { moveId, overSlot } = drag;
+			if (overSlot !== null) {
+				const newMoves = [...moves];
+				const existingSlot = newMoves.findIndex(m => m === moveId);
+				if (existingSlot !== -1 && existingSlot !== overSlot) newMoves[existingSlot] = '';
+				newMoves[overSlot] = moveId;
+				onChange(newMoves);
+				this.setState({ activeMove: null, activeSlot: null });
+			}
+		}
+	};
+
+	computeOverSlot = (clientX: number, clientY: number): number | null => {
+		if (!this.panelRef.current) return null;
+		const buttons = this.panelRef.current.querySelectorAll<HTMLElement>('.nz-move-slots .movebutton');
+		for (let i = 0; i < buttons.length; i++) {
+			const rect = buttons[i].getBoundingClientRect();
+			if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) return i;
+		}
+		return null;
+	};
+
+	computeOverRow = (clientX: number, clientY: number): string | null => {
+		const el = document.elementFromPoint(clientX, clientY);
+		if (!el) return null;
+		const row = (el as Element).closest('[data-moveid]');
+		return row ? row.getAttribute('data-moveid') : null;
+	};
+
+	// ---- Click handlers ----
+
 	clickSlot = (slot: number) => {
+		if (this._dragJustEnded) return;
 		const { activeMove, activeSlot } = this.state;
 		const { moves, onChange } = this.props;
 
@@ -109,6 +291,7 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 	};
 
 	clickRow = (moveId: string) => {
+		if (this._dragJustEnded) return;
 		const { activeSlot, activeMove } = this.state;
 		const { moves, onChange } = this.props;
 
@@ -209,7 +392,7 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 
 	renderSlotButton(slot: number) {
 		const { moves } = this.props;
-		const { activeSlot, activeMove } = this.state;
+		const { activeSlot, activeMove, drag } = this.state;
 		const moveId = moves[slot] ?? '';
 		const move = moveId ? Dex.forGen(this.props.generation).moves.get(moveId) : null;
 		const lm = moveId ? this.props.legalMoves.find(m => toID(m.name) === moveId) : null;
@@ -217,18 +400,31 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 		const isActive = activeSlot === slot;
 		const isTarget = activeSlot !== null && !isActive;
 
+		const isDraggingThis = drag?.active && drag.kind === 'slot' && drag.fromSlot === slot;
+		const isDragOver = drag?.active && (
+			(drag.kind === 'slot' && drag.overSlot === slot && drag.fromSlot !== slot) ||
+			(drag.kind === 'row' && drag.overSlot === slot)
+		);
+
 		const classes = [
 			'movebutton',
 			'nz-move-btn',
 			displayType ? `type-${displayType}` : 'nz-move-btn--empty',
 			isActive ? 'nz-move-btn--active' : '',
 			isTarget ? 'nz-move-btn--active-target' : '',
+			isDraggingThis ? 'nz-move-btn--dragging' : '',
+			isDragOver ? 'nz-move-btn--drag-over' : '',
 		].filter(Boolean).join(' ');
 
 		return (
-			<button key={slot} class={classes} onClick={() => this.clickSlot(slot)}>
+			<button
+				key={slot}
+				class={classes}
+				onClick={() => this.clickSlot(slot)}
+				onPointerDown={(e: PointerEvent) => this.startSlotDrag(slot, e)}
+			>
 				{move ? move.name : <span class="nz-move-btn-empty-label">— Empty —</span>}<br />
-				<small class="type">{displayType ?? '\u00a0'}</small>
+				<small class="type">{displayType ?? ' '}</small>
 			</button>
 		);
 	}
@@ -277,10 +473,12 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 
 	renderMobileCard({ lm, move }: { lm: LegalMove; move: ReturnType<typeof Dex.moves.get> }) {
 		const { moves } = this.props;
-		const { activeMove } = this.state;
+		const { activeMove, drag: dragState } = this.state;
 		const id = toID(lm.name);
 		const isActive = activeMove === id;
 		const isEquipped = moves.includes(id);
+		const isDragging = dragState?.active && dragState.kind === 'row' && dragState.moveId === id;
+		const isSlotDragOver = dragState?.active && dragState.kind === 'slot' && dragState.overRow === id;
 		const displayType = lm.hpType ?? move.type;
 		const power = move.basePower > 0 ? `${move.basePower}` : '—';
 		const acc = move.accuracy === true ? '—' : `${move.accuracy}%`;
@@ -298,9 +496,11 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 			lm.isNew ? 'nz-move-item--new' : '',
 			isActive ? 'nz-move-item--active' : '',
 			isEquipped && !isActive ? 'nz-move-item--equipped' : '',
+			isDragging ? 'nz-move-item--dragging' : '',
+			isSlotDragOver ? 'nz-move-item--drag-over' : '',
 		].filter(Boolean).join(' ');
 		return (
-			<li key={id} class={itemClass} onClick={() => this.clickRow(id)}>
+			<li key={id} data-moveid={id} class={itemClass} onClick={() => this.clickRow(id)} onPointerDown={(e: PointerEvent) => this.startRowDrag(id, e)}>
 				<div class="nz-move-item-header">
 					<span class="nz-move-item-name">{lm.name}</span>
 					<span class={`nz-type nz-type-${displayType.toLowerCase()}`}>{displayType}</span>
@@ -319,12 +519,12 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 
 	override render() {
 		const { moves } = this.props;
-		const { activeSlot, activeMove, query } = this.state;
+		const { activeSlot, activeMove, query, drag } = this.state;
 		const rows = this.getFilteredSorted();
 
 		return (
 			<div class="nz-move-panel" ref={this.panelRef}>
-				<div class={`nz-move-slots-wrap${activeMove !== null ? ' nz-move-selecting' : ''}`}>
+				<div class={`nz-move-slots-wrap${(activeMove !== null || (drag?.active && drag.kind === 'row')) ? ' nz-move-selecting' : ''}`}>
 					<div class="movemenu nz-move-slots">
 						{[0, 1, 2, 3].map(slot => this.renderSlotButton(slot))}
 					</div>
@@ -340,7 +540,7 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 
 				{this.renderSortBar()}
 
-				<div class={`nz-move-table-wrap nz-move-desktop${activeSlot !== null ? ' nz-move-selecting' : ''}`}>
+				<div class={`nz-move-table-wrap nz-move-desktop${(activeSlot !== null || (drag?.active && drag.kind === 'slot')) ? ' nz-move-selecting' : ''}${drag?.active && drag.kind === 'row' ? ' nz-move-drag-active' : ''}`}>
 					<table class="nz-move-table">
 						<thead>
 							<tr>
@@ -364,6 +564,7 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 								const cat = move.category;
 								const power = move.basePower > 0 ? `${move.basePower}` : '—';
 								const acc = move.accuracy === true ? '—' : `${move.accuracy}%`;
+								const isDragging = drag?.active && drag.kind === 'row' && drag.moveId === id;
 
 								let acquiredLabel: string;
 								let acquiredNew = false;
@@ -375,14 +576,17 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 									acquiredNew = lm.isNew;
 								}
 
+								const isSlotDragOver = drag?.active && drag.kind === 'slot' && drag.overRow === id;
 								const rowClass = [
 									isNew ? 'nz-move-row--new' : '',
 									isActive ? 'nz-move-row--active' : '',
 									isEquipped && !isActive ? 'nz-move-row--equipped' : '',
+									isDragging ? 'nz-move-row--dragging' : '',
+									isSlotDragOver ? 'nz-move-row--drag-over' : '',
 								].filter(Boolean).join(' ') || undefined;
 
 								return (
-									<tr key={id} class={rowClass} onClick={() => this.clickRow(id)}>
+									<tr key={id} data-moveid={id} class={rowClass} onClick={() => this.clickRow(id)} onPointerDown={(e: PointerEvent) => this.startRowDrag(id, e)}>
 										<td class="nz-move-col-name">{lm.name}</td>
 										<td><span class={`nz-type nz-type-${displayType.toLowerCase()}`}>{displayType}</span></td>
 										<td><span class={`nz-move-cat nz-move-cat-${move.category.toLowerCase()}`}>{cat}</span></td>
@@ -407,7 +611,7 @@ export class NzMovePanel extends preact.Component<MovePanelProps, MovePanelState
 					</table>
 				</div>
 
-				<div class={`nz-move-list-wrap nz-move-mobile${activeSlot !== null ? ' nz-move-selecting' : ''}`}>
+				<div class={`nz-move-list-wrap nz-move-mobile${(activeSlot !== null || (drag?.active && drag.kind === 'slot')) ? ' nz-move-selecting' : ''}`}>
 					{rows.length === 0
 						? <div class="nz-move-no-results">No moves match</div>
 						: <ul class="nz-move-list">
