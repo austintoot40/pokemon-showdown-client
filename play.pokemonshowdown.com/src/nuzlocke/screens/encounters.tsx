@@ -567,19 +567,23 @@ class EncounterPokemonStats extends preact.Component<{
 
 interface EncountersState {
 	selectedRoute: string | null;
+	mobileExpandedRoute: string | null;
 	nicknames: Record<string, string>;
 	deferredThisSession: Set<string>;
 	lastSegmentIndex: number;
 	showTutorial: boolean;
+	statsExpanded: boolean;
 }
 
 export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayload }, EncountersState> {
 	override state: EncountersState = {
 		selectedRoute: null,
+		mobileExpandedRoute: null,
 		nicknames: {},
 		deferredThisSession: new Set(),
 		lastSegmentIndex: -1,
 		showTutorial: false,
+		statsExpanded: false,
 	};
 
 	override componentDidMount() {
@@ -666,6 +670,23 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		this.setState({ selectedRoute: routeName });
 	};
 
+	toggleRouteMobile = (routeName: string) => {
+		this.setState(s => {
+			const collapsing = s.mobileExpandedRoute === routeName;
+			return {
+				// selectedRoute drives data (zone cards, defer logic) — always set when expanding
+				selectedRoute: collapsing ? s.selectedRoute : routeName,
+				// mobileExpandedRoute drives the accordion UI — getDerivedStateFromProps never touches it
+				mobileExpandedRoute: collapsing ? null : routeName,
+				statsExpanded: false,
+			};
+		});
+	};
+
+	toggleStats = () => {
+		this.setState(s => ({ statsExpanded: !s.statsExpanded }));
+	};
+
 	setNick = (uid: string, value: string) => {
 		this.setState((s: EncountersState) => ({ nicknames: { ...s.nicknames, [uid]: value } }));
 	};
@@ -689,7 +710,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 	render() {
 		const { game } = this.props;
-		const { nicknames, selectedRoute, deferredThisSession } = this.state;
+		const { nicknames, selectedRoute, mobileExpandedRoute, deferredThisSession } = this.state;
 		const segment = game.segment!;
 
 		const ownedRoots = new Set([
@@ -754,6 +775,84 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		const isSelectedGift = selectedRoute ? giftRouteNames.has(selectedRoute) : false;
 		const selectedAllZones = selectedEncIdx >= 0 ? encZones[selectedEncIdx] : [];
 		const selectedAccessibleZones = selectedEncIdx >= 0 ? encAccessibleZones[selectedEncIdx] : [];
+
+		// Pre-compute selected-route detail vars — shared by desktop detail panel and mobile accordion
+		const selIsServerLocked = selectedEnc ? (game.lockedRoutes ?? []).some(r => r.route === selectedEnc.route) : false;
+		const selAccessibleHasNonDupe = selectedAccessibleZones.some(({ zone }) =>
+			zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+		);
+		const selLockedHasNonDupe = selectedAllZones.some(({ zone, accessible }) =>
+			!accessible && zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+		);
+		const selIsAllLocked = selIsServerLocked || (!isResolved && !selAccessibleHasNonDupe && selLockedHasNonDupe);
+		const selIsDeferred = selectedEnc ? deferredThisSession.has(selectedEnc.route) : false;
+		const showDefer = !!(selectedEnc && !isResolved && !selIsAllLocked && !selIsDeferred && !isSelectedGift);
+		const selDeferHint = (() => {
+			let hint = 'Deferred — will re-appear next segment';
+			if (selIsAllLocked && selectedAllZones.length > 0) {
+				const seen = new Set<string>();
+				for (const { zone, accessible } of selectedAllZones) {
+					if (accessible) continue;
+					if (!zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))) continue;
+					const name = zone.requires?.name;
+					if (name) seen.add(name);
+				}
+				if (seen.size > 0) hint += ` (missing: ${Array.from(seen).join(', ')})`;
+			}
+			return hint;
+		})();
+
+		// Mobile: always show the most recently caught pokemon (or the caught one for selected resolved route)
+		const alive = game.box.filter(p => p.alive);
+		const mobileDisplayed = (isResolved && selectedCaught) ? selectedCaught
+			: alive.length > 0 ? alive[alive.length - 1] : null;
+		const mobileNick = mobileDisplayed ? (nicknames[mobileDisplayed.uid] ?? mobileDisplayed.nickname) : '';
+		const mobileIvTier = (() => {
+			if (!mobileDisplayed) return null;
+			const sp = Dex.forGen(game.generation).species.get(mobileDisplayed.species);
+			if (!sp?.exists || !mobileDisplayed.ivs) return null;
+			const ivPct = Math.round(calcIvScore(mobileDisplayed.ivs, sp.baseStats) * 100);
+			return ivPct >= 62 ? 'high' : ivPct >= 50 ? 'mid' : ivPct >= 38 ? 'low' : 'poor';
+		})();
+		const mobileIvLabel = mobileIvTier === 'high' ? 'Great' : mobileIvTier === 'mid' ? 'Good' : mobileIvTier === 'low' ? 'Fair' : mobileIvTier === 'poor' ? 'Poor' : null;
+		const mobileNatQ = (() => {
+			if (!mobileDisplayed) return null;
+			const sp = Dex.forGen(game.generation).species.get(mobileDisplayed.species);
+			if (!sp?.exists) return null;
+			const nat = BattleNatures[mobileDisplayed.nature as keyof typeof BattleNatures] ?? {} as any;
+			return calcNatureQuality(nat, sp.baseStats);
+		})();
+
+		// Helper: renders zone cards + defer button for a selected route (used in both layouts)
+		const renderZoneContent = () => {
+			if (!selectedEnc) return null;
+			return <>
+				{!isSelectedGift && (selIsAllLocked || selIsDeferred) &&
+					<div class="nz-detail-deferred-hint">{selDeferHint}</div>
+				}
+				<div class="nz-zone-cards">
+					{selectedAllZones.map(({ zone, originalIndex, accessible }) => {
+						const caughtSpeciesForZone = !isResolved ? undefined
+							: !selectedCaught ? ''
+							: (selectedCaught.caughtZoneIndex === undefined || originalIndex === selectedCaught.caughtZoneIndex
+								? selectedCaught.species : '');
+						const zoneProps = {
+							key: originalIndex, zone,
+							routeName: selectedEnc.route, zoneIndex: originalIndex,
+							accessible, ownedRoots, caughtSpecies: caughtSpeciesForZone,
+						};
+						if (zone.method === 'Trade') return <TradeZoneCard {...zoneProps} />;
+						if (zone.method === 'Gift') return <GiftZoneCard {...zoneProps} />;
+						return <StandardZoneCard {...zoneProps} />;
+					})}
+				</div>
+				{showDefer && (
+					<button class="nz-btn-defer" onClick={() => this.handleDefer(selectedEnc.route)}>
+						Defer to next segment
+					</button>
+				)}
+			</>;
+		};
 
 		return <NzScreen>
 			<NzTimeline game={game} />
@@ -864,78 +963,18 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						generation={game.generation}
 					/>}
 
-					{!selectedChoiceGift && selectedEnc && (() => {
-						const isServerLockedRoute = (game.lockedRoutes ?? []).some(r => r.route === selectedEnc.route);
-						const detailAccessibleHasNonDupe = selectedAccessibleZones.some(({ zone }) =>
-							zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
-						);
-						const detailLockedHasNonDupe = selectedAllZones.some(({ zone, accessible }) =>
-							!accessible && zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
-						);
-						const isAllLockedRoute = isServerLockedRoute || (!isResolved && !detailAccessibleHasNonDupe && detailLockedHasNonDupe);
-						const isDeferredThisSession = deferredThisSession.has(selectedEnc.route);
-						const showDefer = !isResolved && !isAllLockedRoute && !isDeferredThisSession && !isSelectedGift;
-						return <>
-							{!isSelectedGift && (isAllLockedRoute || isDeferredThisSession) && (() => {
-								let hint = 'Deferred — will re-appear next segment';
-								if (isAllLockedRoute) {
-									const seen = new Set<string>();
-									for (const { zone, accessible } of selectedAllZones) {
-										if (accessible) continue;
-										if (!zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))) continue;
-										const name = zone.requires?.name;
-										if (name) seen.add(name);
-									}
-									if (seen.size > 0) hint += ` (missing: ${Array.from(seen).join(', ')})`;
-								}
-								return <div class="nz-detail-deferred-hint">{hint}</div>;
-							})()}
-							<div class="nz-zone-cards">
-								{selectedAllZones.map(({ zone, originalIndex, accessible }) => {
-									const caughtSpeciesForZone = !isResolved
-										? undefined
-										: !selectedCaught
-										? '' // resolved but pokemon traded away — treat as resolved-elsewhere
-										: (selectedCaught.caughtZoneIndex === undefined || originalIndex === selectedCaught.caughtZoneIndex
-											? selectedCaught.species
-											: '');
-									const zoneProps = {
-										key: originalIndex,
-										zone,
-										routeName: selectedEnc.route,
-										zoneIndex: originalIndex,
-										accessible,
-										ownedRoots,
-										caughtSpecies: caughtSpeciesForZone,
-									};
-									if (zone.method === 'Trade') return <TradeZoneCard {...zoneProps} />;
-									if (zone.method === 'Gift') return <GiftZoneCard {...zoneProps} />;
-									return <StandardZoneCard {...zoneProps} />;
-								})}
-							</div>
-							{showDefer && (
-								<button class="nz-btn-defer" onClick={() => this.handleDefer(selectedEnc.route)}>
-									Defer to next segment
-								</button>
-							)}
-						</>;
-					})()}
+					{!selectedChoiceGift && renderZoneContent()}
 
 					{!selectedRoute && <div class="nz-detail-empty">Select a route to scout</div>}
 				</div>
 
 				{/* Right: pokemon stats */}
-				{(() => {
-					const alive = game.box.filter(p => p.alive);
-					const displayed = (isResolved && selectedCaught) ? selectedCaught
-						: alive.length > 0 ? alive[alive.length - 1] : null;
-					return <EncounterPokemonStats
-						pokemon={displayed}
-						generation={game.generation}
-						nickname={displayed ? (nicknames[displayed.uid] ?? displayed.nickname) : ''}
-						onNickChange={this.setNick}
-					/>;
-				})()}
+				<EncounterPokemonStats
+					pokemon={mobileDisplayed}
+					generation={game.generation}
+					nickname={mobileNick}
+					onNickChange={this.setNick}
+				/>
 			</div>
 
 			<div class="nz-tb-battle-footer">
@@ -946,6 +985,143 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 				>
 					Continue
 				</NzBtn>
+			</div>
+
+			{/* Mobile layout — accordion route list + expandable stats bar */}
+			<div class="nz-enc-mobile">
+				<div class="nz-enc-mobile-content">
+					{allDisplayedRoutes.length > 0 && <div class="nz-route-list-section-label">Routes</div>}
+					{allDisplayedRoutes.map((enc, encIdx) => {
+						const accessibleZones = encAccessibleZones[encIdx];
+						const allZones = encZones[encIdx];
+						const isResolvedRow = game.resolvedRoutes.includes(enc.route);
+						const isGift = giftRouteNames.has(enc.route);
+						const isExpanded = mobileExpandedRoute === enc.route;
+
+						let statusSymbol = '';
+						let isDeferred = false;
+						let sprites: { species: string; isDupe: boolean; isCaught: boolean }[];
+
+						if (isGift) {
+							statusSymbol = isResolvedRow ? '✓' : '';
+							const resolvedGift = isResolvedRow ? game.box.find(p => p.caughtRoute === enc.route) : undefined;
+							const giftPokemon = enc.zones.flatMap(z => z.pokemon);
+							sprites = resolvedGift
+								? [{ species: resolvedGift.species, isDupe: false, isCaught: true }]
+								: giftPokemon.map(e => ({
+									species: e.species,
+									isDupe: ownedRoots.has(getEvoRoot(e.species, game.generation)),
+									isCaught: false,
+								}));
+						} else {
+							const isServerLocked = (game.lockedRoutes ?? []).some(r => r.route === enc.route);
+							const accessibleHasNonDupe = accessibleZones.some(({ zone }) =>
+								zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+							);
+							const lockedHasNonDupe = allZones.some(({ zone, accessible }) =>
+								!accessible && zone.pokemon.some(e => !ownedRoots.has(getEvoRoot(e.species, game.generation)))
+							);
+							const isAllLocked = isServerLocked || (!isResolvedRow && !accessibleHasNonDupe && lockedHasNonDupe);
+							const isDeferredSession = deferredThisSession.has(enc.route);
+							const isPendingDeferred = !isResolvedRow && !isDeferredSession && !isServerLocked &&
+								(game.deferredRoutes ?? []).some(r => r.route === enc.route);
+							const allDupes = !isResolvedRow && !isAllLocked && accessibleZones.length > 0 &&
+								accessibleZones.every(({ zone }) =>
+									zone.pokemon.every(e => ownedRoots.has(getEvoRoot(e.species, game.generation)))
+								);
+							isDeferred = isAllLocked || isDeferredSession || isPendingDeferred;
+							if (isResolvedRow) statusSymbol = '✓';
+							else if (allDupes) statusSymbol = '—';
+							else if (isDeferredSession || isAllLocked) statusSymbol = '↩';
+							const caughtPokemon = isResolvedRow ? game.box.find(p => p.caughtRoute === enc.route) : undefined;
+							const seenSids = new Set<string>();
+							const allSpecies: string[] = [];
+							for (const { zone } of accessibleZones) {
+								for (const e of zone.pokemon) {
+									const sid = toID(e.species);
+									if (!seenSids.has(sid)) { seenSids.add(sid); allSpecies.push(e.species); }
+								}
+							}
+							sprites = allSpecies.map(species => ({
+								species,
+								isDupe: ownedRoots.has(getEvoRoot(species, game.generation)),
+								isCaught: caughtPokemon !== undefined && toID(caughtPokemon.species) === toID(species),
+							}));
+						}
+
+						return <preact.Fragment key={enc.route}>
+							<RouteListItem
+								enc={enc}
+								isSelected={isExpanded}
+								isResolved={isResolvedRow}
+								isDeferred={isDeferred}
+								statusSymbol={statusSymbol}
+								sprites={sprites!}
+								onSelect={() => this.toggleRouteMobile(enc.route)}
+							/>
+							{isExpanded && <div class="nz-enc-mobile-zones">
+								{selectedChoiceGift
+									? <GiftChoicePicker
+										gift={selectedChoiceGift}
+										giftIndex={allGifts.indexOf(selectedChoiceGift)}
+										ownedRoots={ownedRoots}
+										generation={game.generation}
+									/>
+									: renderZoneContent()
+								}
+							</div>}
+						</preact.Fragment>;
+					})}
+
+					{segment.items.length > 0 && <>
+						<div class="nz-route-list-divider">Items</div>
+						<div class="nz-items-list" style="padding: 6px 8px">
+							{segment.items.map(item => <span key={item} class="nz-item-chip">{item}</span>)}
+						</div>
+					</>}
+					{segment.tmMoves.length > 0 && <>
+						<div class="nz-route-list-divider">TMs</div>
+						<div class="nz-items-list" style="padding: 6px 8px">
+							{segment.tmMoves.map(move => <span key={move} class="nz-item-chip nz-tm-chip">{move}</span>)}
+						</div>
+					</>}
+				</div>
+
+				{/* Expanded stats overlay — slides up from the bar */}
+				{this.state.statsExpanded && mobileDisplayed && (
+					<div class="nz-enc-mobile-stats-full">
+						<div class="nz-enc-mobile-stats-full-header">
+							<button class="nz-enc-mobile-stats-close" onClick={() => this.setState({ statsExpanded: false })}>✕ Close</button>
+						</div>
+						<EncounterPokemonStats
+							pokemon={mobileDisplayed}
+							generation={game.generation}
+							nickname={mobileNick}
+							onNickChange={this.setNick}
+						/>
+					</div>
+				)}
+
+				{/* Fixed bottom bar */}
+				<div class="nz-enc-mobile-bar">
+					<div
+						class={`nz-enc-mobile-stats-strip${mobileDisplayed ? ' nz-enc-mobile-stats-strip-active' : ''}`}
+						onClick={mobileDisplayed ? this.toggleStats : undefined}
+					>
+						{mobileDisplayed ? <>
+							<NzSprite species={mobileDisplayed.species} size={28} />
+							<span class="nz-enc-mobile-bar-name">{mobileNick}</span>
+							{mobileIvLabel && <span class={`nz-iv-score nz-iv-score-${mobileIvTier}`}>{mobileIvLabel}</span>}
+							{mobileNatQ && mobileNatQ !== 'neutral' && <span class={`nz-nature-quality nz-nature-quality-${mobileNatQ}`}>{mobileNatQ}</span>}
+							<span class="nz-enc-mobile-expand-icon">{this.state.statsExpanded ? '▼' : '▲'}</span>
+						</> : <span class="nz-enc-mobile-bar-empty">No catches yet</span>}
+					</div>
+					<NzBtn
+						onClick={this.submit}
+						disabled={!canContinue}
+						title={canContinue ? '' : `${pendingRoutes.length} route(s) still need action`}
+					>Continue</NzBtn>
+				</div>
 			</div>
 
 			{this.state.showTutorial && (() => {

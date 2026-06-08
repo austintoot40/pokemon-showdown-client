@@ -730,41 +730,153 @@
   }
 }
 
-/* Mobile (≤768px): single column stacked in DOM order
-   (route list → detail panel → stats panel) */
+/* =============================================
+   MOBILE ENCOUNTERS — ACCORDION LAYOUT
+   ============================================= */
+
+/* Hidden on desktop; shown and switched to accordion layout on mobile */
+.nz-enc-mobile {
+  display: none;
+}
+
 @media (max-width: 800px) {
-  .nz-encounters-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+  .nz-encounters-layout,
+  .nz-tb-battle-footer {
+    display: none !important;
   }
 
-  /* Reset tablet grid placement so auto-flow takes over */
-  .nz-route-list {
-    grid-row: auto;
-    max-height: 40vh;
-    border-bottom: 2px solid var(--nz-border);
-  }
-
-  .nz-encounter-stats {
-    grid-column: auto;
-  }
-
-  .nz-encounter-stats-header {
-    flex-wrap: wrap;
-  }
-
-  /* Sprite padding: 24px is excessive on a narrow screen — drop to 6px */
-  .nz-encounter-slot-sprite,
-  .nz-gift-zone-sprite {
-    margin: 6px 4px;
-  }
-
-  /* Zone cards go full-width when stacked vertically */
-  .nz-zone-cards {
+  .nz-enc-mobile {
+    display: flex;
     flex-direction: column;
   }
+}
 
-  .nz-zone-card {
-    align-self: stretch;
-  }
+/* Scrollable route list — padding-bottom clears the fixed bar */
+.nz-enc-mobile-content {
+  padding-bottom: 72px;
+}
+
+/* Accordion zone cards — inset below the route row */
+.nz-enc-mobile-zones {
+  background: var(--nz-surface);
+  border-top: 1px solid var(--nz-border);
+  border-left: 3px solid var(--nz-accent);
+  padding: 12px 12px 14px;
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nz-enc-mobile-zones .nz-zone-cards {
+  flex-direction: column;
+}
+
+.nz-enc-mobile-zones .nz-zone-card {
+  align-self: stretch;
+}
+
+/* Sprite padding: tighter on mobile */
+.nz-enc-mobile-zones .nz-encounter-slot-sprite,
+.nz-enc-mobile-zones .nz-gift-zone-sprite {
+  margin: 6px 4px;
+}
+
+/* ---- Fixed bottom bar ---- */
+
+.nz-enc-mobile-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  background: var(--nz-surface);
+  border-top: 1px solid var(--nz-border);
+}
+
+/* Stats strip: tappable, fills remaining width */
+.nz-enc-mobile-stats-strip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+.nz-enc-mobile-stats-strip-active {
+  cursor: pointer;
+}
+
+.nz-enc-mobile-bar-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.nz-enc-mobile-bar-empty {
+  font-size: 12px;
+  color: var(--nz-text-muted);
+  font-style: italic;
+}
+
+.nz-enc-mobile-expand-icon {
+  font-size: 10px;
+  color: var(--nz-text-muted);
+  flex-shrink: 0;
+}
+
+/* ---- Expanded stats overlay ---- */
+
+.nz-enc-mobile-stats-full {
+  position: fixed;
+  bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  max-height: 72vh;
+  overflow-y: auto;
+  z-index: 999;
+  background: var(--nz-surface);
+  border-top: 2px solid var(--nz-accent);
+  border-bottom: 1px solid var(--nz-border);
+}
+
+.nz-enc-mobile-stats-full-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 12px 2px;
+  border-bottom: 1px solid var(--nz-border);
+}
+
+.nz-enc-mobile-stats-close {
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nz-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.nz-enc-mobile-stats-close:hover {
+  color: var(--nz-text);
+}
+
+/* Strip the panel border/min-height inside the overlay */
+.nz-enc-mobile-stats-full .nz-encounter-stats {
+  border: none;
+  min-height: 0;
 }
