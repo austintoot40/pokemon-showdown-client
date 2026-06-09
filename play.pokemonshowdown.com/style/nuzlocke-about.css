@@ -1,0 +1,265 @@
+/* ============================================================
+   Nuzlocke — About Screen
+   ============================================================ */
+
+/* ---- Main menu entry button ---- */
+
+.nz-title-about-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 12px;
+  padding: 8px 14px;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+
+.nz-title-about-btn:hover {
+  opacity: 1;
+}
+
+.nz-about-heart {
+  display: inline-block;
+  width: 14px;
+  height: 12px;
+  margin-left: 6px;
+  vertical-align: middle;
+  image-rendering: pixelated;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 6'%3E%3Crect x='1' y='0' width='2' height='1' fill='white'/%3E%3Crect x='4' y='0' width='2' height='1' fill='white'/%3E%3Crect x='0' y='1' width='7' height='2' fill='white'/%3E%3Crect x='1' y='3' width='5' height='1' fill='white'/%3E%3Crect x='2' y='4' width='3' height='1' fill='white'/%3E%3Crect x='3' y='5' width='1' height='1' fill='white'/%3E%3C/svg%3E");
+  animation: nz-about-heart-bounce 1.8s steps(1, start) infinite;
+}
+
+/* ---- Room background ---- */
+
+#room-view-about {
+  background: var(--nz-bg) !important;
+}
+
+/* ---- Page ---- */
+
+.nz-about-content {
+  padding: 32px 40px 40px;
+  margin: 0 auto;
+  font-family: var(--nz-font-ui);
+  color: var(--nz-text);
+}
+
+/* ---- Page header ---- */
+
+.nz-about-page-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg,
+    var(--type-fire) 0%,
+    var(--type-electric) 33%,
+    var(--type-grass) 66%,
+    var(--type-water) 100%) 1;
+}
+
+.nz-about-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--type-fire), var(--type-electric));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nz-about-back-btn {
+  font-size: 13px;
+  padding: 5px 14px;
+  flex-shrink: 0;
+}
+
+/* ---- Sections grid ---- */
+
+.nz-about-sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.nz-about-section {
+  background: var(--nz-surface);
+  padding: 16px 20px 20px;
+}
+
+.nz-about-section-header {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nz-about-section-header::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.nz-about-section-header-fire    { color: var(--type-fire); }
+.nz-about-section-header-fire::before    { background: var(--type-fire); }
+.nz-about-section-header-water   { color: var(--type-water); }
+.nz-about-section-header-water::before   { background: var(--type-water); }
+.nz-about-section-header-grass   { color: var(--type-grass); }
+.nz-about-section-header-grass::before   { background: var(--type-grass); }
+.nz-about-section-header-electric { color: var(--type-electric); }
+.nz-about-section-header-electric::before { background: var(--type-electric); }
+
+.nz-about-section-inner {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 12px 20px;
+  align-items: start;
+}
+
+.nz-about-section-inner-flip {
+  grid-template-columns: 130px 1fr;
+}
+
+.nz-about-text-col p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--nz-text);
+  margin: 0 0 12px;
+}
+
+.nz-about-text-col p:last-child { margin-bottom: 0; }
+
+.nz-about-text-col em {
+  color: var(--nz-warning);
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ---- Sprite column & card ---- */
+
+.nz-about-sprite-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.nz-about-sprite-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  clip-path: var(--nz-clip-sm);
+  padding: 12px 14px;
+}
+
+.nz-about-sprite-row {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nz-about-sprite {
+  image-rendering: pixelated;
+  display: inline-block;
+}
+
+@keyframes nz-about-bounce {
+  0%, 100% { transform: translateY(0);    }
+  50%       { transform: translateY(-4px); }
+}
+
+@keyframes nz-about-heart-bounce {
+  0%, 100% { transform: translateY(0);    }
+  50%       { transform: translateY(-2px); }
+}
+
+.nz-about-sprite { animation: nz-about-bounce 1s steps(1, start) infinite; }
+.nz-about-sprite-row .nz-about-sprite:nth-child(2) { animation-delay: 0.25s; }
+.nz-about-sprite-row .nz-about-sprite:nth-child(3) { animation-delay: 0.5s;  }
+.nz-about-sprite-row .nz-about-sprite:nth-child(4) { animation-delay: 0.75s; }
+.nz-about-sprite-row .nz-about-sprite:nth-child(5) { animation-delay: 1.0s;  }
+
+.nz-about-sprite-caption {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-dim);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.nz-about-trainer {
+  image-rendering: pixelated;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+/* ---- Footer ---- */
+
+.nz-about-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 0 0;
+  text-align: center;
+}
+
+.nz-about-footer-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nz-text);
+  max-width: 480px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.nz-about-footer-btn {
+  font-size: 14px;
+  padding: 9px 32px;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 1000px) {
+  .nz-about-sections-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 800px) {
+  .nz-title-about-btn {
+    position: static;
+    display: inline-block;
+    margin: 12px 0 0 16px;
+  }
+
+  .nz-about-content { padding: 20px 16px 40px; }
+
+  .nz-about-section-inner,
+  .nz-about-section-inner-flip { grid-template-columns: 1fr; }
+
+  .nz-about-section-inner-flip .nz-about-sprite-col { order: 2; }
+
+  .nz-about-sprite-col { flex-direction: row; justify-content: center; }
+}

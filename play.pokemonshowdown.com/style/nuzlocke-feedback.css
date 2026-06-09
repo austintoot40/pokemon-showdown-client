@@ -1,7 +1,7 @@
-/* Bug report button — positioned at the bottom of the page content */
+/* Bug report button — fixed to the viewport bottom-right on desktop */
 
 .nz-feedback-fab {
-	position: absolute;
+	position: fixed;
 	bottom: 20px;
 	right: 20px;
 	z-index: 900;

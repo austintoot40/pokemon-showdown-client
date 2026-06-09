@@ -98,13 +98,13 @@ function setLocalRandomizerSettings(s: RandomizerSettings) {
 }
 
 const AI_DIFFICULTIES = [
-    { id: 'basic', label: 'Basic', tooltip: 'Mirrors the official games — attacks freely, never switches. Uses a heuristic score to pick moves.' },
-    { id: 'smart', label: 'Smart', tooltip: 'Upgraded AI with richer heuristics. Properly values status moves and switches out reactively.' },
+    { id: 'basic', label: 'Basic' },
+    { id: 'smart', label: 'Smart' },
 ];
 
 const GENERATION_OPTIONS = [
-    { id: 'original', label: 'Original', tooltip: 'Use the generation defined by the scenario (e.g. Gen 3 for Emerald).' },
-    { id: 'modern', label: 'Modern', tooltip: 'Use Gen 9 mechanics for all battles regardless of scenario.' },
+    { id: 'original', label: 'Original' },
+    { id: 'modern', label: 'Modern' },
 ];
 
 
@@ -784,6 +784,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                 </p>
                             )}
                         </header>
+                        <a class="nz-btn nz-btn-secondary nz-title-about-btn" href="view-about">
+                            About This Game<span class="nz-about-heart" aria-hidden="true" />
+                        </a>
                         <div class="nz-dashboard nz-dashboard-has-run">
 
                             <div class="nz-dashboard-run">
@@ -843,20 +846,25 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                         )}
                                                         <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;">
                                                             <div>
-                                                                <div class="nz-label" style="margin-bottom:6px;">AI Difficulty</div>
+                                                                <div class="nz-label" style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                                                                    AI Difficulty
+                                                                    <span class="nz-tooltip" data-tooltip="Basic is similar to the games. Smart will make better decisions.">?</span>
+                                                                </div>
                                                                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                                                     {AI_DIFFICULTIES.map(d => (
                                                                         <button
                                                                             key={d.id}
                                                                             class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
                                                                             onClick={() => this.setDifficulty(d.id)}
-                                                                            title={d.tooltip}
                                                                         >{d.label}</button>
                                                                     ))}
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <div class="nz-label" style="margin-bottom:6px;">Generation</div>
+                                                                <div class="nz-label" style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                                                                    Generation
+                                                                    <span class="nz-tooltip" data-tooltip="Original uses the generation the game was designed for. Modern uses Gen 9 mechanics.">?</span>
+                                                                </div>
                                                                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                                                     {GENERATION_OPTIONS.map(g => {
                                                                         const lockedOut = hasActivePreview && this.randomizerSettings.dexPool === 'all' && g.id === 'original';
@@ -864,7 +872,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                             key={g.id}
                                                                             class={`nz-difficulty-btn${this.selectedGeneration === g.id ? ' active' : ''}`}
                                                                             onClick={() => this.setGeneration(g.id)}
-                                                                            title={lockedOut ? 'All Pokémon pool requires Modern mechanics' : g.tooltip}
                                                                             disabled={lockedOut}
                                                                         >{g.label}</button>;
                                                                     })}

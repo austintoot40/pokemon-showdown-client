@@ -12,6 +12,7 @@ import { PSPanelWrapper, PSRoomPanel, PSView } from "./panels";
 import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
 import { NzLoadingScreen } from "./nuzlocke/components/layout";
+import { AboutPage } from "./nuzlocke/screens/about";
 
 export function SanitizedHTML(props: { children: string }) {
 	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
@@ -92,7 +93,10 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	static readonly id = 'html';
 	static readonly routes = ['view-*'];
 	static readonly Model = PageRoom;
-	static clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp /> };
+	static clientRooms: { [key: string]: JSX.Element } = {
+		'ladderhelp': <PageLadderHelp />,
+		'about': <span />, // prevents server join; render handled below
+	};
 	/** Set by panel-nuzlocke.tsx after it loads. Renders the nuzlocke game panel. */
 	static nuzlockeRenderer: ((gameState: any) => any) | null = null;
 
@@ -115,6 +119,10 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			PS.hideRightRoom();
 			PS.send('/nuzlocke refresh');
 			PSView.scrollToRoom();
+		}
+		if (this.props.room.id === 'view-about') {
+			this.props.room.title = 'About';
+			PS.update();
 		}
 	}
 
@@ -169,6 +177,8 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			renderPage = PagePanel.nuzlockeRenderer
 				? PagePanel.nuzlockeRenderer(room.nuzlockeState)
 				: <NzLoadingScreen />;
+		} else if (room.page === 'about') {
+			renderPage = <AboutPage />;
 		} else if (room.page !== undefined && PagePanel.clientRooms[room.page]) {
 			renderPage = PagePanel.clientRooms[room.page];
 		} else {
