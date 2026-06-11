@@ -1,5 +1,5 @@
 import preact from "../../../js/lib/preact";
-import { PS } from "../../client-main";
+import { PS, RoomID } from "../../client-main";
 
 interface FeedbackModalProps {
 	curScreen?: string;
@@ -27,7 +27,7 @@ export class FeedbackModal extends preact.Component<FeedbackModalProps> {
 				userAgent: navigator.userAgent,
 			},
 		};
-		PS.send(`/nuzlocke feedback ${btoa(unescape(encodeURIComponent(JSON.stringify(payload))))}`);
+		PS.send(`/nuzlocke feedback ${btoa(unescape(encodeURIComponent(JSON.stringify(payload))))}`, 'view-nuzlocke' as RoomID);
 		this.submitted = true;
 		this.forceUpdate();
 		setTimeout(() => this.props.onClose(), 1800);
