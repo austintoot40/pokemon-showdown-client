@@ -1018,6 +1018,44 @@
 }
 
 /* =============================================
+   MOBILE TAB BAR
+   ============================================= */
+
+.nz-mm-mobile-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--nz-surface);
+  border-top: 1px solid var(--nz-border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.nz-mm-tab {
+  flex: 1;
+  padding: 12px 0 10px;
+  background: transparent;
+  border: none;
+  border-top: 2px solid transparent;
+  margin-top: -1px;
+  color: var(--nz-text-muted);
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 0.15s, border-top-color 0.15s;
+}
+
+.nz-mm-tab.active {
+  color: var(--nz-accent);
+  border-top-color: var(--nz-accent);
+}
+
+/* =============================================
    RESPONSIVE
    ============================================= */
 
@@ -1039,6 +1077,19 @@
 }
 
 @media (max-width: 800px) {
+  .nz-mm-mobile-bar {
+    display: flex;
+  }
+
+  .nz-mm-hidden-mobile {
+    display: none !important;
+  }
+
+  /* Pad content so the last card clears the fixed tab bar */
+  .nz-dashboard {
+    padding-bottom: 68px;
+  }
+
   /* Team grid: 1 column so slots aren't cramped on narrow phones */
   .nz-team-grid {
     grid-template-columns: 1fr;

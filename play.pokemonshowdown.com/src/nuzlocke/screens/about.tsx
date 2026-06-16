@@ -103,7 +103,7 @@ export function AboutPage() {
 								If you're curious how it works, it's a heavily modified Pokémon Showdown fork,
 								which is open source and the only full Pokémon battle sim I could find that
 								runs in a browser. On top of that I wrote the AI from scratch and mapped out
-								all the encounters, items, and battles for each scenario.
+								all the encounters, items, and battles for each challenge.
 							</p>
 						</div>
 						<div class="nz-about-sprite-col">
@@ -129,7 +129,7 @@ export function AboutPage() {
 						<div class="nz-about-text-col">
 							<p>
 								There's a lot of things I want to add eventually. Difficult ROM hacks like
-								Emerald Kaizo, the rest of the mainline games, a custom scenario editor,
+								Emerald Kaizo, the rest of the mainline games, a custom challenge editor,
 								and more.
 							</p>
 							<p>

@@ -99,7 +99,7 @@ preact.h("section",{"class":"nz-about-section"},
 preact.h(SectionHeader,{color:"grass"},"Under the Hood"),
 preact.h("div",{"class":"nz-about-section-inner"},
 preact.h("div",{"class":"nz-about-text-col"},
-preact.h("p",null,"If you're curious how it works, it's a heavily modified Pok\xE9mon Showdown fork, which is open source and the only full Pok\xE9mon battle sim I could find that runs in a browser. On top of that I wrote the AI from scratch and mapped out all the encounters, items, and battles for each scenario."
+preact.h("p",null,"If you're curious how it works, it's a heavily modified Pok\xE9mon Showdown fork, which is open source and the only full Pok\xE9mon battle sim I could find that runs in a browser. On top of that I wrote the AI from scratch and mapped out all the encounters, items, and battles for each challenge."
 
 
 
@@ -127,7 +127,7 @@ preact.h(SpriteRow,{pokemon:['Garchomp','Rayquaza']})
 )
 ),
 preact.h("div",{"class":"nz-about-text-col"},
-preact.h("p",null,"There's a lot of things I want to add eventually. Difficult ROM hacks like Emerald Kaizo, the rest of the mainline games, a custom scenario editor, and more."
+preact.h("p",null,"There's a lot of things I want to add eventually. Difficult ROM hacks like Emerald Kaizo, the rest of the mainline games, a custom challenge editor, and more."
 
 
 

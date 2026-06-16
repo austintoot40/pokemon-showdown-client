@@ -655,6 +655,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     selectedGeneration: string = getLocalGenerationPreference();
     confirmAbandon: boolean = false;
     showRandomizerModal: boolean = false;
+    mobileTab: 'run' | 'challenges' | null = null;
     randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
     get effectiveSelectedScenario(): string | null {
         if (this.selectedScenario) return this.selectedScenario;
@@ -739,6 +740,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     selectScenario = (id: string) => {
         this.selectedScenario = id;
         this.selectedStarter = null;
+        this.mobileTab = 'run';
         this.forceUpdate();
     };
     selectStarter = (index: number) => {
@@ -759,6 +761,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     override render() {
         const status = this.props.room.nuzlockeMenuPayload;
         const activeRun = status?.activeRun ?? null;
+        const effectiveTab = this.mobileTab ?? (activeRun ? 'run' : 'challenges');
         const currentDifficulty = activeRun?.ai ?? this.selectedDifficulty;
         const beatenScenarios = status?.beatenScenarios ?? [];
 
@@ -779,7 +782,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     <div class="nz-root">
                         <div class="nz-dashboard nz-dashboard-has-run">
 
-                            <div class="nz-dashboard-run">
+                            <div class={`nz-dashboard-run${effectiveTab === 'challenges' ? ' nz-mm-hidden-mobile' : ''}`}>
                                 {!this.props.room.serverConnected ? (
                                     <NuzlockeConnectingPanel />
                                 ) : status === null ? (
@@ -895,7 +898,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                     ) : (
                                         <div class="nz-active-run-panel nz-active-run-panel-empty">
                                             <div class="nz-active-run-title">No Active Run</div>
-                                            <div class="nz-active-run-segment">Select a scenario to begin.</div>
+                                            <div class="nz-active-run-segment">Select a challenge to begin.</div>
                                         </div>
                                     )
                                 ) : (
@@ -966,9 +969,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                 )}
                             </div>
 
-                            <div class="nz-dashboard-scenarios">
+                            <div class={`nz-dashboard-scenarios${effectiveTab === 'run' ? ' nz-mm-hidden-mobile' : ''}`}>
                                 <div class="nz-scenarios-header">
-                                    <div class="nz-section-title" style="margin-bottom:0;">Scenarios</div>
+                                    <div class="nz-section-title" style="margin-bottom:0;">Challenges</div>
                                 </div>
                                 <div class="nz-scenario-grid">
                                     {[...serverScenarios].sort((a, b) => a.generation - b.generation).map(scenario => {
@@ -995,6 +998,17 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             </div>
 
                         </div>
+                    </div>
+
+                    <div class="nz-mm-mobile-bar">
+                        <button
+                            class={`nz-mm-tab${effectiveTab === 'run' ? ' active' : ''}`}
+                            onClick={() => { this.mobileTab = 'run'; this.forceUpdate(); }}
+                        >Run</button>
+                        <button
+                            class={`nz-mm-tab${effectiveTab === 'challenges' ? ' active' : ''}`}
+                            onClick={() => { this.mobileTab = 'challenges'; this.forceUpdate(); }}
+                        >Challenges</button>
                     </div>
                 </div>
             </div>
