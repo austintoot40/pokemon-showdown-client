@@ -6,7 +6,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { FeedbackFab, FeedbackModal } from "./nuzlocke/components/feedback-modal";
+import { openFeedbackModal, setRunCount } from "./nuzlocke/components/nz-topbar";
 import { NzSprite } from "./nuzlocke/components/primitives";
 import { PSLoginServer } from "./client-connection";
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
@@ -267,6 +267,7 @@ export class MainMenuRoom extends PSRoom {
         } case 'updatenuzlocke': {
             const [, payload] = args;
             this.nuzlockeMenuPayload = JSON.parse(payload);
+            setRunCount(this.nuzlockeMenuPayload!.totalRunsStarted);
             this.update(null);
             return;
         }
@@ -654,7 +655,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     selectedGeneration: string = getLocalGenerationPreference();
     confirmAbandon: boolean = false;
     showRandomizerModal: boolean = false;
-    showFeedbackModal: boolean = false;
     randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
     get effectiveSelectedScenario(): string | null {
         if (this.selectedScenario) return this.selectedScenario;
@@ -675,6 +675,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     clickCancelAbandon = () => {
         this.confirmAbandon = false;
         this.forceUpdate();
+    };
+    clickResume = () => {
+        (PS as any).join('view-nuzlocke' as any);
     };
     clickStartRun = () => {
         const scenarioId = this.effectiveSelectedScenario;
@@ -774,19 +777,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
             <div class="mainmenu">
                 <div class="mainmenu-left">
                     <div class="nz-root">
-                        <header class="nz-title-header">
-                            <h1 class="nz-title-heading">Nuzlocke Simulator</h1>
-                            {status !== null && (
-                                <p class="nz-title-subheading">
-                                    {status.totalRunsStarted === 1
-                                        ? '1 run attempted worldwide'
-                                        : `${status.totalRunsStarted} runs attempted worldwide`}
-                                </p>
-                            )}
-                        </header>
-                        <a class="nz-btn nz-btn-secondary nz-title-about-btn" href="view-about">
-                            About This Game<span class="nz-about-heart" aria-hidden="true" />
-                        </a>
                         <div class="nz-dashboard nz-dashboard-has-run">
 
                             <div class="nz-dashboard-run">
@@ -968,7 +958,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                             </div>
                                         ) : (
                                             <div class="nz-btn-group">
-                                                <a class="nz-btn nz-btn-primary" href="view-nuzlocke">Resume Run</a>
+                                                <button class="nz-btn nz-btn-primary" onClick={this.clickResume}>Resume Run</button>
                                                 <button class="nz-btn nz-btn-secondary" onClick={this.clickAbandon}>Abandon</button>
                                             </div>
                                         )}
@@ -1005,7 +995,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             </div>
 
                         </div>
-                        <FeedbackFab onClick={() => { this.showFeedbackModal = true; this.forceUpdate(); }} />
                     </div>
                 </div>
             </div>
@@ -1018,9 +1007,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     onSetBst={this.setRandomizerBst}
                     onSetDexPool={this.setRandomizerDexPool}
                 />
-            )}
-            {this.showFeedbackModal && (
-                <FeedbackModal onClose={() => { this.showFeedbackModal = false; this.forceUpdate(); }} />
             )}
         </PSPanelWrapper>;
     }

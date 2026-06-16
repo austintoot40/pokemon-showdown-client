@@ -1,0 +1,345 @@
+/*
+ * Nuzlocke — Custom Topbar & Settings Panel
+ *
+ * Replaces the PS topbar entirely. Uses --nz-* design tokens.
+ */
+
+/* =============================================
+   TOPBAR
+   ============================================= */
+
+.nz-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nz-topbar-height, 44px);
+  z-index: 100;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 8px;
+
+  background: var(--nz-elevated);
+  border-bottom: 1px solid var(--nz-border);
+}
+
+.nz-topbar-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.nz-topbar-back-btn {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.nz-topbar-back-btn:hover {
+  opacity: 1;
+}
+
+.nz-topbar-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.nz-topbar-wordmark,
+.nz-topbar-sub {
+  font-family: var(--nz-font-ui);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  color: var(--nz-accent);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.nz-topbar-runcount {
+  font-family: var(--nz-font-mono);
+  font-size: 10px;
+  color: var(--nz-text-dim);
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .nz-topbar-runcount { display: none; }
+}
+
+@media (max-width: 480px) {
+  .nz-topbar-sub-full { display: none; }
+}
+
+.nz-topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.nz-topbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--nz-radius);
+  color: var(--nz-text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.nz-topbar-btn:hover {
+  color: var(--nz-text);
+  border-color: var(--nz-border);
+  background: var(--nz-elevated);
+}
+
+/* Push PS rooms below our topbar (overrides client.css top: 56px) */
+.ps-room {
+  top: var(--nz-topbar-height, 44px) !important;
+  left: 0 !important;
+}
+
+/* Hide the legacy PS header elements if they ever appear */
+#header,
+.mini-header {
+  display: none !important;
+}
+
+/* =============================================
+   SETTINGS OVERLAY + PANEL
+   ============================================= */
+
+.nz-settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: var(--nz-topbar-height, 44px);
+}
+
+.nz-settings-panel {
+  width: 340px;
+  max-height: calc(100vh - var(--nz-topbar-height, 44px) - 16px);
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  border-top: none;
+  border-radius: 0 0 0 var(--nz-radius);
+  overflow-y: auto;
+  box-shadow: var(--nz-shadow);
+}
+
+@media (max-width: 400px) {
+  .nz-settings-panel {
+    width: 100vw;
+    border-radius: 0;
+  }
+}
+
+.nz-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--nz-border);
+  position: sticky;
+  top: 0;
+  background: var(--nz-surface);
+  z-index: 1;
+}
+
+.nz-settings-title {
+  font-family: var(--nz-font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--nz-text);
+  text-transform: uppercase;
+}
+
+.nz-settings-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--nz-text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: var(--nz-radius);
+  transition: color 0.15s;
+}
+
+.nz-settings-close:hover {
+  color: var(--nz-text);
+}
+
+.nz-settings-body {
+  padding: 4px 0 8px;
+}
+
+.nz-settings-section {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--nz-border-subtle);
+}
+
+.nz-settings-section--last {
+  border-bottom: none;
+}
+
+.nz-settings-section-label {
+  font-family: var(--nz-font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nz-text-muted);
+  margin-bottom: 8px;
+}
+
+/* Sound row */
+.nz-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nz-settings-label {
+  font-family: var(--nz-font-ui);
+  font-size: 14px;
+  color: var(--nz-text);
+}
+
+.nz-settings-toggle {
+  min-width: 48px;
+  padding: 4px 10px;
+  font-family: var(--nz-font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--nz-radius);
+  border: 1px solid var(--nz-border);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nz-settings-toggle--on {
+  background: var(--nz-accent-dim);
+  color: var(--nz-accent);
+  border-color: var(--nz-accent);
+}
+
+.nz-settings-toggle--off {
+  background: var(--nz-elevated);
+  color: var(--nz-text-muted);
+}
+
+
+/* Avatar search + scroll */
+.nz-avatar-search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  padding: 5px 8px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-radius: var(--nz-radius);
+  color: var(--nz-text);
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+  outline: none;
+}
+
+.nz-avatar-search::placeholder {
+  color: var(--nz-text-dim);
+}
+
+.nz-avatar-search:focus {
+  border-color: var(--nz-accent);
+}
+
+/* Selected avatar preview */
+.nz-avatar-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-radius: var(--nz-radius);
+}
+
+.nz-avatar-preview img {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.nz-avatar-preview-name {
+  font-family: var(--nz-font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nz-text);
+  text-transform: capitalize;
+}
+
+.nz-avatar-scroll {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* Avatar grid */
+.nz-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 4px;
+}
+
+.nz-avatar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 4px;
+  background: var(--nz-elevated);
+  border: 2px solid transparent;
+  border-radius: var(--nz-radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.nz-avatar-btn img {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+}
+
+.nz-avatar-btn:hover {
+  background: var(--nz-overlay);
+  border-color: rgba(var(--nz-accent-rgb), 0.4);
+}
+
+.nz-avatar-btn--selected {
+  border-color: var(--nz-accent);
+  background: var(--nz-accent-dim);
+}
+

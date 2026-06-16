@@ -20,8 +20,8 @@ import { PS, type PSRoom, type RoomID } from "./client-main";
 import type { ChatRoom } from "./panel-chat";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
-export const VERTICAL_HEADER_WIDTH = 240;
-export const NARROW_MODE_HEADER_WIDTH = 280;
+export const VERTICAL_HEADER_WIDTH = 0;
+export const NARROW_MODE_HEADER_WIDTH = 0;
 
 export class PSRouter {
 	roomid = '' as RoomID;
@@ -773,10 +773,9 @@ export class PSView extends preact.Component {
 	}
 	static posStyle(room: PSRoom) {
 		if (PS.leftPanelWidth === null) {
-			// vertical mode
+			// vertical mode (no sidebar — just offset below the custom topbar)
 			if (room === PS.panel) {
-				// const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
-				return { top: '30px', left: `${PSView.verticalHeaderWidth}px`, minWidth: `none` };
+				return { top: 'var(--nz-topbar-height, 44px)', left: '0', minWidth: 'none' };
 			}
 		} else if (PS.leftPanelWidth === 0) {
 			// one panel visible

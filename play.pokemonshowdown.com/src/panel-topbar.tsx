@@ -11,7 +11,7 @@
 
 import preact from "../js/lib/preact";
 import { Config, PS, type PSRoom, type RoomID } from "./client-main";
-import { FeedbackModal } from "./nuzlocke/components/feedback-modal";
+import { NzTopBar } from "./nuzlocke/components/nz-topbar";
 import { NARROW_MODE_HEADER_WIDTH, PSView, VERTICAL_HEADER_WIDTH } from "./panels";
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log"; // optional
@@ -21,14 +21,7 @@ window.addEventListener('dragover', e => {
 	e.preventDefault();
 });
 
-interface PSHeaderState {
-	showFeedbackModal: boolean;
-}
-
-export class PSHeader extends preact.Component<{}, PSHeaderState> {
-	state: PSHeaderState = { showFeedbackModal: false };
-	openFeedback = () => this.setState({ showFeedbackModal: true });
-	closeFeedback = () => this.setState({ showFeedbackModal: false });
+export class PSHeader extends preact.Component<{}, {}> {
 
 	static toggleMute = (e: Event) => {
 		PS.prefs.set('mute', !PS.prefs.mute);
@@ -162,35 +155,11 @@ export class PSHeader extends preact.Component<{}, PSHeaderState> {
 		</li>;
 	}
 	handleResize = () => {
-		if (!this.base) return;
-
-		if (PS.leftPanelWidth === null) {
-			const width = document.documentElement.clientWidth;
-			const oldNarrowMode = PSView.narrowMode;
-			PSView.narrowMode = width <= 800;
-			PSView.verticalHeaderWidth = PSView.narrowMode ? NARROW_MODE_HEADER_WIDTH : VERTICAL_HEADER_WIDTH;
-			document.documentElement.style.width = PSView.narrowMode ? `${width + NARROW_MODE_HEADER_WIDTH}px` : 'auto';
-			if (oldNarrowMode !== PSView.narrowMode) {
-				PS.update();
-				if (PSView.narrowMode) PSView.scrollToRoom();
-			}
-			return;
-		}
+		// No vertical sidebar — always disable narrowMode and zero the sidebar width.
 		if (PSView.narrowMode) {
 			document.documentElement.style.width = 'auto';
 			PSView.narrowMode = false;
-		}
-
-		const userbarLeft = this.base.querySelector('div.userbar')?.getBoundingClientRect()?.left;
-		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
-		const overflow = this.base.querySelector<HTMLElement>('.overflow');
-
-		if (!overflow || !userbarLeft || !plusTabRight) return;
-
-		if (plusTabRight > userbarLeft - 3) {
-			overflow.style.display = 'block';
-		} else {
-			overflow.style.display = 'none';
+			PSView.verticalHeaderWidth = 0;
 		}
 	};
 	override componentDidMount() {
@@ -212,137 +181,14 @@ export class PSHeader extends preact.Component<{}, PSHeaderState> {
 		}
 		return null;
 	}
-	renderVertical() {
-		return <div
-			id="header" class="header-vertical" role="navigation"
-			style={`width:${PSView.verticalHeaderWidth - 7}px`} onClick={PSView.scrollToHeader}
-		>
-			<div class="maintabbarbottom"></div>
-			<div class="scrollable-part">
-				<img
-					class="logo"
-					src={`https://${Config.routes.client}/favicon-256.png`}
-					alt="Pokémon Showdown! (beta)"
-					width="50" height="50"
-				/>
-				<div class="tablist" role="tablist">
-					<ul>
-						{PSHeader.renderRoomTab(PS.leftRoomList[0])}
-					</ul>
-					<ul>
-						{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
-					</ul>
-					<ul class="siderooms">
-						{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
-					</ul>
-				</div>
-			</div>
-			{null /* overflow */}
-			<div class="userbar">
-				{this.renderUser()} {}
-				<div style="float:right">
-					<button class="button nz-topbar-bugreport" title="Report a bug" onClick={this.openFeedback}>
-						Report Bug
-					</button> {}
-					<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
-						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
-					</button> {}
-					<button class="icon button" data-href="options" title="Options" aria-label="Options">
-						<i class="fa fa-cog" aria-hidden></i>
-					</button>
-				</div>
-			</div>
-			{this.state.showFeedbackModal && <FeedbackModal onClose={this.closeFeedback} />}
-		</div>;
-	}
 	override render() {
-		if (PS.leftPanelWidth === null) {
-			return this.renderVertical();
-		}
-		return <div id="header" class="header" role="navigation">
-			<div class="maintabbarbottom"></div>
-			<div class="tabbar maintabbar"><div class="inner-1" role={PS.leftPanelWidth ? 'none' : 'tablist'}><div class="inner-2">
-				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }} role={PS.leftPanelWidth ? 'tablist' : 'none'}>
-					<li>
-						<img
-							class="logo"
-							src={`https://${Config.routes.client}/favicon-256.png`}
-							alt="Pokémon Showdown! (beta)"
-							width="48" height="48"
-						/>
-					</li>
-					{PSHeader.renderRoomTab(PS.leftRoomList[0])}
-					{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
-				</ul>
-				<ul class="maintabbar-right" role={PS.leftPanelWidth ? 'tablist' : 'none'}>
-					{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
-				</ul>
-			</div></div></div>
-			<div class="overflow">
-				<button name="tablist" class="button" data-href="roomtablist" aria-label="All tabs" type="button">
-					<i class="fa fa-caret-down" aria-hidden></i>
-				</button>
-			</div>
-			<div class="userbar">
-				{this.renderUser()} {}
-				<button class="button nz-topbar-bugreport" title="Report a bug" onClick={this.openFeedback}>
-					Report Bug
-				</button> {}
-				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
-					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
-				</button> {}
-				<button class="icon button" data-href="options" title="Options" aria-label="Options">
-					<i class="fa fa-cog" aria-hidden></i>
-				</button>
-			</div>
-			{this.state.showFeedbackModal && <FeedbackModal onClose={this.closeFeedback} />}
-		</div>;
+		return <NzTopBar />;
 	}
 }
 
 export class PSMiniHeader extends preact.Component {
-	override componentDidMount() {
-		window.addEventListener('scroll', this.handleScroll);
-	}
-	override componentWillUnmount() {
-		window.removeEventListener('scroll', this.handleScroll);
-	}
-	handleScroll = () => {
-		this.forceUpdate();
-	};
 	override render() {
-		if (PS.leftPanelWidth !== null) return null;
-
-		let notificationsCount = 0;
-		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList];
-		for (const roomid of notificationRooms) {
-			const miniNotifications = PS.rooms[roomid]?.notifications;
-			if (miniNotifications?.length) notificationsCount++;
-		}
-		const { icon, title } = PSHeader.roomInfo(PS.panel);
-		const showMenuButton = PSView.narrowMode;
-		const notifying = (
-			!showMenuButton && !window.scrollX && Object.values(PS.rooms).some(room => room!.notifications.length)
-		) ? ' notifying' : '';
-		const menuButton = !showMenuButton ? (
-			null
-		) : window.scrollX ? (
-			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
-				{!!notificationsCount && <div class="notification-badge">{notificationsCount}</div>}
-				<i class="fa fa-bars" aria-hidden></i>
-			</button>
-		) : (
-			<button onClick={PSView.scrollToRoom} class="mini-header-left" aria-label="Menu">
-				<i class="fa fa-arrow-right" aria-hidden></i>
-			</button>
-		);
-		return <div class="mini-header" style={`left:${PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1)}px;`}>
-			{menuButton}
-			{icon} {title}
-			<button data-href="options" class="mini-header-right" aria-label="Options">
-				<i class="fa fa-cog" aria-hidden></i>
-			</button>
-		</div>;
+		return null;
 	}
 }
 

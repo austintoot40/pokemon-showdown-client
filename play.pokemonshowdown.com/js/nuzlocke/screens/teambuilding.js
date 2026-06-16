@@ -42,7 +42,6 @@
 
 
 
-
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves',drag:null,showItemWarning:false,mobileTab:'loadout'};_this.
 
@@ -401,7 +400,6 @@ preact.h(NzStatPair,{species:selectedPokemon.species,nature:selectedPokemon.natu
 );
 }
 
-var onFeedback=this.props.onFeedback;
 return preact.h("div",{"class":"nz-tb-mobile-tab nz-tb-mobile-loadout"},
 this.renderMobilePartyStrip(),
 
@@ -443,9 +441,8 @@ evo.species
 ));}
 )
 )
-),
+)
 
-onFeedback&&preact.h(FeedbackFab,{onClick:onFeedback})
 );
 };_proto.
 
@@ -506,8 +503,7 @@ preact.h(NzSprite,{species:mon.species,size:40}),
 preact.h("div",{"class":"nz-tb-box-card-name"},mon.nickname)
 ));}
 )
-),
-this.props.onFeedback&&preact.h(FeedbackFab,{onClick:this.props.onFeedback})
+)
 );
 };_proto.
 
@@ -595,8 +591,7 @@ item.exists&&item.shortDesc&&preact.h("div",{"class":"nz-item-desc"},item.shortD
 );
 }()
 );
-}(),
-this.props.onFeedback&&preact.h(FeedbackFab,{onClick:this.props.onFeedback})
+}()
 );
 };_proto.
 

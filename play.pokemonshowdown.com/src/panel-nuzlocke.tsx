@@ -8,8 +8,9 @@
 
 import preact from "../js/lib/preact";
 import { PS } from "./client-main";
+import type { RoomID } from "./client-main";
 import { NzRoot, NzScreen, NzLoadingScreen } from "./nuzlocke/components/layout";
-import { FeedbackFab, FeedbackModal } from "./nuzlocke/components/feedback-modal";
+import { openFeedbackModal } from "./nuzlocke/components/nz-topbar";
 import { SegmentScreen } from "./nuzlocke/screens/segment";
 import { EncountersScreen } from "./nuzlocke/screens/encounters";
 import { TeambuildingScreen } from "./nuzlocke/screens/teambuilding";
@@ -65,14 +66,14 @@ window.addEventListener('unhandledrejection', e => {
 // Components
 // ---------------------------------------------------------------------------
 
-function NuzlockeGamePanel({ gameState, onFeedback }: { gameState: NuzlockePanelPayload | null, onFeedback: () => void }) {
+function NuzlockeGamePanel({ gameState }: { gameState: NuzlockePanelPayload | null }) {
 	if (!gameState) return <NzLoadingScreen />;
 
 	let screen: preact.VNode;
 	switch (gameState.curScreen) {
 	case 'segment':      screen = <SegmentScreen game={gameState} />; break;
 	case 'encounters':   screen = <EncountersScreen game={gameState} />; break;
-	case 'teambuilding': screen = <TeambuildingScreen game={gameState} onFeedback={onFeedback} />; break;
+	case 'teambuilding': screen = <TeambuildingScreen game={gameState} />; break;
 	case 'battle':       screen = <BattleScreen game={gameState} />; break;
 	case 'done':         screen = <VictoryScreen game={gameState} />; break;
 	case 'wipe':         screen = <WipeScreen game={gameState} />; break;
@@ -80,33 +81,16 @@ function NuzlockeGamePanel({ gameState, onFeedback }: { gameState: NuzlockePanel
 		screen = <NzScreen><p class="nz-notice">Unknown screen: {(gameState as any).curScreen}</p></NzScreen>;
 	}
 
-	return <NzRoot>{screen}<FeedbackFab onClick={onFeedback} /></NzRoot>;
+	return <NzRoot>{screen}</NzRoot>;
 }
 
-interface NuzlockeErrorBoundaryState {
-	showFeedbackModal: boolean;
-}
-
-class NuzlockeErrorBoundary extends preact.Component<{ gameState: NuzlockePanelPayload | null }, NuzlockeErrorBoundaryState> {
-	state: NuzlockeErrorBoundaryState = { showFeedbackModal: false };
-
+class NuzlockeErrorBoundary extends preact.Component<{ gameState: NuzlockePanelPayload | null }> {
 	componentDidCatch(err: Error) {
 		sendNuzlockeError(err, { type: 'render', screen: this.props.gameState?.curScreen });
+		openFeedbackModal();
 	}
 	render() {
-		const { showFeedbackModal } = this.state;
-		return (
-			<>
-				<NuzlockeGamePanel gameState={this.props.gameState} onFeedback={() => this.setState({ showFeedbackModal: true })} />
-				{showFeedbackModal && (
-					<FeedbackModal
-						curScreen={this.props.gameState?.curScreen}
-						recentCommands={[...recentCommands]}
-						onClose={() => this.setState({ showFeedbackModal: false })}
-					/>
-				)}
-			</>
-		);
+		return <NuzlockeGamePanel gameState={this.props.gameState} />;
 	}
 }
 
@@ -115,3 +99,21 @@ if (PagePanel) {
 	PagePanel.nuzlockeRenderer = (gameState: NuzlockePanelPayload | null) =>
 		<NuzlockeErrorBoundary gameState={gameState} />;
 }
+
+// ---------------------------------------------------------------------------
+// Auto-return: when the nuzlocke battle room is removed, navigate back.
+// ---------------------------------------------------------------------------
+
+const _origRemoveRoom = (PS as any).removeRoom.bind(PS);
+(PS as any).removeRoom = (room: any) => {
+	const nuzlockeRoom = PS.rooms['view-nuzlocke' as RoomID] as any;
+	const nuzlockeState = nuzlockeRoom?.nuzlockeState;
+	const wasNuzlockeBattle = nuzlockeState?.battleRoomId === room.id;
+	_origRemoveRoom(room);
+	// Only return to view-nuzlocke if the battle has actually ended (curScreen changed).
+	// If curScreen is still 'battle', the room was closed mid-battle — don't redirect
+	// or the auto-navigate in BattleScreen would immediately send the user back.
+	if (wasNuzlockeBattle && (PS as any).room?.id !== '' && nuzlockeState?.curScreen !== 'battle') {
+		setTimeout(() => PS.join('view-nuzlocke' as RoomID), 0);
+	}
+};

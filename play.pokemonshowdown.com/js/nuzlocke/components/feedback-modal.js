@@ -27,7 +27,7 @@ recentCommands:_this.props.recentCommands,
 userAgent:navigator.userAgent
 }
 };
-PS.send("/nuzlocke feedback "+btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+PS.send("/nuzlocke feedback "+btoa(unescape(encodeURIComponent(JSON.stringify(payload)))),'view-nuzlocke');
 _this.submitted=true;
 _this.forceUpdate();
 setTimeout(function(){return _this.props.onClose();},1800);

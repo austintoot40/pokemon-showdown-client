@@ -10,7 +10,6 @@ import { NzScreen, NzTimeline } from "../components/layout";
 import { NzBtn, NzSprite, NzTypeBadges } from "../components/primitives";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
 import { NzItemTable } from "../components/item-table";
-import { FeedbackFab } from "../components/feedback-modal";
 import { NzMovePanel, formatTarget } from "../components/move-panel";
 import { NzStatPair, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
 import { calcIvScore, calcNatureQuality, calcCombinedPercentile } from "./encounters";
@@ -43,7 +42,7 @@ interface TeambuildingState {
 	mobileTab: 'loadout' | 'team' | 'vs';
 }
 
-export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload; onFeedback?: () => void }, TeambuildingState> {
+export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
 	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves', drag: null, showItemWarning: false, mobileTab: 'loadout' };
 
 	// Instance variable tracks drag state synchronously — avoids reading stale Preact state in document event handlers.
@@ -401,7 +400,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			</div>;
 		}
 
-		const { onFeedback } = this.props;
 		return <div class="nz-tb-mobile-tab nz-tb-mobile-loadout">
 			{this.renderMobilePartyStrip()}
 
@@ -445,7 +443,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					</div>}
 				</>
 			}
-			{onFeedback && <FeedbackFab onClick={onFeedback} />}
 		</div>;
 	}
 
@@ -507,7 +504,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					</div>
 				))}
 			</div>
-			{this.props.onFeedback && <FeedbackFab onClick={this.props.onFeedback} />}
 		</div>;
 	}
 
@@ -596,7 +592,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					})()}
 				</div>;
 			})()}
-			{this.props.onFeedback && <FeedbackFab onClick={this.props.onFeedback} />}
 		</div>;
 	}
 

@@ -7,30 +7,42 @@ import { PS, type RoomID } from "../../client-main";
 import { NzScreen, NzTimeline, NzPanelFlat } from "../components/layout";
 import type { NuzlockePanelPayload } from "../types";
 
-export function BattleScreen({ game }: { game: NuzlockePanelPayload }) {
-	const battle = game.segment?.battles[game.currentBattleIndex];
-	const battleRoomId = game.battleRoomId as RoomID | null;
+export class BattleScreen extends preact.Component<{ game: NuzlockePanelPayload }> {
+	override componentDidMount() {
+		this.goToBattle();
+	}
 
-	function handleLoadBattle() {
+	override componentDidUpdate() {
+		if ((PS as any).room?.id !== 'view-nuzlocke') return;
+		this.goToBattle();
+	}
+
+	goToBattle = () => {
+		const battleRoomId = this.props.game.battleRoomId as RoomID | null;
 		if (!battleRoomId) return;
 		if (PS.rooms[battleRoomId]) {
 			PS.focusRoom(battleRoomId);
 		} else {
 			PS.join(battleRoomId);
 		}
-	}
+	};
 
-	return <NzScreen>
-		<NzTimeline game={game} />
-		<NzPanelFlat>
-			<p style="color:var(--nz-text-muted);font-size:13px;">
-				Battle in progress. Return here when it ends.
-			</p>
-			{battleRoomId && (
-				<button class="nz-btn nz-btn-accent" onClick={handleLoadBattle} style="margin-top:12px;">
-					Go to Battle
-				</button>
-			)}
-		</NzPanelFlat>
-	</NzScreen>;
+	override render() {
+		const { game } = this.props;
+		const battleRoomId = game.battleRoomId as RoomID | null;
+
+		return <NzScreen>
+			<NzTimeline game={game} />
+			<NzPanelFlat>
+				<p style="color:var(--nz-text-muted);font-size:13px;">
+					Battle in progress. Return here when it ends.
+				</p>
+				{battleRoomId && (
+					<button class="nz-btn nz-btn-accent" onClick={this.goToBattle} style="margin-top:12px;">
+						Go to Battle
+					</button>
+				)}
+			</NzPanelFlat>
+		</NzScreen>;
+	}
 }

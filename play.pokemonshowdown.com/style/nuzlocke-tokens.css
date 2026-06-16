@@ -52,6 +52,9 @@
   --nz-shadow:       0 4px 16px rgba(0, 0, 0, 0.5);
   --nz-shadow-hover: 0 6px 24px rgba(var(--nz-accent-rgb), 0.15);
 
+  /* Layout — Topbar */
+  --nz-topbar-height:       44px;
+
   /* Layout — Screen */
   --nz-screen-max:          1920px;
 
