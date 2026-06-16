@@ -106,7 +106,7 @@ export function calcCombinedPercentile(
 	return pIv * pNature;
 }
 
-function formatTopPct(p: number): string {
+export function formatTopPct(p: number): string {
 	const pct = p * 100;
 	return pct < 1 ? `${pct.toFixed(1)}%` : `${Math.round(pct)}%`;
 }

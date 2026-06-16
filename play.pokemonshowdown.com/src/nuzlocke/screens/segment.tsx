@@ -13,24 +13,22 @@ import type { NuzlockePanelPayload } from "../types";
 
 
 // -----------------------------------------------------------------------
-// Trainer carousel (cycles through chained battle sprites)
+// Generic carousel — shared timer/fade logic for trainer and pokemon slots
 // -----------------------------------------------------------------------
 
-interface TrainerCarouselState { index: number; visible: boolean; }
+interface CarouselState { index: number; visible: boolean; }
 
-class TrainerCarousel extends preact.Component<{ sprites: string[] }, TrainerCarouselState> {
+class Carousel extends preact.Component<{
+	items: any[];
+	renderItem: (item: any, visible: boolean) => preact.VNode | null;
+	empty?: preact.VNode | null;
+}, CarouselState> {
+	override state: CarouselState = { index: 0, visible: true };
 	private timer: ReturnType<typeof setInterval> | null = null;
 	private fadeTimer: ReturnType<typeof setTimeout> | null = null;
 
-	constructor(props: any) {
-		super(props);
-		this.state = { index: 0, visible: true };
-	}
-
 	override componentDidMount() {
-		if (this.props.sprites.length > 1) {
-			this.timer = setInterval(() => this.advance(), 3000);
-		}
+		if (this.props.items.length > 1) this.timer = setInterval(() => this.advance(), 3000);
 	}
 
 	override componentWillUnmount() {
@@ -41,79 +39,44 @@ class TrainerCarousel extends preact.Component<{ sprites: string[] }, TrainerCar
 	advance() {
 		this.setState({ visible: false });
 		this.fadeTimer = setTimeout(() => {
-			this.setState((s: TrainerCarouselState) => ({
-				index: (s.index + 1) % this.props.sprites.length,
-				visible: true,
-			}));
+			this.setState((s: CarouselState) => ({ index: (s.index + 1) % this.props.items.length, visible: true }));
 		}, 250);
 	}
 
-	render() {
-		const { sprites } = this.props;
-		if (sprites.length === 0) return <div class="nz-tl-trainer-placeholder" />;
-		const sprite = sprites[this.state.index];
-		const url = (window as any).Dex?.resolveAvatar(sprite) as string
-			?? `https://play.pokemonshowdown.com/sprites/trainers/${sprite}.png`;
-		return <div class={`nz-tl-trainer-wrap${this.state.visible ? ' nz-tl-trainer-visible' : ''}`}>
-			<img class="nz-tl-trainer-sprite" src={url} alt={sprite} width={80} height={80} />
-		</div>;
+	override render() {
+		const { items, renderItem, empty } = this.props;
+		if (items.length === 0) return empty ?? null;
+		return renderItem(items[this.state.index], this.state.visible);
 	}
 }
 
-// -----------------------------------------------------------------------
-// Pokemon carousel (catches / deaths in timeline nodes)
-// -----------------------------------------------------------------------
-
-interface PokemonCarouselItem {
-	species: string;
-	label: string;
+function TrainerCarousel({ sprites }: { sprites: string[] }) {
+	return <Carousel
+		items={sprites}
+		empty={<div class="nz-tl-trainer-placeholder" />}
+		renderItem={(sprite: string, visible: boolean) => {
+			const url = (window as any).Dex?.resolveAvatar(sprite) as string
+				?? `https://play.pokemonshowdown.com/sprites/trainers/${sprite}.png`;
+			return <div class={`nz-tl-trainer-wrap${visible ? ' nz-tl-trainer-visible' : ''}`}>
+				<img class="nz-tl-trainer-sprite" src={url} alt={sprite} width={80} height={80} />
+			</div>;
+		}}
+	/>;
 }
 
-interface PokemonCarouselState { index: number; visible: boolean; }
+interface PokemonCarouselItem { species: string; label: string; }
 
-class PokemonCarousel extends preact.Component<
-	{ items: PokemonCarouselItem[]; variant: 'catch' | 'death' },
-	PokemonCarouselState
-> {
-	private timer: ReturnType<typeof setInterval> | null = null;
-	private fadeTimer: ReturnType<typeof setTimeout> | null = null;
-
-	constructor(props: any) {
-		super(props);
-		this.state = { index: 0, visible: true };
-	}
-
-	override componentDidMount() {
-		if (this.props.items.length > 1) {
-			this.timer = setInterval(() => this.advance(), 3000);
-		}
-	}
-
-	override componentWillUnmount() {
-		if (this.timer !== null) clearInterval(this.timer);
-		if (this.fadeTimer !== null) clearTimeout(this.fadeTimer);
-	}
-
-	advance() {
-		this.setState({ visible: false });
-		this.fadeTimer = setTimeout(() => {
-			this.setState((s: PokemonCarouselState) => ({
-				index: (s.index + 1) % this.props.items.length,
-				visible: true,
-			}));
-		}, 250);
-	}
-
-	render() {
-		const { items, variant } = this.props;
-		if (items.length === 0) return null;
-		const item = items[this.state.index];
-		const wrapCls = `nz-pkmn-carousel nz-pkmn-carousel--${variant}${this.state.visible ? ' nz-pkmn-carousel-visible' : ''}`;
-		return <div class={wrapCls}>
-			<NzSprite species={item.species} class="nz-pkmn-carousel-sprite" />
-			<div class="nz-pkmn-carousel-label">{item.label}</div>
-	</div>;
-	}
+function PokemonCarousel({ items, variant }: { items: PokemonCarouselItem[]; variant: 'catch' | 'death' }) {
+	return <Carousel
+		items={items}
+		renderItem={(item: PokemonCarouselItem, visible: boolean) => {
+			const wrapCls = `nz-pkmn-carousel nz-pkmn-carousel--${variant}${visible ? ' nz-pkmn-carousel-visible' : ''}`;
+			return <div class={wrapCls}>
+				<NzSprite species={item.species} class="nz-pkmn-carousel-sprite" />
+				<div class="nz-pkmn-carousel-label">{item.label}</div>
+			</div>;
+		}}
+	/>;
 }
 
 // -----------------------------------------------------------------------

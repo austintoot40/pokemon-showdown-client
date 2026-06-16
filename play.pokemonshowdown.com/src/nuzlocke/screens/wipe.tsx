@@ -27,7 +27,7 @@ export function WipeScreen({ game }: { game: NuzlockePanelPayload }) {
 	const spriteUrl = (window as any).Dex?.resolveAvatar(spriteId) as string
 		?? `https://play.pokemonshowdown.com/sprites/trainers/${spriteId}.png`;
 
-	const rawQuip = QUIPS[Math.floor(Math.random() * QUIPS.length)].replace(/\{trainer\}/g, trainerName);
+	const rawQuip = QUIPS[Math.floor(Math.random() * QUIPS.length)];
 	const words = rawQuip.split(' ');
 
 	const trainerDelay = 0.5;

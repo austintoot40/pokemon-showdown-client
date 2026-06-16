@@ -6,11 +6,6 @@
 
 import preact from "../../../js/lib/preact";
 
-function nzToID(str: string): string {
-	if (!str || typeof str !== 'string') return '';
-	return str.toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
 export function NzRoot({ children, class: cls }: { children?: preact.ComponentChildren; class?: string }) {
 	return <div class={`nz-root${cls ? ` ${cls}` : ''}`}>{children}</div>;
 }

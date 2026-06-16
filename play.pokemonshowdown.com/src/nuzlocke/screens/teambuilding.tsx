@@ -12,7 +12,7 @@ import { NzTutorial, TutorialStep } from "../components/tutorial";
 import { NzItemTable } from "../components/item-table";
 import { NzMovePanel, formatTarget } from "../components/move-panel";
 import { NzStatPair, NzPartySlot, NzOpponentSlot } from "../components/teambuilding";
-import { calcIvScore, calcNatureQuality, calcCombinedPercentile } from "./encounters";
+import { calcIvScore, calcNatureQuality, calcCombinedPercentile, formatTopPct } from "./encounters";
 import type { NuzlockePanelPayload } from "../types";
 
 
@@ -356,10 +356,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			const combinedPct = sp?.exists ? calcCombinedPercentile(ivScore, natureQuality, sp.baseStats) : null;
 			const topPercentile = combinedPct !== null && combinedPct <= 0.05 ? combinedPct : null;
 			const worsePercentile = combinedPct !== null && combinedPct >= 0.95 ? combinedPct : null;
-			const formatTopPct = (p: number): string => {
-				const pct = p * 100;
-				return pct < 1 ? `${pct.toFixed(1)}%` : `${Math.round(pct)}%`;
-			};
 
 			infoBlock = <>
 				<div class="nz-tb-detail-header">
@@ -715,10 +711,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			const combinedPct = sp?.exists ? calcCombinedPercentile(ivScore, natureQuality, sp.baseStats) : null;
 			const topPercentile = combinedPct !== null && combinedPct <= 0.05 ? combinedPct : null;
 			const worsePercentile = combinedPct !== null && combinedPct >= 0.95 ? combinedPct : null;
-			const formatTopPct = (p: number): string => {
-				const pct = p * 100;
-				return pct < 1 ? `${pct.toFixed(1)}%` : `${Math.round(pct)}%`;
-			};
 
 			detailContent = <>
 				<div class="nz-tb-info-stats">
