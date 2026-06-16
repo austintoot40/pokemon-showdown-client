@@ -40,10 +40,11 @@ interface TeambuildingState {
 	drag: DragState | null;
 	showItemWarning: boolean;
 	mobileTab: 'loadout' | 'team' | 'vs';
+	statsCollapsed: boolean;
 }
 
 export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPayload }, TeambuildingState> {
-	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves', drag: null, showItemWarning: false, mobileTab: 'loadout' };
+	override state: TeambuildingState = { moves: {}, heldItems: {}, errors: {}, selectedUid: null, selectedOpponent: null, showTutorial: false, activeTab: 'moves', drag: null, showItemWarning: false, mobileTab: 'loadout', statsCollapsed: true };
 
 	// Instance variable tracks drag state synchronously — avoids reading stale Preact state in document event handlers.
 	_drag: DragState | null = null;
@@ -318,6 +319,9 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					onClick={() => this.select(pok.uid)}
 				>
 					<NzSprite species={pok.species} size={36} />
+					<div class="nz-tb-strip-types">
+						<NzTypeBadges species={pok.species} generation={game.generation} />
+					</div>
 					{heldId
 						? <span class={`itemicon ${heldId} nz-tb-strip-item`} />
 						: <span class="nz-tb-strip-item-empty" />
@@ -329,7 +333,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 	renderMobileLoadout() {
 		const { game } = this.props;
-		const { moves, heldItems, errors, selectedUid } = this.state;
+		const { moves, heldItems, errors, selectedUid, statsCollapsed } = this.state;
 		const segment = game.segment!;
 
 		const selectedPokemon = selectedUid ? (game.box.find(p => p.uid === selectedUid) ?? null) : null;
@@ -339,7 +343,8 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 		const evos = selectedPokemon ? (game.availableEvolutions[selectedPokemon.uid] ?? []) : [];
 		const error = selectedPokemon && isInParty ? errors[selectedPokemon.uid] : undefined;
 
-		let statsBlock: preact.VNode | null = null;
+		let infoBlock: preact.VNode | null = null;
+		let statsPair: preact.VNode | null = null;
 		if (selectedPokemon) {
 			const sp = Dex.forGen(game.generation).species.get(selectedPokemon.species);
 			const nat = BattleNatures[selectedPokemon.nature as keyof typeof BattleNatures] ?? {} as any;
@@ -356,48 +361,47 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				return pct < 1 ? `${pct.toFixed(1)}%` : `${Math.round(pct)}%`;
 			};
 
-			statsBlock = <div class="nz-tb-info-stats">
-				<div class="nz-tb-left-col">
-					<div class="nz-tb-detail-header">
-						<div class="nz-tb-detail-sprite">
-							<NzSprite species={selectedPokemon.species} size={60} />
-						</div>
-						<div class="nz-tb-detail-info">
-							<div class="nz-card-nickname">
-								<span>{selectedPokemon.nickname}</span>
-								{topPercentile && <span class="nz-tb-percentile-badge nz-tb-percentile-top">Top {formatTopPct(topPercentile)}</span>}
-								{worsePercentile && <span class="nz-tb-percentile-badge nz-tb-percentile-worse">Bottom {formatTopPct(worsePercentile)}</span>}
-							</div>
-							{selectedPokemon.nickname !== selectedPokemon.species &&
-								<div class="nz-card-species">{selectedPokemon.species}</div>}
-							<div class="nz-card-level">Lv. {segment.levelCap}</div>
-							<div class="nz-card-types"><NzTypeBadges species={selectedPokemon.species} generation={game.generation} /></div>
-						</div>
+			infoBlock = <>
+				<div class="nz-tb-detail-header">
+					<div class="nz-tb-detail-sprite">
+						<NzSprite species={selectedPokemon.species} size={60} />
 					</div>
-					<div class="nz-tb-nature-ability">
-						<div class="nz-tb-nature-col">
-							<div class="nz-card-nature" style="display:flex;align-items:center;gap:6px">
-								<span>{selectedPokemon.nature}</span>
-								{natureQuality !== 'neutral' &&
-									<span class={`nz-nature-quality nz-nature-quality-${natureQuality}`}>{natureQuality}</span>
-								}
-							</div>
-							{nat.plus && nat.minus
-								? <div class="nz-card-subdesc">+{nat.plus.toUpperCase()} −{nat.minus.toUpperCase()}</div>
-								: <div class="nz-card-subdesc">Neutral</div>
-							}
+					<div class="nz-tb-detail-info">
+						<div class="nz-card-nickname">
+							<span>{selectedPokemon.nickname}</span>
+							{topPercentile && <span class="nz-tb-percentile-badge nz-tb-percentile-top">Top {formatTopPct(topPercentile)}</span>}
+							{worsePercentile && <span class="nz-tb-percentile-badge nz-tb-percentile-worse">Bottom {formatTopPct(worsePercentile)}</span>}
 						</div>
-						<div class="nz-tb-ability-col">
-							<div class="nz-card-nature">{selectedPokemon.ability}</div>
-							{(() => {
-								const desc = Dex.forGen(game.generation).abilities.get(selectedPokemon.ability).shortDesc;
-								return desc ? <div class="nz-card-subdesc">{desc}</div> : null;
-							})()}
-						</div>
+						{selectedPokemon.nickname !== selectedPokemon.species &&
+							<div class="nz-card-species">{selectedPokemon.species}</div>}
+						<div class="nz-card-level">Lv. {segment.levelCap}</div>
+						<div class="nz-card-types"><NzTypeBadges species={selectedPokemon.species} generation={game.generation} /></div>
 					</div>
 				</div>
-				<NzStatPair species={selectedPokemon.species} nature={selectedPokemon.nature} generation={game.generation} ivs={selectedPokemon.ivs} ivsExtra={selectedPokemon.ivs && ivLabel !== 'Fair' ? <span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span> : undefined} />
-			</div>;
+				<div class="nz-tb-nature-ability">
+					<div class="nz-tb-nature-col">
+						<div class="nz-card-nature" style="display:flex;align-items:center;gap:6px">
+							<span>{selectedPokemon.nature}</span>
+							{natureQuality !== 'neutral' &&
+								<span class={`nz-nature-quality nz-nature-quality-${natureQuality}`}>{natureQuality}</span>
+							}
+						</div>
+						{nat.plus && nat.minus
+							? <div class="nz-card-subdesc">+{nat.plus.toUpperCase()} −{nat.minus.toUpperCase()}</div>
+							: <div class="nz-card-subdesc">Neutral</div>
+						}
+					</div>
+					<div class="nz-tb-ability-col">
+						<div class="nz-card-nature">{selectedPokemon.ability}</div>
+						{(() => {
+							const desc = Dex.forGen(game.generation).abilities.get(selectedPokemon.ability).shortDesc;
+							return desc ? <div class="nz-card-subdesc">{desc}</div> : null;
+						})()}
+					</div>
+				</div>
+			</>;
+
+			statsPair = <NzStatPair species={selectedPokemon.species} nature={selectedPokemon.nature} generation={game.generation} ivs={selectedPokemon.ivs} ivsExtra={selectedPokemon.ivs && ivLabel !== 'Fair' ? <span class={`nz-iv-score nz-iv-score-${ivTier}`}>{ivLabel}</span> : undefined} />;
 		}
 
 		return <div class="nz-tb-mobile-tab nz-tb-mobile-loadout">
@@ -406,7 +410,15 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 			{!selectedPokemon
 				? <div class="nz-tb-detail-empty"><p class="nz-notice">Tap a party slot above to edit</p></div>
 				: <>
-					{statsBlock}
+					{infoBlock}
+
+					<button
+						class={`nz-tb-mobile-section nz-tb-mobile-section-toggle${statsCollapsed ? '' : ' nz-tb-mobile-section-open'}`}
+						onClick={() => this.setState(s => ({ statsCollapsed: !s.statsCollapsed }))}
+					>
+						Stats {statsCollapsed ? '▸' : '▾'}
+					</button>
+					{!statsCollapsed && statsPair}
 
 					{error && <div class="nz-card-error" style="margin-bottom:8px;">⚠ {error}</div>}
 
@@ -438,7 +450,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 									: selectedPokemon.species === 'Nincada' && evo.species === 'Ninjask'
 										? 'Evolve → Ninjask (+Shedinja)'
 										: `Evolve → ${evo.species}`}
-							</NzBtn>
+						</NzBtn>
 						)}
 					</div>}
 				</>

@@ -760,6 +760,14 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		});
 		const canTeambuilding = pendingRoutes.length === 0;
 
+		const currentPendingIdx = pendingRoutes.findIndex(r => r.route === selectedRoute);
+		const nextPendingRoute = pendingRoutes.length > 0
+			? pendingRoutes[(currentPendingIdx >= 0 ? currentPendingIdx + 1 : 0) % pendingRoutes.length]
+			: null;
+		const goToNextUnresolved = nextPendingRoute
+			? () => this.selectRoute(nextPendingRoute.route)
+			: undefined;
+
 		// Detail panel: find selected route in the unified list
 		const selectedEncIdx = allDisplayedRoutes.findIndex(enc => enc.route === selectedRoute);
 		const selectedEnc = selectedEncIdx >= 0 ? allDisplayedRoutes[selectedEncIdx] : null;
@@ -976,13 +984,10 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			</div>
 
 			<div class="nz-tb-battle-footer">
-				<NzBtn
-					onClick={this.submit}
-					disabled={!canTeambuilding}
-					title={canTeambuilding ? '' : `${pendingRoutes.length} route(s) still need action`}
-				>
-					Teambuilding
-				</NzBtn>
+				{canTeambuilding
+					? <NzBtn onClick={this.submit}>Teambuilding</NzBtn>
+					: <NzBtn onClick={goToNextUnresolved}>Next ({pendingRoutes.length} left)</NzBtn>
+				}
 			</div>
 
 			{/* Mobile layout — accordion route list + expandable stats bar */}
@@ -1114,11 +1119,10 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 							<span class="nz-enc-mobile-expand-icon">{this.state.statsExpanded ? '▼' : '▲'}</span>
 						</> : <span class="nz-enc-mobile-bar-empty">No catches yet</span>}
 					</div>
-					<NzBtn
-						onClick={this.submit}
-						disabled={!canTeambuilding}
-						title={canTeambuilding ? '' : `${pendingRoutes.length} route(s) still need action`}
-					>Teambuilding</NzBtn>
+					{canTeambuilding
+						? <NzBtn onClick={this.submit}>Teambuilding</NzBtn>
+						: <NzBtn onClick={goToNextUnresolved}>Next ({pendingRoutes.length} left)</NzBtn>
+					}
 				</div>
 			</div>
 

@@ -42,8 +42,9 @@
 
 
 
+
 TeambuildingScreen=function(_preact$Component){function TeambuildingScreen(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
-state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves',drag:null,showItemWarning:false,mobileTab:'loadout'};_this.
+state={moves:{},heldItems:{},errors:{},selectedUid:null,selectedOpponent:null,showTutorial:false,activeTab:'moves',drag:null,showItemWarning:false,mobileTab:'loadout',statsCollapsed:true};_this.
 
 
 _drag=null;_this.
@@ -318,6 +319,9 @@ title:pok.nickname,
 onClick:function(){return _this2.select(pok.uid);}},
 
 preact.h(NzSprite,{species:pok.species,size:36}),
+preact.h("div",{"class":"nz-tb-strip-types"},
+preact.h(NzTypeBadges,{species:pok.species,generation:game.generation})
+),
 heldId?
 preact.h("span",{"class":"itemicon "+heldId+" nz-tb-strip-item"}):
 preact.h("span",{"class":"nz-tb-strip-item-empty"})
@@ -329,7 +333,7 @@ preact.h("span",{"class":"nz-tb-strip-item-empty"})
 
 renderMobileLoadout=function renderMobileLoadout(){var _game$box$find2,_game$legalMoves$sele,_moves$selectedPokemo,_game$availableEvolut,_this3=this,_heldItems$selectedPo;
 var game=this.props.game;
-var _this$state3=this.state,moves=_this$state3.moves,heldItems=_this$state3.heldItems,errors=_this$state3.errors,selectedUid=_this$state3.selectedUid;
+var _this$state3=this.state,moves=_this$state3.moves,heldItems=_this$state3.heldItems,errors=_this$state3.errors,selectedUid=_this$state3.selectedUid,statsCollapsed=_this$state3.statsCollapsed;
 var segment=game.segment;
 
 var selectedPokemon=selectedUid?(_game$box$find2=game.box.find(function(p){return p.uid===selectedUid;}))!=null?_game$box$find2:null:null;
@@ -339,7 +343,8 @@ var selectedMoves=selectedPokemon?(_moves$selectedPokemo=moves[selectedPokemon.u
 var evos=selectedPokemon?(_game$availableEvolut=game.availableEvolutions[selectedPokemon.uid])!=null?_game$availableEvolut:[]:[];
 var error=selectedPokemon&&isInParty?errors[selectedPokemon.uid]:undefined;
 
-var statsBlock=null;
+var infoBlock=null;
+var statsPair=null;
 if(selectedPokemon){var _BattleNatures;
 var sp=Dex.forGen(game.generation).species.get(selectedPokemon.species);
 var nat=(_BattleNatures=BattleNatures[selectedPokemon.nature])!=null?_BattleNatures:{};
@@ -356,8 +361,7 @@ var pct=p*100;
 return pct<1?pct.toFixed(1)+"%":Math.round(pct)+"%";
 };
 
-statsBlock=preact.h("div",{"class":"nz-tb-info-stats"},
-preact.h("div",{"class":"nz-tb-left-col"},
+infoBlock=preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-tb-detail-header"},
 preact.h("div",{"class":"nz-tb-detail-sprite"},
 preact.h(NzSprite,{species:selectedPokemon.species,size:60})
@@ -395,9 +399,9 @@ return desc?preact.h("div",{"class":"nz-card-subdesc"},desc):null;
 }()
 )
 )
-),
-preact.h(NzStatPair,{species:selectedPokemon.species,nature:selectedPokemon.nature,generation:game.generation,ivs:selectedPokemon.ivs,ivsExtra:selectedPokemon.ivs&&ivLabel!=='Fair'?preact.h("span",{"class":"nz-iv-score nz-iv-score-"+ivTier},ivLabel):undefined})
 );
+
+statsPair=preact.h(NzStatPair,{species:selectedPokemon.species,nature:selectedPokemon.nature,generation:game.generation,ivs:selectedPokemon.ivs,ivsExtra:selectedPokemon.ivs&&ivLabel!=='Fair'?preact.h("span",{"class":"nz-iv-score nz-iv-score-"+ivTier},ivLabel):undefined});
 }
 
 return preact.h("div",{"class":"nz-tb-mobile-tab nz-tb-mobile-loadout"},
@@ -406,7 +410,15 @@ this.renderMobilePartyStrip(),
 !selectedPokemon?
 preact.h("div",{"class":"nz-tb-detail-empty"},preact.h("p",{"class":"nz-notice"},"Tap a party slot above to edit")):
 preact.h(preact.Fragment,null,
-statsBlock,
+infoBlock,
+
+preact.h("button",{
+"class":"nz-tb-mobile-section nz-tb-mobile-section-toggle"+(statsCollapsed?'':' nz-tb-mobile-section-open'),
+onClick:function(){return _this3.setState(function(s){return{statsCollapsed:!s.statsCollapsed};});}},
+"Stats ",
+statsCollapsed?'▸':'▾'
+),
+!statsCollapsed&&statsPair,
 
 error&&preact.h("div",{"class":"nz-card-error",style:"margin-bottom:8px;"},"\u26A0 ",error),
 

@@ -708,7 +708,7 @@ join(' ');
 PS.send("/nuzlocke setnicks "+parts);
 };return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);var _proto2=EncountersScreen.prototype;_proto2.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.encounters)this.setState({showTutorial:true});}catch(_unused2){}};EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updates={};var segIdx=props.game.currentSegmentIndex;if(segIdx!==state.lastSegmentIndex){updates.lastSegmentIndex=segIdx;updates.deferredThisSession=new Set();updates.selectedRoute=null;}var nicknames=Object.assign({},state.nicknames);var nicksChanged=false;props.game.box.forEach(function(p){if(!(p.uid in nicknames)){nicknames[p.uid]=p.nickname;nicksChanged=true;}});if(nicksChanged)updates.nicknames=nicknames;var currentSelected=updates.selectedRoute!==undefined?updates.selectedRoute:state.selectedRoute;if(!currentSelected){var _segment$encounters,_segment$encounters2,_props$game$deferredR,_props$game$lockedRou,_pending$route,_ref8,_find$route,_find,_segment$gifts,_allDisplayed$find;var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var tmMoves=props.game.tmMoves;var items=props.game.items;var currentRouteNames=new Set(((_segment$encounters=segment.encounters)!=null?_segment$encounters:[]).map(function(e){return e.route;}));var allDisplayed=[].concat((_segment$encounters2=segment.encounters)!=null?_segment$encounters2:[],((_props$game$deferredR=props.game.deferredRoutes)!=null?_props$game$deferredR:[]).filter(function(r){return!currentRouteNames.has(r.route);}),((_props$game$lockedRou=props.game.lockedRoutes)!=null?_props$game$lockedRou:[]).filter(function(r){return!currentRouteNames.has(r.route);}));var pending=allDisplayed.find(function(enc){return!props.game.resolvedRoutes.includes(enc.route)&&enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}),props.game.completedBattles)&&z.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species));});});});var autoSelected=(_pending$route=pending==null?void 0:pending.route)!=null?_pending$route:null;var fallback=!autoSelected?(_ref8=(_find$route=(_find=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);}))==null?void 0:_find.route)!=null?_find$route:(_allDisplayed$find=allDisplayed.find(function(enc){return enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}),props.game.completedBattles);});}))==null?void 0:_allDisplayed$find.route)!=null?_ref8:null:autoSelected;if(fallback!==currentSelected)updates.selectedRoute=fallback;}return Object.keys(updates).length>0?updates:null;};_proto2.
 
-render=function render(){var _segment$encounters3,_segment$gifts2,_game$deferredRoutes,_game$lockedRoutes,_game$box$find,_allGifts$find,_game$lockedRoutes2,_nicknames$mobileDisp,_this3=this;
+render=function render(){var _segment$encounters3,_segment$gifts2,_game$deferredRoutes,_game$lockedRoutes,_this3=this,_game$box$find,_allGifts$find,_game$lockedRoutes2,_nicknames$mobileDisp;
 var game=this.props.game;
 var _this$state=this.state,nicknames=_this$state.nicknames,selectedRoute=_this$state.selectedRoute,mobileExpandedRoute=_this$state.mobileExpandedRoute,deferredThisSession=_this$state.deferredThisSession;
 var segment=game.segment;
@@ -759,6 +759,14 @@ zone.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species,game.ge
 
 });
 var canTeambuilding=pendingRoutes.length===0;
+
+var currentPendingIdx=pendingRoutes.findIndex(function(r){return r.route===selectedRoute;});
+var nextPendingRoute=pendingRoutes.length>0?
+pendingRoutes[(currentPendingIdx>=0?currentPendingIdx+1:0)%pendingRoutes.length]:
+null;
+var goToNextUnresolved=nextPendingRoute?
+function(){return _this3.selectRoute(nextPendingRoute.route);}:
+undefined;
 
 
 var selectedEncIdx=allDisplayedRoutes.findIndex(function(enc){return enc.route===selectedRoute;});
@@ -976,13 +984,10 @@ onNickChange:this.setNick}
 ),
 
 preact.h("div",{"class":"nz-tb-battle-footer"},
-preact.h(NzBtn,{
-onClick:this.submit,
-disabled:!canTeambuilding,
-title:canTeambuilding?'':pendingRoutes.length+" route(s) still need action"},
-"Teambuilding"
+canTeambuilding?
+preact.h(NzBtn,{onClick:this.submit},"Teambuilding"):
+preact.h(NzBtn,{onClick:goToNextUnresolved},"Next (",pendingRoutes.length," left)")
 
-)
 ),
 
 
@@ -1114,11 +1119,10 @@ mobileNatQ&&mobileNatQ!=='neutral'&&preact.h("span",{"class":"nz-nature-quality 
 preact.h("span",{"class":"nz-enc-mobile-expand-icon"},this.state.statsExpanded?'▼':'▲')
 ):preact.h("span",{"class":"nz-enc-mobile-bar-empty"},"No catches yet")
 ),
-preact.h(NzBtn,{
-onClick:this.submit,
-disabled:!canTeambuilding,
-title:canTeambuilding?'':pendingRoutes.length+" route(s) still need action"},
-"Teambuilding")
+canTeambuilding?
+preact.h(NzBtn,{onClick:this.submit},"Teambuilding"):
+preact.h(NzBtn,{onClick:goToNextUnresolved},"Next (",pendingRoutes.length," left)")
+
 )
 ),
 

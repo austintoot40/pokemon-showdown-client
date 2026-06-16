@@ -1240,8 +1240,45 @@
     padding: 14px 14px;
   }
 
+  /* Thicker stat bars — easier to read at mobile sizes */
+  .nz-stat-bar-track {
+    height: 8px;
+  }
+
   .nz-tb-tab {
     padding: 5px 12px;
+  }
+
+  /* Collapsible section header — acts as a tap target */
+  .nz-tb-mobile-section-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--nz-border);
+    color: var(--nz-text-muted);
+    font-family: var(--nz-font-ui);
+    text-align: left;
+    padding: 8px 0 4px;
+    user-select: none;
+  }
+
+  .nz-tb-mobile-section-toggle:hover {
+    color: var(--nz-text);
+  }
+
+  .nz-tb-mobile-section-open {
+    color: var(--nz-accent);
+    border-bottom-color: var(--nz-accent);
+  }
+
+  /* Bigger radar/bars toggle on mobile — easier to tap */
+  .nz-stat-view-toggle {
+    padding: 5px 12px;
+    font-size: 12px;
   }
 }
 
@@ -1375,7 +1412,7 @@
 }
 
 .nz-tb-strip-slot {
-  height: 64px;
+  height: 82px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1395,8 +1432,9 @@
 
 .nz-tb-strip-slot-selected {
   border-color: var(--nz-accent);
-  background: color-mix(in srgb, var(--nz-accent) 12%, var(--nz-elevated));
-  box-shadow: 0 0 0 1px var(--nz-accent) inset;
+  border-width: 2px;
+  background: color-mix(in srgb, var(--nz-accent) 16%, var(--nz-elevated));
+  box-shadow: 0 0 0 1px var(--nz-accent) inset, 0 0 8px rgba(var(--nz-accent-rgb), 0.25);
 }
 
 .nz-tb-strip-slot-error {
@@ -1410,21 +1448,41 @@
   cursor: default;
 }
 
-/* Item icon in strip slot */
+/* Item icon in strip slot — absolute corner so it doesn't affect vertical flow */
 .nz-tb-strip-item {
-  transform: scale(0.7);
-  transform-origin: center;
-  opacity: 0.9;
-  flex-shrink: 0;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  transform: scale(0.65);
+  transform-origin: bottom right;
+  opacity: 0.85;
 }
 
 .nz-tb-strip-item-empty {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border: 1.5px dashed var(--nz-text-muted);
   border-radius: 50%;
-  opacity: 0.5;
+  opacity: 0.35;
+}
+
+/* Tiny type badges inside the party strip */
+.nz-tb-strip-types {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.nz-tb-strip-types .nz-type {
+  font-size: 8px;
+  padding: 0px 4px;
+  min-width: 0;
+  letter-spacing: 0;
 }
 
 /* ---- Section labels within mobile tabs ---- */
@@ -1496,7 +1554,7 @@
 
 .nz-tb-mobile-nav {
   flex: 1;
-  padding: 6px 4px;
+  padding: 10px 4px;
   font-family: var(--nz-font-ui);
   font-size: 12px;
   font-weight: 600;

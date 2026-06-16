@@ -398,13 +398,16 @@
   .nz-move-desktop { display: none !important; }
   .nz-move-mobile  { display: block; }
 
-  /* ── Sort bar ── */
+  /* ── Sort bar — horizontal scroll so buttons never wrap ── */
   .nz-move-sort-bar {
     display: flex;
     align-items: center;
     gap: 4px;
-    flex-wrap: wrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
+  .nz-move-sort-bar::-webkit-scrollbar { display: none; }
 
   .nz-move-sort-label {
     font-size: 11px;
@@ -413,18 +416,20 @@
     letter-spacing: 0.05em;
     margin-right: 2px;
     flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .nz-move-sort-btn {
     font-family: var(--nz-font-ui);
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 12px;
+    padding: 6px 11px;
     border: 1px solid var(--nz-border);
     background: var(--nz-bg);
     color: var(--nz-text-muted);
     border-radius: var(--nz-radius);
     cursor: pointer;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .nz-move-sort-btn--active {
@@ -460,7 +465,7 @@
   }
 
   .nz-move-item {
-    padding: 7px 10px;
+    padding: 10px 12px;
     border-bottom: 1px solid rgba(var(--nz-border-rgb), 0.4);
     background: var(--nz-bg);
     cursor: pointer;
@@ -498,7 +503,7 @@
 
   .nz-move-item-name {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--nz-text);
     flex: 1;
     min-width: 0;
@@ -506,7 +511,7 @@
 
   /* Line 2: effect description */
   .nz-move-item-desc {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--nz-text-dim);
     line-height: 1.4;
     margin: 3px 0;
