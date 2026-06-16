@@ -10,7 +10,7 @@ import { PS } from "../../client-main";
 import { toID, Dex } from "../../battle-dex";
 import { PSView } from "../../panels";
 import { BattleNatures } from "../../battle-dex-data";
-import { NzScreen, NzTimeline } from "../components/layout";
+import { NzScreen } from "../components/layout";
 import { NzBtn, NzSprite, NzTypeBadges } from "../components/primitives";
 import { NzStatPair } from "../components/teambuilding";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
@@ -855,8 +855,6 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 		};
 
 		return <NzScreen>
-			<NzTimeline game={game} />
-
 			<div class="nz-encounters-layout">
 				{/* Left: route list */}
 				<div class="nz-route-list">

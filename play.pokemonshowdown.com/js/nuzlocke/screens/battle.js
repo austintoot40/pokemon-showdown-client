@@ -32,7 +32,6 @@ var game=this.props.game;
 var battleRoomId=game.battleRoomId;
 
 return preact.h(NzScreen,null,
-preact.h(NzTimeline,{game:game}),
 preact.h(NzPanelFlat,null,
 preact.h("p",{style:"color:var(--nz-text-muted);font-size:13px;"},"Battle in progress. Return here when it ends."
 

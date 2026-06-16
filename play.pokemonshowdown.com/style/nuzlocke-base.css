@@ -66,6 +66,7 @@ body {
   min-height: 100%;
   width: 100%;
   max-width: var(--nz-screen-max);
+  padding-top: 20px;
 }
 
 .nz-row {
@@ -541,6 +542,10 @@ body {
 @media (max-width: 800px) {
   .nz-root {
     padding: 10px 12px;
+  }
+
+  .nz-screen {
+    padding-top: 8px;
   }
 
   .nz-screen-title {

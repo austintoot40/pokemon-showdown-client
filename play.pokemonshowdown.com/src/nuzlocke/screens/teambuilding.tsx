@@ -6,7 +6,7 @@ import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { Dex, toID } from "../../battle-dex";
 import { BattleNatures } from "../../battle-dex-data";
-import { NzScreen, NzTimeline } from "../components/layout";
+import { NzScreen } from "../components/layout";
 import { NzBtn, NzSprite, NzTypeBadges } from "../components/primitives";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
 import { NzItemTable } from "../components/item-table";
@@ -813,8 +813,6 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 		// ---- Full render ----
 		return <NzScreen>
-			<NzTimeline game={game} />
-
 			{/* Desktop layout — hidden on mobile via CSS */}
 			<div class="nz-tb-layout">
 

@@ -813,8 +813,6 @@ evo.species
 
 
 return preact.h(NzScreen,null,
-preact.h(NzTimeline,{game:game}),
-
 
 preact.h("div",{"class":"nz-tb-layout"},
 

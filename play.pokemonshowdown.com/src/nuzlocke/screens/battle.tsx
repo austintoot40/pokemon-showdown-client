@@ -4,7 +4,7 @@
 
 import preact from "../../../js/lib/preact";
 import { PS, type RoomID } from "../../client-main";
-import { NzScreen, NzTimeline, NzPanelFlat } from "../components/layout";
+import { NzScreen, NzPanelFlat } from "../components/layout";
 import type { NuzlockePanelPayload } from "../types";
 
 export class BattleScreen extends preact.Component<{ game: NuzlockePanelPayload }> {
@@ -32,7 +32,6 @@ export class BattleScreen extends preact.Component<{ game: NuzlockePanelPayload 
 		const battleRoomId = game.battleRoomId as RoomID | null;
 
 		return <NzScreen>
-			<NzTimeline game={game} />
 			<NzPanelFlat>
 				<p style="color:var(--nz-text-muted);font-size:13px;">
 					Battle in progress. Return here when it ends.

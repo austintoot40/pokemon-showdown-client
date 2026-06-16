@@ -855,8 +855,6 @@ preact.h("button",{"class":"nz-btn-defer",onClick:function(){return _this3.handl
 };
 
 return preact.h(NzScreen,null,
-preact.h(NzTimeline,{game:game}),
-
 preact.h("div",{"class":"nz-encounters-layout"},
 
 preact.h("div",{"class":"nz-route-list"},
