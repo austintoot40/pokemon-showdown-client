@@ -18,19 +18,17 @@
 
 
 
-TrainerCarousel=function(_preact$Component){
+Carousel=function(_preact$Component){function Carousel(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 
 
 
-function TrainerCarousel(props){var _this;
-_this=_preact$Component.call(this,props)||this;_this.timer=null;_this.fadeTimer=null;
-_this.state={index:0,visible:true};return _this;
-}_inheritsLoose(TrainerCarousel,_preact$Component);var _proto=TrainerCarousel.prototype;_proto.
+
+state={index:0,visible:true};_this.
+timer=null;_this.
+fadeTimer=null;return _this;}_inheritsLoose(Carousel,_preact$Component);var _proto=Carousel.prototype;_proto.
 
 componentDidMount=function componentDidMount(){var _this2=this;
-if(this.props.sprites.length>1){
-this.timer=setInterval(function(){return _this2.advance();},3000);
-}
+if(this.props.items.length>1)this.timer=setInterval(function(){return _this2.advance();},3000);
 };_proto.
 
 componentWillUnmount=function componentWillUnmount(){
@@ -41,89 +39,54 @@ if(this.fadeTimer!==null)clearTimeout(this.fadeTimer);
 advance=function advance(){var _this3=this;
 this.setState({visible:false});
 this.fadeTimer=setTimeout(function(){
-_this3.setState(function(s){return{
-index:(s.index+1)%_this3.props.sprites.length,
-visible:true
-};});
+_this3.setState(function(s){return{index:(s.index+1)%_this3.props.items.length,visible:true};});
 },250);
 };_proto.
 
-render=function render(){var _ref,_Dex;
-var sprites=this.props.sprites;
-if(sprites.length===0)return preact.h("div",{"class":"nz-tl-trainer-placeholder"});
-var sprite=sprites[this.state.index];
-var url=(_ref=(_Dex=window.Dex)==null?void 0:_Dex.resolveAvatar(sprite))!=null?_ref:"https://play.pokemonshowdown.com/sprites/trainers/"+
+render=function render(){
+var _this$props=this.props,items=_this$props.items,renderItem=_this$props.renderItem,empty=_this$props.empty;
+if(items.length===0)return empty!=null?empty:null;
+return renderItem(items[this.state.index],this.state.visible);
+};return Carousel;}(preact.Component);
+
+
+function TrainerCarousel(_ref){var sprites=_ref.sprites;
+return preact.h(Carousel,{
+items:sprites,
+empty:preact.h("div",{"class":"nz-tl-trainer-placeholder"}),
+renderItem:function(sprite,visible){var _ref2,_Dex;
+var url=(_ref2=(_Dex=window.Dex)==null?void 0:_Dex.resolveAvatar(sprite))!=null?_ref2:"https://play.pokemonshowdown.com/sprites/trainers/"+
 sprite+".png";
-return preact.h("div",{"class":"nz-tl-trainer-wrap"+(this.state.visible?' nz-tl-trainer-visible':'')},
+return preact.h("div",{"class":"nz-tl-trainer-wrap"+(visible?' nz-tl-trainer-visible':'')},
 preact.h("img",{"class":"nz-tl-trainer-sprite",src:url,alt:sprite,width:80,height:80})
 );
-};return TrainerCarousel;}(preact.Component);var
-
-
-
-
-
-
-
-
-
-
-
-
-
-PokemonCarousel=function(_preact$Component2){
-
-
-
-
-
-
-function PokemonCarousel(props){var _this4;
-_this4=_preact$Component2.call(this,props)||this;_this4.timer=null;_this4.fadeTimer=null;
-_this4.state={index:0,visible:true};return _this4;
-}_inheritsLoose(PokemonCarousel,_preact$Component2);var _proto2=PokemonCarousel.prototype;_proto2.
-
-componentDidMount=function componentDidMount(){var _this5=this;
-if(this.props.items.length>1){
-this.timer=setInterval(function(){return _this5.advance();},3000);
+}}
+);
 }
-};_proto2.
 
-componentWillUnmount=function componentWillUnmount(){
-if(this.timer!==null)clearInterval(this.timer);
-if(this.fadeTimer!==null)clearTimeout(this.fadeTimer);
-};_proto2.
 
-advance=function advance(){var _this6=this;
-this.setState({visible:false});
-this.fadeTimer=setTimeout(function(){
-_this6.setState(function(s){return{
-index:(s.index+1)%_this6.props.items.length,
-visible:true
-};});
-},250);
-};_proto2.
 
-render=function render(){
-var _this$props=this.props,items=_this$props.items,variant=_this$props.variant;
-if(items.length===0)return null;
-var item=items[this.state.index];
-var wrapCls="nz-pkmn-carousel nz-pkmn-carousel--"+variant+(this.state.visible?' nz-pkmn-carousel-visible':'');
+function PokemonCarousel(_ref3){var items=_ref3.items,variant=_ref3.variant;
+return preact.h(Carousel,{
+items:items,
+renderItem:function(item,visible){
+var wrapCls="nz-pkmn-carousel nz-pkmn-carousel--"+variant+(visible?' nz-pkmn-carousel-visible':'');
 return preact.h("div",{"class":wrapCls},
 preact.h(NzSprite,{species:item.species,"class":"nz-pkmn-carousel-sprite"}),
 preact.h("div",{"class":"nz-pkmn-carousel-label"},item.label)
 );
-};return PokemonCarousel;}(preact.Component);
+}}
+);
+}
 
 
 
 
 
+function TimelineNode(_ref4)
 
-function TimelineNode(_ref2)
 
-
-{var summary=_ref2.summary,index=_ref2.index;
+{var summary=_ref4.summary,index=_ref4.index;
 var isDone=summary.status==='completed';
 var isCurrent=summary.status==='current';
 
@@ -157,7 +120,7 @@ label:d.nickname
 
 
 
-function SegmentScreen(_ref3){var _game$segmentSummarie,_game$scenarioPokemon,_current$name,_current$name2;var game=_ref3.game;
+function SegmentScreen(_ref5){var _game$segmentSummarie,_game$scenarioPokemon,_current$name,_current$name2;var game=_ref5.game;
 var summaries=(_game$segmentSummarie=game.segmentSummaries)!=null?_game$segmentSummarie:[];
 var current=summaries.find(function(s){return s.status==='current';});
 

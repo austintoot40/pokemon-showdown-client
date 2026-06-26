@@ -27,7 +27,7 @@ var spriteId=(_battle$sprite=battle==null?void 0:battle.sprite)!=null?_battle$sp
 var spriteUrl=(_ref2=(_Dex=window.Dex)==null?void 0:_Dex.resolveAvatar(spriteId))!=null?_ref2:"https://play.pokemonshowdown.com/sprites/trainers/"+
 spriteId+".png";
 
-var rawQuip=QUIPS[Math.floor(Math.random()*QUIPS.length)].replace(/\{trainer\}/g,trainerName);
+var rawQuip=QUIPS[Math.floor(Math.random()*QUIPS.length)];
 var words=rawQuip.split(' ');
 
 var trainerDelay=0.5;

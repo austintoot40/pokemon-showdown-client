@@ -356,10 +356,6 @@ var ivLabel=ivTier==='high'?'Great':ivTier==='mid'?'Good':ivTier==='low'?'Fair':
 var combinedPct=sp!=null&&sp.exists?calcCombinedPercentile(ivScore,natureQuality,sp.baseStats):null;
 var topPercentile=combinedPct!==null&&combinedPct<=0.05?combinedPct:null;
 var worsePercentile=combinedPct!==null&&combinedPct>=0.95?combinedPct:null;
-var formatTopPct=function(p){
-var pct=p*100;
-return pct<1?pct.toFixed(1)+"%":Math.round(pct)+"%";
-};
 
 infoBlock=preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-tb-detail-header"},
@@ -715,10 +711,6 @@ var ivLabel=ivTier==='high'?'Great':ivTier==='mid'?'Good':ivTier==='low'?'Fair':
 var combinedPct=sp!=null&&sp.exists?calcCombinedPercentile(ivScore,natureQuality,sp.baseStats):null;
 var topPercentile=combinedPct!==null&&combinedPct<=0.05?combinedPct:null;
 var worsePercentile=combinedPct!==null&&combinedPct>=0.95?combinedPct:null;
-var formatTopPct=function(p){
-var pct=p*100;
-return pct<1?pct.toFixed(1)+"%":Math.round(pct)+"%";
-};
 
 detailContent=preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-tb-info-stats"},

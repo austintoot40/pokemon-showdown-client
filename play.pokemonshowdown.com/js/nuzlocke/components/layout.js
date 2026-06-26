@@ -6,11 +6,6 @@
 
 
 
-function nzToID(str){
-if(!str||typeof str!=='string')return'';
-return str.toLowerCase().replace(/[^a-z0-9]/g,'');
-}
-
 function NzRoot(_ref){var children=_ref.children,cls=_ref["class"];
 return preact.h("div",{"class":"nz-root"+(cls?" "+cls:'')},children);
 }

@@ -44,6 +44,7 @@
 .nz-about-content {
   padding: 32px 40px 40px;
   margin: 0 auto;
+  max-width: var(--nz-screen-max);
   font-family: var(--nz-font-ui);
   color: var(--nz-text);
 }
@@ -94,6 +95,8 @@
 .nz-about-section {
   background: var(--nz-surface);
   padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .nz-about-section-header {
@@ -129,7 +132,8 @@
   display: grid;
   grid-template-columns: 1fr 120px;
   gap: 12px 20px;
-  align-items: start;
+  align-items: stretch;
+  flex: 1;
 }
 
 .nz-about-section-inner-flip {
@@ -164,7 +168,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  flex: 1;
   background: var(--nz-elevated);
   border: 1px solid var(--nz-border);
   clip-path: var(--nz-clip-sm);
