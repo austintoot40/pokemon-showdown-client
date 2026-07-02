@@ -8,7 +8,7 @@
 
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
-import { NzRoot, NzScreen } from "../components/layout";
+import { NzScreen } from "../components/layout";
 import type { NuzlockePanelPayload } from "../types";
 
 const QUIPS: string[] = [
@@ -40,45 +40,43 @@ export function WipeScreen({ game }: { game: NuzlockePanelPayload }) {
 	}
 
 	return (
-		<NzRoot>
-			<NzScreen>
-				<div class="nz-shame-screen">
-					<div class="nz-shame-header">
-						<div class="nz-shame-title">✗ HALL OF SHAME ✗</div>
-						<div class="nz-shame-subtitle">
-							Your run is over.
-						</div>
-					</div>
-
-					<div class="nz-shame-trainer-wrap" style={`animation-delay:${trainerDelay}s`}>
-						<img
-							class="nz-shame-trainer-img"
-							src={spriteUrl}
-							alt={trainerName}
-							width={128}
-							height={128}
-						/>
-					</div>
-
-					<div class="nz-shame-quip">
-						{words.map((word, i) => (
-							<span
-								key={i}
-								class="nz-shame-word"
-								style={`animation-delay:${quipStart + i * wordSpacing}s`}
-							>
-								{word}
-							</span>
-						))}
-					</div>
-
-					<div class="nz-shame-footer" style={`animation-delay:${footerDelay}s`}>
-						<button class="nz-btn nz-shame-menu-btn" onClick={handleMainMenu}>
-							Main Menu
-						</button>
+		<NzScreen>
+			<div class="nz-shame-screen">
+				<div class="nz-shame-header">
+					<div class="nz-shame-title">✗ HALL OF SHAME ✗</div>
+					<div class="nz-shame-subtitle">
+						Your run is over.
 					</div>
 				</div>
-			</NzScreen>
-		</NzRoot>
+
+				<div class="nz-shame-trainer-wrap" style={`animation-delay:${trainerDelay}s`}>
+					<img
+						class="nz-shame-trainer-img"
+						src={spriteUrl}
+						alt={trainerName}
+						width={128}
+						height={128}
+					/>
+				</div>
+
+				<div class="nz-shame-quip">
+					{words.map((word, i) => (
+						<span
+							key={i}
+							class="nz-shame-word"
+							style={`animation-delay:${quipStart + i * wordSpacing}s`}
+						>
+							{word}
+						</span>
+					))}
+				</div>
+
+				<div class="nz-shame-footer" style={`animation-delay:${footerDelay}s`}>
+					<button class="nz-btn nz-shame-menu-btn" onClick={handleMainMenu}>
+						Main Menu
+					</button>
+				</div>
+			</div>
+		</NzScreen>
 	);
 }

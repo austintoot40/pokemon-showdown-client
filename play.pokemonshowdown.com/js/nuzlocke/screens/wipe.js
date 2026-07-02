@@ -40,7 +40,6 @@ PS.send('/nuzlocke done');
 }
 
 return(
-preact.h(NzRoot,null,
 preact.h(NzScreen,null,
 preact.h("div",{"class":"nz-shame-screen"},
 preact.h("div",{"class":"nz-shame-header"},
@@ -75,7 +74,6 @@ word
 preact.h("div",{"class":"nz-shame-footer",style:"animation-delay:"+footerDelay+"s"},
 preact.h("button",{"class":"nz-btn nz-shame-menu-btn",onClick:handleMainMenu},"Main Menu"
 
-)
 )
 )
 )

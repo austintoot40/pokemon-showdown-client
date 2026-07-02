@@ -159,8 +159,7 @@ var handleProceed=this.handleProceed;
 var colorStyle=game.scenarioColor?"--scenario-color:"+game.scenarioColor:'';
 var bgSpriteSrc=(_game$scenarioPokemon=game.scenarioPokemon)!=null?_game$scenarioPokemon:null;
 
-return preact.h(NzRoot,null,
-preact.h(NzScreen,null,
+return preact.h(NzScreen,null,
 preact.h("div",{"class":"nz-seg-screen",style:colorStyle},
 
 preact.h("div",{"class":"nz-seg-header"},
@@ -214,7 +213,6 @@ body:'Click here to go catch Pokémon before your first battle.'
 
 return preact.h(NzTutorial,{steps:SEGMENT_STEPS,onDone:_this5.dismissSegmentTutorial});
 }()
-)
 );
 };return SegmentScreen;}(preact.Component);
 //# sourceMappingURL=segment.js.map

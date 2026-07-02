@@ -646,6 +646,19 @@
   color: var(--nz-warning);
 }
 
+.nz-route-list-chevron {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--nz-text-dim);
+  flex-shrink: 0;
+  transition: transform 0.15s, color 0.15s;
+}
+
+.nz-route-list-chevron-open {
+  transform: rotate(180deg);
+  color: var(--nz-accent);
+}
+
 /* =============================================
    DETAIL PANEL — LOCKED / DEFERRED HINTS
    ============================================= */
@@ -754,6 +767,13 @@
 /* Scrollable route list — padding-bottom clears the fixed bar */
 .nz-enc-mobile-content {
   padding-bottom: 72px;
+}
+
+/* Collapsed rows show name + chevron only — the sprite preview here was
+   visually indistinguishable from the encounter-slot sprites inside the
+   expanded zone cards below it, so it's dropped in favor of the chevron. */
+.nz-enc-mobile-content .nz-route-list-sprites {
+  display: none;
 }
 
 /* Accordion zone cards — inset below the route row */

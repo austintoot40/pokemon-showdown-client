@@ -7,7 +7,7 @@
 
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
-import { NzRoot, NzScreen } from "../components/layout";
+import { NzScreen } from "../components/layout";
 import { NzSprite } from "../components/primitives";
 import { NzTutorial, TutorialStep } from "../components/tutorial";
 import type { NuzlockePanelPayload } from "../types";
@@ -159,8 +159,7 @@ export class SegmentScreen extends preact.Component<{ game: NuzlockePanelPayload
 		const colorStyle = game.scenarioColor ? `--scenario-color:${game.scenarioColor}` : '';
 		const bgSpriteSrc = game.scenarioPokemon ?? null;
 
-		return <NzRoot>
-		<NzScreen>
+		return <NzScreen>
 			<div class="nz-seg-screen" style={colorStyle}>
 
 				<div class="nz-seg-header">
@@ -214,7 +213,6 @@ export class SegmentScreen extends preact.Component<{ game: NuzlockePanelPayload
 				];
 				return <NzTutorial steps={SEGMENT_STEPS} onDone={this.dismissSegmentTutorial} />;
 			})()}
-		</NzScreen>
-	</NzRoot>;
+		</NzScreen>;
 	}
 }

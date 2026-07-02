@@ -7,7 +7,7 @@
 
 import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
-import { NzRoot, NzScreen } from "../components/layout";
+import { NzScreen } from "../components/layout";
 import { NzSprite } from "../components/primitives";
 import type { NuzlockePanelPayload, OwnedPokemon } from "../types";
 
@@ -46,38 +46,36 @@ export function VictoryScreen({ game }: { game: NuzlockePanelPayload }) {
 	}
 
 	return (
-		<NzRoot>
-			<NzScreen>
-				<div class="nz-victory-screen">
-					<div class="nz-victory-stars" aria-hidden="true" />
+		<NzScreen>
+			<div class="nz-victory-screen">
+				<div class="nz-victory-stars" aria-hidden="true" />
 
-					<div class="nz-victory-header">
-						<div class="nz-victory-title">
-							★ HALL OF FAME ★
+				<div class="nz-victory-header">
+					<div class="nz-victory-title">
+						★ HALL OF FAME ★
+					</div>
+					<div class="nz-victory-subtitle">
+						{game.scenarioName ? `You conquered ${game.scenarioName}!` : 'Run complete!'}
+					</div>
+					{finalTrainer && (
+						<div class="nz-victory-trainer">
+							Defeated {finalTrainer}
 						</div>
-						<div class="nz-victory-subtitle">
-							{game.scenarioName ? `You conquered ${game.scenarioName}!` : 'Run complete!'}
-						</div>
-						{finalTrainer && (
-							<div class="nz-victory-trainer">
-								Defeated {finalTrainer}
-							</div>
-						)}
-					</div>
-
-					<div class="nz-victory-party">
-						{partyMembers.map((mon, i) => (
-							<SpriteSlot key={mon.uid} mon={mon} index={pokemonStartDelay + i} />
-						))}
-					</div>
-
-					<div class="nz-victory-footer" style={`animation-delay:${footerDelay}s`}>
-						<button class="nz-btn nz-victory-menu-btn" onClick={handleMainMenu}>
-							Main Menu
-						</button>
-					</div>
+					)}
 				</div>
-			</NzScreen>
-		</NzRoot>
+
+				<div class="nz-victory-party">
+					{partyMembers.map((mon, i) => (
+						<SpriteSlot key={mon.uid} mon={mon} index={pokemonStartDelay + i} />
+					))}
+				</div>
+
+				<div class="nz-victory-footer" style={`animation-delay:${footerDelay}s`}>
+					<button class="nz-btn nz-victory-menu-btn" onClick={handleMainMenu}>
+						Main Menu
+					</button>
+				</div>
+			</div>
+		</NzScreen>
 	);
 }

@@ -382,8 +382,18 @@
 
 @media (max-width: 600px) {
   .nz-seg-screen {
-    padding: 16px;
-    gap: 16px;
+    /* nz-root already contributes the outer gutter — don't pad a second time */
+    padding: 12px 0;
+    gap: 12px;
+    max-width: none;
+  }
+
+  .nz-seg-header {
+    padding: 16px 14px;
+  }
+
+  .nz-seg-timeline-wrap {
+    padding: 14px 10px 10px;
   }
 
   .nz-seg-title {
@@ -398,45 +408,73 @@
     gap: 0;
   }
 
-  .nz-tl-node {
-    flex-direction: row;
-    width: 100%;
+  /* Non-current rows: one fixed-width grid (pip / sprite / name), and the
+     grid itself is centered in the row via native `justify-content` —
+     since every row's column tracks are the same fixed width, this keeps
+     rows centered *and* lined up with each other at the same time. */
+  .nz-tl-node:not(.nz-tl-node--current) {
+    display: grid;
+    grid-template-columns: 32px 48px minmax(120px, 200px);
+    column-gap: 12px;
+    row-gap: 2px;
+    justify-content: center;
     align-items: center;
-    gap: 12px;
-    padding: 8px 0;
+    width: 100%;
+    padding: 12px 4px;
     border-bottom: 1px solid var(--nz-border-subtle);
   }
 
-  .nz-tl-node--current {
-    width: 100%;
+  .nz-tl-node:not(.nz-tl-node--current) .nz-tl-pip {
+    grid-column: 1;
+    grid-row: 1 / -1;
   }
 
-  .nz-tl-trainers {
+  /* Unwrap the body div so its children place directly into the node's grid */
+  .nz-tl-node:not(.nz-tl-node--current) .nz-tl-body {
+    display: contents;
+  }
+
+  .nz-tl-node:not(.nz-tl-node--current) .nz-tl-trainers {
+    grid-column: 2;
+    grid-row: 1 / -1;
     min-height: unset;
-    align-items: center;
-    order: 1;
+    justify-content: center;
   }
 
-  .nz-tl-pip {
-    order: 0;
-    flex-shrink: 0;
-  }
-
-  .nz-tl-label {
-    flex: 1;
+  .nz-tl-node:not(.nz-tl-node--current) .nz-tl-label {
+    grid-column: 3;
     text-align: left;
-    order: 2;
+    white-space: normal;
+    font-size: 13px;
   }
 
-  .nz-pkmn-carousel {
-    order: 3;
+  .nz-tl-node:not(.nz-tl-node--current) .nz-pkmn-carousel {
+    grid-column: 3;
     flex-direction: row;
+    justify-content: flex-start;
     gap: 8px;
   }
 
+  /* Current segment: unchanged from the original centered card — sprite
+     above, name below — full width, border-bottom removed since it isn't
+     part of the row list visually. */
+  .nz-tl-node--current {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 12px 4px;
+  }
+
   .nz-pkmn-carousel-sprite {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .nz-tl-trainer-sprite,
+  .nz-tl-trainer-placeholder {
+    width: 48px;
+    height: 48px;
   }
 
   /* Vertical connector: hide horizontal lines, show vertical */

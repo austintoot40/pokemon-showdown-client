@@ -363,10 +363,11 @@ interface RouteListItemProps {
 	statusSymbol: string;
 	sprites: { species: string; isDupe: boolean; isCaught: boolean }[];
 	onSelect: () => void;
+	chevron?: boolean;
 }
 
 function RouteListItem({
-	enc, isSelected, isResolved, isDeferred, statusSymbol, sprites, onSelect,
+	enc, isSelected, isResolved, isDeferred, statusSymbol, sprites, onSelect, chevron,
 }: RouteListItemProps) {
 	return <div
 		class={cls(
@@ -385,6 +386,7 @@ function RouteListItem({
 			</span>
 			<span class="nz-route-list-name">{enc.route}</span>
 			{isDeferred && <span class="nz-route-deferred-badge">Deferred</span>}
+			{chevron && <span class={cls('nz-route-list-chevron', isSelected && 'nz-route-list-chevron-open')}>▾</span>}
 		</div>
 		{sprites.length > 0 && (
 			<div class="nz-route-list-sprites">
@@ -568,6 +570,7 @@ class EncounterPokemonStats extends preact.Component<{
 interface EncountersState {
 	selectedRoute: string | null;
 	mobileExpandedRoute: string | null;
+	mobileAutoExpanded: boolean;
 	nicknames: Record<string, string>;
 	deferredThisSession: Set<string>;
 	lastSegmentIndex: number;
@@ -579,6 +582,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 	override state: EncountersState = {
 		selectedRoute: null,
 		mobileExpandedRoute: null,
+		mobileAutoExpanded: false,
 		nicknames: {},
 		deferredThisSession: new Set(),
 		lastSegmentIndex: -1,
@@ -619,6 +623,8 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			updates.lastSegmentIndex = segIdx;
 			updates.deferredThisSession = new Set<string>();
 			updates.selectedRoute = null;
+			updates.mobileExpandedRoute = null;
+			updates.mobileAutoExpanded = false;
 		}
 
 		const nicknames = { ...state.nicknames };
@@ -661,6 +667,12 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 					allDisplayed.find(enc => enc.zones.some(z => hasZonePrereq(z, tmMoves, items, props.game.box.map(p => toID(p.species)), props.game.completedBattles)))?.route ?? null)
 				: autoSelected;
 			if (fallback !== currentSelected) updates.selectedRoute = fallback;
+			// Open the accordion on whichever route we auto-select, once per segment,
+			// so mobile players land with the first route already expanded.
+			if (!state.mobileAutoExpanded && fallback) {
+				updates.mobileExpandedRoute = fallback;
+				updates.mobileAutoExpanded = true;
+			}
 		}
 
 		return Object.keys(updates).length > 0 ? updates : null;
@@ -1066,6 +1078,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 								statusSymbol={statusSymbol}
 								sprites={sprites!}
 								onSelect={() => this.toggleRouteMobile(enc.route)}
+								chevron
 							/>
 							{isExpanded && <div class="nz-enc-mobile-zones">
 								{selectedChoiceGift
@@ -1149,6 +1162,11 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						selector: '.nz-encounter-detail',
 						title: 'Encounter Zones',
 						body: 'Each route has one or more zones with different encounter pools. Pick one to catch a random Pokémon, but remember you only get one encounter for this route!',
+					},
+					{
+						selector: '.nz-encounter-stats, .nz-enc-mobile-stats-strip',
+						title: 'Viewing Your Catch',
+						body: 'Once you catch a Pokémon, its stats show up here.',
 					},
 					{
 						selector: '.nz-btn-defer',

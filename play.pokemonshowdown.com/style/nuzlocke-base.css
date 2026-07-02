@@ -543,6 +543,12 @@ body {
   .nz-root {
     padding: 10px 12px;
   }
+}
+
+@media (max-width: 600px) {
+  .nz-root {
+    padding: 8px;
+  }
 
   .nz-screen {
     padding-top: 8px;

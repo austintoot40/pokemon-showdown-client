@@ -46,7 +46,6 @@ PS.send('/nuzlocke done');
 }
 
 return(
-preact.h(NzRoot,null,
 preact.h(NzScreen,null,
 preact.h("div",{"class":"nz-victory-screen"},
 preact.h("div",{"class":"nz-victory-stars","aria-hidden":"true"}),
@@ -74,7 +73,6 @@ preact.h(SpriteSlot,{key:mon.uid,mon:mon,index:pokemonStartDelay+i}));}
 preact.h("div",{"class":"nz-victory-footer",style:"animation-delay:"+footerDelay+"s"},
 preact.h("button",{"class":"nz-btn nz-victory-menu-btn",onClick:handleMainMenu},"Main Menu"
 
-)
 )
 )
 )
