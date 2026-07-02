@@ -94,10 +94,11 @@ var trainerSprites=summary.battles.map(function(b){return b.sprite;}).filter(Boo
 
 return preact.h("div",{"class":"nz-tl-node nz-tl-node--"+summary.status},
 
-preact.h("div",{"class":"nz-tl-pip"+(isCurrent?' nz-tl-pip--current':isDone?' nz-tl-pip--done':'')},
-isCurrent?'▶':index+1
+!isCurrent&&preact.h("div",{"class":"nz-tl-pip"+(isDone?' nz-tl-pip--done':'')},
+index+1
 ),
 
+preact.h("div",{"class":"nz-tl-body"+(isCurrent?' nz-tl-card':'')},
 preact.h("div",{"class":"nz-tl-label"},summary.name),
 
 
@@ -112,6 +113,7 @@ items:summary.deaths.map(function(d){return{
 species:d.species,
 label:d.nickname
 };})}
+)
 )
 );
 }

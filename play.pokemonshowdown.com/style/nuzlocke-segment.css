@@ -93,7 +93,7 @@
 .nz-seg-timeline {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: 0;
   row-gap: 16px;
 }
@@ -177,14 +177,35 @@
   overflow: hidden;
 }
 
-.nz-tl-pip--current {
-  background: var(--nz-accent);
-  border-color: var(--nz-accent);
-  color: var(--nz-bg);
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
-  animation: nz-pulse 2s ease-in-out infinite;
+/* Body wrapper — holds label/sprites; plain for done/upcoming nodes, becomes the whole node for current */
+.nz-tl-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Current node is a card, full stop — no separate pip button in front of it. Sized up so it reads as the focal point. */
+.nz-tl-node--current {
+  width: 132px;
+}
+
+.nz-tl-card {
+  width: calc(100% - 20px);
+  margin: 0 auto;
+  box-sizing: border-box;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  border-left: 2px solid var(--nz-accent);
+  clip-path: var(--nz-clip-sm);
+  box-shadow: var(--nz-shadow);
+  padding: 14px 10px 10px;
+  gap: 8px;
+}
+
+.nz-tl-node--current .nz-tl-trainer-sprite {
+  width: 104px;
+  height: 104px;
 }
 
 /* Segment name label */
@@ -205,7 +226,7 @@
 
 .nz-tl-node--current .nz-tl-label {
   color: var(--nz-text);
-  font-size: 13px;
+  font-size: 15px;
 }
 
 /* Pokemon carousel (catches / deaths) */
@@ -252,7 +273,6 @@
   height: 1px;
   background: var(--nz-border);
   flex-shrink: 0;
-  margin-top: 16px; /* half pip height (32px / 2) */
 }
 
 .nz-tl-line--done {

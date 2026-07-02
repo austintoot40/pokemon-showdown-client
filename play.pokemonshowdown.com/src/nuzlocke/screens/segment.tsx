@@ -93,26 +93,28 @@ function TimelineNode({ summary, index }: {
 	const trainerSprites = summary.battles.map(b => b.sprite).filter(Boolean) as string[];
 
 	return <div class={`nz-tl-node nz-tl-node--${summary.status}`}>
-		{/* Central pip — numbered so sequence is clear across wrapped rows */}
-		<div class={`nz-tl-pip${isCurrent ? ' nz-tl-pip--current' : isDone ? ' nz-tl-pip--done' : ''}`}>
-			{isCurrent ? '▶' : index + 1}
+		{/* Current node is a card, full stop — no separate pip button standing in front of it */}
+		{!isCurrent && <div class={`nz-tl-pip${isDone ? ' nz-tl-pip--done' : ''}`}>
+			{index + 1}
+		</div>}
+
+		<div class={`nz-tl-body${isCurrent ? ' nz-tl-card' : ''}`}>
+			<div class="nz-tl-label">{summary.name}</div>
+
+			{/* Trainer sprites — carousel cycles through chained battles */}
+			<div class="nz-tl-trainers">
+				<TrainerCarousel sprites={trainerSprites} />
+			</div>
+
+			{/* Deaths carousel */}
+			{isDone && summary.deaths.length > 0 && <PokemonCarousel
+				variant="death"
+				items={summary.deaths.map(d => ({
+					species: d.species,
+					label: d.nickname,
+				}))}
+			/>}
 		</div>
-
-		<div class="nz-tl-label">{summary.name}</div>
-
-		{/* Trainer sprites — carousel cycles through chained battles */}
-		<div class="nz-tl-trainers">
-			<TrainerCarousel sprites={trainerSprites} />
-		</div>
-
-		{/* Deaths carousel */}
-		{isDone && summary.deaths.length > 0 && <PokemonCarousel
-			variant="death"
-			items={summary.deaths.map(d => ({
-				species: d.species,
-				label: d.nickname,
-			}))}
-		/>}
 	</div>;
 }
 
