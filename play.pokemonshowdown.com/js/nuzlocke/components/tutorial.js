@@ -32,10 +32,24 @@ var PAD=8;
 
 
 
+
 function measureSpotlight(step){
 if(!step.selector)return null;
-var el=document.querySelector(step.selector);
-return el?el.getBoundingClientRect():null;
+var els=document.querySelectorAll(step.selector);
+var top=Infinity,left=Infinity,bottom=-Infinity,right=-Infinity;
+var found=false;
+els.forEach(function(el){
+var r=el.getBoundingClientRect();
+
+if(r.width===0&&r.height===0)return;
+found=true;
+top=Math.min(top,r.top);
+left=Math.min(left,r.left);
+bottom=Math.max(bottom,r.bottom);
+right=Math.max(right,r.right);
+});
+if(!found)return null;
+return{top:top,left:left,bottom:bottom,right:right,width:right-left,height:bottom-top};
 }
 
 function isElementInViewport(el){

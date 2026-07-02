@@ -8,7 +8,7 @@
 import preact from "../../../js/lib/preact";
 
 export interface TutorialStep {
-	selector?: string;   // CSS selector for spotlight target; omit for a centered card
+	selector?: string;   // CSS selector for spotlight target; comma-separated lists highlight the union of all matches; omit for a centered card
 	title: string;
 	body: string;
 	onActivate?: () => void; // called when this step becomes active (use to switch tabs, etc.)
@@ -32,10 +32,24 @@ const PAD = 8;     // spotlight padding around target element
 
 type CSSProp = preact.JSX.CSSProperties;
 
+/** Union of the bounding rects of every element matching `selector` (a selector list highlights as one region). */
 function measureSpotlight(step: TutorialStep): DOMRect | null {
 	if (!step.selector) return null;
-	const el = document.querySelector(step.selector);
-	return el ? (el.getBoundingClientRect() as DOMRect) : null;
+	const els = document.querySelectorAll(step.selector);
+	let top = Infinity, left = Infinity, bottom = -Infinity, right = -Infinity;
+	let found = false;
+	els.forEach(el => {
+		const r = el.getBoundingClientRect();
+		// Zero-area rects come from display:none duplicates (e.g. an offscreen mobile layout) — skip so they don't drag the union toward (0,0).
+		if (r.width === 0 && r.height === 0) return;
+		found = true;
+		top = Math.min(top, r.top);
+		left = Math.min(left, r.left);
+		bottom = Math.max(bottom, r.bottom);
+		right = Math.max(right, r.right);
+	});
+	if (!found) return null;
+	return { top, left, bottom, right, width: right - left, height: bottom - top } as DOMRect;
 }
 
 function isElementInViewport(el: Element): boolean {
@@ -116,7 +130,7 @@ export class NzTutorial extends preact.Component<NzTutorialProps, NzTutorialStat
 		while (idx >= 0 && idx < steps.length) {
 			const step = steps[idx];
 			// Steps with onActivate are never skipped — they'll reveal their target themselves.
-			if (step.onActivate || !step.selector || document.querySelector(step.selector)) break;
+			if (step.onActivate || !step.selector || document.querySelector(step.selector)) break; // querySelector accepts comma-separated selector lists
 			idx += direction;
 		}
 		if (idx < 0 || idx >= steps.length) {

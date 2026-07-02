@@ -1004,22 +1004,22 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				const TEAMBUILDING_STEPS: TutorialStep[] = [
 					{
 						title: 'Prepare Your Team',
-						body: 'Before each battle, set your party, assign moves and held items, and view the opponent\'s team. Everything here carries into the fight.',
+						body: 'Before each battle, set your party, assign moves and held items, and view the opponent\'s team.',
 					},
 					{
-						selector: '.nz-move-panel',
+						selector: '.nz-tb-tabs, .nz-move-panel',
 						title: 'Assigning Moves',
 						body: 'Freely switch out moves at any time. Pokémon automatically level up, and TMs are infinite.',
 						onActivate: () => this.setState({ activeTab: 'moves' }),
 					},
 					{
-						selector: '.nz-item-panel',
+						selector: '.nz-tb-tabs, .nz-item-panel',
 						title: 'Held Items',
 						body: 'Don\'t forget to give items to your team!',
 						onActivate: () => this.setState({ activeTab: 'items' }),
 					},
 					{
-						selector: '.nz-tb-party-col',
+						selector: '.nz-tb-party-col, .nz-tb-box-col',
 						title: 'Your Party',
 						body: 'Move Pokémon between your party and your box here.',
 					},

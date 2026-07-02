@@ -866,6 +866,7 @@ return preact.h(NzScreen,null,
 preact.h("div",{"class":"nz-encounters-layout"},
 
 preact.h("div",{"class":"nz-route-list"},
+preact.h("div",{"class":"nz-route-list-rows"},
 allDisplayedRoutes.length>0&&preact.h("div",{"class":"nz-route-list-section-label"},"Routes"),
 allDisplayedRoutes.map(function(enc,encIdx){
 var accessibleZones=encAccessibleZones[encIdx];
@@ -939,11 +940,13 @@ statusSymbol:statusSymbol,
 sprites:sprites,
 onSelect:function(){return _this3.selectRoute(enc.route);}}
 );
-}),
+})
+),
 
+preact.h("div",{"class":"nz-route-list-extras"},
 segment.items.length>0&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-route-list-divider"},"Items"),
-preact.h("div",{"class":"nz-items-list nz-items-list-found",style:"padding: 6px 8px"},
+preact.h("div",{"class":"nz-items-list",style:"padding: 6px 8px"},
 segment.items.map(function(item){return(
 preact.h("span",{key:item,"class":"nz-item-chip"},item));}
 )
@@ -955,6 +958,7 @@ preact.h("div",{"class":"nz-route-list-divider"},"TMs"),
 preact.h("div",{"class":"nz-items-list",style:"padding: 6px 8px"},
 segment.tmMoves.map(function(move){return(
 preact.h("span",{key:move,"class":"nz-item-chip nz-tm-chip"},move));}
+)
 )
 )
 )
@@ -993,6 +997,7 @@ preact.h(NzBtn,{onClick:goToNextUnresolved},"Next (",pendingRoutes.length," left
 
 preact.h("div",{"class":"nz-enc-mobile"},
 preact.h("div",{"class":"nz-enc-mobile-content"},
+preact.h("div",{"class":"nz-route-list-rows"},
 allDisplayedRoutes.length>0&&preact.h("div",{"class":"nz-route-list-section-label"},"Routes"),
 allDisplayedRoutes.map(function(enc,encIdx){
 var accessibleZones=encAccessibleZones[encIdx];
@@ -1074,11 +1079,13 @@ renderZoneContent()
 
 )
 );
-}),
+})
+),
 
+preact.h("div",{"class":"nz-route-list-extras"},
 segment.items.length>0&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-route-list-divider"},"Items"),
-preact.h("div",{"class":"nz-items-list nz-items-list-found",style:"padding: 6px 8px"},
+preact.h("div",{"class":"nz-items-list",style:"padding: 6px 8px"},
 segment.items.map(function(item){return preact.h("span",{key:item,"class":"nz-item-chip"},item);})
 )
 ),
@@ -1086,6 +1093,7 @@ segment.tmMoves.length>0&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-route-list-divider"},"TMs"),
 preact.h("div",{"class":"nz-items-list",style:"padding: 6px 8px"},
 segment.tmMoves.map(function(move){return preact.h("span",{key:move,"class":"nz-item-chip nz-tm-chip"},move);})
+)
 )
 )
 ),
@@ -1133,7 +1141,7 @@ title:'Catching Pokémon',
 body:'Before each trainer battle, you explore all available routes to catch new Pokémon. Since this is a nuzlocke, you only get one encounter per route.'
 },
 {
-selector:'.nz-route-list',
+selector:'.nz-route-list-rows',
 title:'Routes',
 body:'Every route currently available is listed here. Click a route to see its encounter zones.'
 },
@@ -1148,13 +1156,13 @@ title:'Deferring Routes',
 body:'Some zones will be greyed out, indicating you don\'t have the requirements to catch there. Defer the route to see it again later when you do meet the requirements.'
 },
 {
-selector:'.nz-items-list-found',
+selector:'.nz-route-list-extras',
 title:'Items',
-body:'You also find items you can use or give to your Pokemon.'
+body:'You also find items and TMs you can use or give to your Pokemon.'
 },
 {
 title:'Ready to Go',
-body:'Catch a pokemon on each route to continue to teambuilding.'
+body:'Catch a Pokémon on each route to continue.'
 }];
 
 return preact.h(NzTutorial,{steps:ENCOUNTERS_STEPS,onDone:_this3.dismissEncountersTutorial});

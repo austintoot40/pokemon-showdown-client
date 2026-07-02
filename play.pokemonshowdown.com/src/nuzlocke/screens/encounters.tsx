@@ -866,6 +866,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			<div class="nz-encounters-layout">
 				{/* Left: route list */}
 				<div class="nz-route-list">
+					<div class="nz-route-list-rows">
 					{allDisplayedRoutes.length > 0 && <div class="nz-route-list-section-label">Routes</div>}
 					{allDisplayedRoutes.map((enc, encIdx) => {
 						const accessibleZones = encAccessibleZones[encIdx];
@@ -940,24 +941,27 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 							onSelect={() => this.selectRoute(enc.route)}
 						/>;
 					})}
+					</div>
 
-					{segment.items.length > 0 && <>
-						<div class="nz-route-list-divider">Items</div>
-						<div class="nz-items-list nz-items-list-found" style="padding: 6px 8px">
-							{segment.items.map(item =>
-								<span key={item} class="nz-item-chip">{item}</span>
-							)}
-						</div>
-					</>}
+					<div class="nz-route-list-extras">
+						{segment.items.length > 0 && <>
+							<div class="nz-route-list-divider">Items</div>
+							<div class="nz-items-list" style="padding: 6px 8px">
+								{segment.items.map(item =>
+									<span key={item} class="nz-item-chip">{item}</span>
+								)}
+							</div>
+						</>}
 
-					{segment.tmMoves.length > 0 && <>
-						<div class="nz-route-list-divider">TMs</div>
-						<div class="nz-items-list" style="padding: 6px 8px">
-							{segment.tmMoves.map(move =>
-								<span key={move} class="nz-item-chip nz-tm-chip">{move}</span>
-							)}
-						</div>
-					</>}
+						{segment.tmMoves.length > 0 && <>
+							<div class="nz-route-list-divider">TMs</div>
+							<div class="nz-items-list" style="padding: 6px 8px">
+								{segment.tmMoves.map(move =>
+									<span key={move} class="nz-item-chip nz-tm-chip">{move}</span>
+								)}
+							</div>
+						</>}
+					</div>
 				</div>
 
 				{/* Middle: detail panel */}
@@ -993,6 +997,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			{/* Mobile layout — accordion route list + expandable stats bar */}
 			<div class="nz-enc-mobile">
 				<div class="nz-enc-mobile-content">
+					<div class="nz-route-list-rows">
 					{allDisplayedRoutes.length > 0 && <div class="nz-route-list-section-label">Routes</div>}
 					{allDisplayedRoutes.map((enc, encIdx) => {
 						const accessibleZones = encAccessibleZones[encIdx];
@@ -1075,19 +1080,22 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 							</div>}
 						</preact.Fragment>;
 					})}
+					</div>
 
-					{segment.items.length > 0 && <>
-						<div class="nz-route-list-divider">Items</div>
-						<div class="nz-items-list nz-items-list-found" style="padding: 6px 8px">
-							{segment.items.map(item => <span key={item} class="nz-item-chip">{item}</span>)}
-						</div>
-					</>}
-					{segment.tmMoves.length > 0 && <>
-						<div class="nz-route-list-divider">TMs</div>
-						<div class="nz-items-list" style="padding: 6px 8px">
-							{segment.tmMoves.map(move => <span key={move} class="nz-item-chip nz-tm-chip">{move}</span>)}
-						</div>
-					</>}
+					<div class="nz-route-list-extras">
+						{segment.items.length > 0 && <>
+							<div class="nz-route-list-divider">Items</div>
+							<div class="nz-items-list" style="padding: 6px 8px">
+								{segment.items.map(item => <span key={item} class="nz-item-chip">{item}</span>)}
+							</div>
+						</>}
+						{segment.tmMoves.length > 0 && <>
+							<div class="nz-route-list-divider">TMs</div>
+							<div class="nz-items-list" style="padding: 6px 8px">
+								{segment.tmMoves.map(move => <span key={move} class="nz-item-chip nz-tm-chip">{move}</span>)}
+							</div>
+						</>}
+					</div>
 				</div>
 
 				{/* Expanded stats overlay — slides up from the bar */}
@@ -1133,7 +1141,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						body: 'Before each trainer battle, you explore all available routes to catch new Pokémon. Since this is a nuzlocke, you only get one encounter per route.',
 					},
 					{
-						selector: '.nz-route-list',
+						selector: '.nz-route-list-rows',
 						title: 'Routes',
 						body: 'Every route currently available is listed here. Click a route to see its encounter zones.',
 					},
@@ -1148,9 +1156,9 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 						body: 'Some zones will be greyed out, indicating you don\'t have the requirements to catch there. Defer the route to see it again later when you do meet the requirements.',
 					},
 					{
-						selector: '.nz-items-list-found',
+						selector: '.nz-route-list-extras',
 						title: 'Items',
-						body: 'You also find items you can use or give to your Pokemon.',
+						body: 'You also find items and TMs you can use or give to your Pokemon.',
 					},
 					{
 						title: 'Ready to Go',
