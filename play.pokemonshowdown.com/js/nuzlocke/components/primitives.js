@@ -51,11 +51,14 @@ function NzBtn(_ref4)
 
 
 
-{var children=_ref4.children,onClick=_ref4.onClick,disabled=_ref4.disabled,_ref4$variant=_ref4.variant,variant=_ref4$variant===void 0?'primary':_ref4$variant,size=_ref4.size,title=_ref4.title;
+
+
+{var children=_ref4.children,onClick=_ref4.onClick,disabled=_ref4.disabled,_ref4$variant=_ref4.variant,variant=_ref4$variant===void 0?'primary':_ref4$variant,size=_ref4.size,title=_ref4.title,className=_ref4["class"];
 var cls=[
 'nz-btn',"nz-btn-"+
 variant,
-size==='sm'?'nz-btn-sm':''].
+size==='sm'?'nz-btn-sm':'',
+className||''].
 filter(Boolean).join(' ');
 return preact.h("button",{"class":cls,onClick:onClick,disabled:disabled,title:title},children);
 }

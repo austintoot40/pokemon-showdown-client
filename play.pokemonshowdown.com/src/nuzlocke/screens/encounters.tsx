@@ -588,7 +588,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 	override componentDidMount() {
 		try {
-			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const key = 'nuzlocke_tutorial';
 			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
 			if (!seen.encounters) this.setState({ showTutorial: true });
 		} catch {}
@@ -596,7 +596,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 	dismissEncountersTutorial = () => {
 		try {
-			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const key = 'nuzlocke_tutorial';
 			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
 			seen.encounters = true;
 			localStorage.setItem(key, JSON.stringify(seen));
@@ -943,7 +943,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 					{segment.items.length > 0 && <>
 						<div class="nz-route-list-divider">Items</div>
-						<div class="nz-items-list" style="padding: 6px 8px">
+						<div class="nz-items-list nz-items-list-found" style="padding: 6px 8px">
 							{segment.items.map(item =>
 								<span key={item} class="nz-item-chip">{item}</span>
 							)}
@@ -1078,7 +1078,7 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 
 					{segment.items.length > 0 && <>
 						<div class="nz-route-list-divider">Items</div>
-						<div class="nz-items-list" style="padding: 6px 8px">
+						<div class="nz-items-list nz-items-list-found" style="padding: 6px 8px">
 							{segment.items.map(item => <span key={item} class="nz-item-chip">{item}</span>)}
 						</div>
 					</>}
@@ -1129,23 +1129,32 @@ export class EncountersScreen extends preact.Component<{ game: NuzlockePanelPayl
 			{this.state.showTutorial && (() => {
 				const ENCOUNTERS_STEPS: TutorialStep[] = [
 					{
-						title: 'Welcome to the Nuzlocke Simulator!',
-						body: 'This is the Encounters screen. Before each trainer battle, you explore routes to catch new Pokémon. Since this is a nuzlocke, you only get one encounter per route.',
+						title: 'Catching Pokémon',
+						body: 'Before each trainer battle, you explore all available routes to catch new Pokémon. Since this is a nuzlocke, you only get one encounter per route.',
 					},
 					{
 						selector: '.nz-route-list',
 						title: 'Routes',
-						body: 'Every route in your current segment is listed here. Click a route to see its encounter zones on the right.',
+						body: 'Every route currently available is listed here. Click a route to see its encounter zones.',
 					},
 					{
 						selector: '.nz-encounter-detail',
 						title: 'Encounter Zones',
-						body: 'Each route has one or more zones with different encounter pools. Pick one to catch a Pokémon!',
+						body: 'Each route has one or more zones with different encounter pools. Pick one to catch a random Pokémon, but remember you only get one encounter for this route!',
 					},
 					{
 						selector: '.nz-btn-defer',
 						title: 'Deferring Routes',
 						body: 'Some zones will be greyed out, indicating you don\'t have the requirements to catch there. Defer the route to see it again later when you do meet the requirements.',
+					},
+					{
+						selector: '.nz-items-list-found',
+						title: 'Items',
+						body: 'You also find items you can use or give to your Pokemon.',
+					},
+					{
+						title: 'Ready to Go',
+						body: 'Catch a Pokémon on each route to continue.',
 					},
 				];
 				return <NzTutorial steps={ENCOUNTERS_STEPS} onDone={this.dismissEncountersTutorial} />;

@@ -178,7 +178,7 @@ return clientX>=rect.left&&clientX<=rect.right&&clientY>=rect.top&&clientY<=rect
 
 dismissTeambuildingTutorial=function(){
 try{var _localStorage$getItem;
-var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);
+var key='nuzlocke_tutorial';
 var seen=JSON.parse((_localStorage$getItem=localStorage.getItem(key))!=null?_localStorage$getItem:'{}');
 seen.teambuilding=true;
 localStorage.setItem(key,JSON.stringify(seen));
@@ -295,7 +295,7 @@ var item=heldItems[uid]||'none';
 return uid+" "+m+" "+item;
 }).join(' ');
 PS.send("/nuzlocke battlewithmoves "+parts);
-};return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);var _proto=TeambuildingScreen.prototype;_proto.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.teambuilding)this.setState({showTutorial:true});}catch(_unused2){}};_proto.componentWillUnmount=function componentWillUnmount(){this.cancelDrag();};_proto._startDrag=function _startDrag(initialState){this._drag=initialState;this.setState({drag:this._drag});document.addEventListener('pointermove',this.onDragMove);document.addEventListener('pointerup',this.onDragEnd);document.addEventListener('pointercancel',this.cancelDrag);};TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref,_props$game$party$,_props$game$box$find;var defaultUid=(_ref=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
+};return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);var _proto=TeambuildingScreen.prototype;_proto.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key='nuzlocke_tutorial';var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.teambuilding)this.setState({showTutorial:true});}catch(_unused2){}};_proto.componentWillUnmount=function componentWillUnmount(){this.cancelDrag();};_proto._startDrag=function _startDrag(initialState){this._drag=initialState;this.setState({drag:this._drag});document.addEventListener('pointermove',this.onDragMove);document.addEventListener('pointerup',this.onDragEnd);document.addEventListener('pointercancel',this.cancelDrag);};TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref,_props$game$party$,_props$game$box$find;var defaultUid=(_ref=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
 
 
 
@@ -917,6 +917,7 @@ title:"Evolves all Pok\xE9mon with exactly one available evolution that uses no 
 evolveAllCount,")"
 ),
 preact.h(NzBtn,{
+"class":"nz-tb-battle-btn",
 onClick:this.clickBattle,
 disabled:partyPokemon.length===0,
 title:partyPokemon.length===0?'Add Pokémon to party first':''},
@@ -1008,24 +1009,29 @@ body:'Before each battle, set your party, assign moves and held items, and view 
 {
 selector:'.nz-move-panel',
 title:'Assigning Moves',
-body:'Click a slot, then click a move to assign it — the pulsing outline shows where to click next. On desktop you can also drag: pull a move row onto a slot, drag a slot onto a row to swap, or drag one slot onto another to reorder.',
+body:'Freely switch out moves at any time. Pokémon automatically level up, and TMs are infinite.',
 onActivate:function(){return _this6.setState({activeTab:'moves'});}
 },
 {
 selector:'.nz-item-panel',
 title:'Held Items',
-body:'Click any item in the list to equip it. On desktop you can also drag an item row onto the equipped slot at the top. Each Pokémon can hold one item.',
+body:'Don\'t forget to give items to your team!',
 onActivate:function(){return _this6.setState({activeTab:'items'});}
 },
 {
 selector:'.nz-tb-party-col',
 title:'Your Party',
-body:'Drag a box Pokémon into the party to add it, drag a party slot to reorder, or drag a party Pokémon into the box to swap it out.'
+body:'Move Pokémon between your party and your box here.'
 },
 {
 selector:'.nz-tb-opponent-col',
 title:'Opponent Preview',
 body:'Click any opponent Pokémon to see their full stats, moves, and ability in the detail panel.'
+},
+{
+selector:'.nz-tb-battle-btn',
+title:'Time to Battle',
+body:'When you\'re ready, start the battle!'
 }];
 
 return preact.h(NzTutorial,{steps:TEAMBUILDING_STEPS,onDone:_this6.dismissTeambuildingTutorial});

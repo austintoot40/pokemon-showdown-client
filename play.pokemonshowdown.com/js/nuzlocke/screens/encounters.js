@@ -596,7 +596,7 @@ statsExpanded:false
 
 dismissEncountersTutorial=function(){
 try{var _localStorage$getItem;
-var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);
+var key='nuzlocke_tutorial';
 var seen=JSON.parse((_localStorage$getItem=localStorage.getItem(key))!=null?_localStorage$getItem:'{}');
 seen.encounters=true;
 localStorage.setItem(key,JSON.stringify(seen));
@@ -706,7 +706,7 @@ var parts=game.box.
 map(function(p){var _this2$state$nickname;return p.uid+" "+((_this2$state$nickname=_this2.state.nicknames[p.uid])!=null?_this2$state$nickname:p.nickname).replace(/\s+/g,'_');}).
 join(' ');
 PS.send("/nuzlocke setnicks "+parts);
-};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);var _proto2=EncountersScreen.prototype;_proto2.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key="nuzlocke_tutorial_"+(PS.user.userid||PS.user.name);var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.encounters)this.setState({showTutorial:true});}catch(_unused2){}};EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updates={};var segIdx=props.game.currentSegmentIndex;if(segIdx!==state.lastSegmentIndex){updates.lastSegmentIndex=segIdx;updates.deferredThisSession=new Set();updates.selectedRoute=null;}var nicknames=Object.assign({},state.nicknames);var nicksChanged=false;props.game.box.forEach(function(p){if(!(p.uid in nicknames)){nicknames[p.uid]=p.nickname;nicksChanged=true;}});if(nicksChanged)updates.nicknames=nicknames;var currentSelected=updates.selectedRoute!==undefined?updates.selectedRoute:state.selectedRoute;if(!currentSelected){var _segment$encounters,_segment$encounters2,_props$game$deferredR,_props$game$lockedRou,_pending$route,_ref8,_find$route,_find,_segment$gifts,_allDisplayed$find;var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var tmMoves=props.game.tmMoves;var items=props.game.items;var currentRouteNames=new Set(((_segment$encounters=segment.encounters)!=null?_segment$encounters:[]).map(function(e){return e.route;}));var allDisplayed=[].concat((_segment$encounters2=segment.encounters)!=null?_segment$encounters2:[],((_props$game$deferredR=props.game.deferredRoutes)!=null?_props$game$deferredR:[]).filter(function(r){return!currentRouteNames.has(r.route);}),((_props$game$lockedRou=props.game.lockedRoutes)!=null?_props$game$lockedRou:[]).filter(function(r){return!currentRouteNames.has(r.route);}));var pending=allDisplayed.find(function(enc){return!props.game.resolvedRoutes.includes(enc.route)&&enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}),props.game.completedBattles)&&z.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species));});});});var autoSelected=(_pending$route=pending==null?void 0:pending.route)!=null?_pending$route:null;var fallback=!autoSelected?(_ref8=(_find$route=(_find=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);}))==null?void 0:_find.route)!=null?_find$route:(_allDisplayed$find=allDisplayed.find(function(enc){return enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}),props.game.completedBattles);});}))==null?void 0:_allDisplayed$find.route)!=null?_ref8:null:autoSelected;if(fallback!==currentSelected)updates.selectedRoute=fallback;}return Object.keys(updates).length>0?updates:null;};_proto2.
+};return _this2;}_inheritsLoose(EncountersScreen,_preact$Component2);var _proto2=EncountersScreen.prototype;_proto2.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key='nuzlocke_tutorial';var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.encounters)this.setState({showTutorial:true});}catch(_unused2){}};EncountersScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var segment=props.game.segment;if(!segment)return null;var updates={};var segIdx=props.game.currentSegmentIndex;if(segIdx!==state.lastSegmentIndex){updates.lastSegmentIndex=segIdx;updates.deferredThisSession=new Set();updates.selectedRoute=null;}var nicknames=Object.assign({},state.nicknames);var nicksChanged=false;props.game.box.forEach(function(p){if(!(p.uid in nicknames)){nicknames[p.uid]=p.nickname;nicksChanged=true;}});if(nicksChanged)updates.nicknames=nicknames;var currentSelected=updates.selectedRoute!==undefined?updates.selectedRoute:state.selectedRoute;if(!currentSelected){var _segment$encounters,_segment$encounters2,_props$game$deferredR,_props$game$lockedRou,_pending$route,_ref8,_find$route,_find,_segment$gifts,_allDisplayed$find;var ownedRoots=new Set([].concat(props.game.box.map(function(p){return getEvoRoot(p.species);}),props.game.graveyard.map(function(p){return getEvoRoot(p.species);})));var tmMoves=props.game.tmMoves;var items=props.game.items;var currentRouteNames=new Set(((_segment$encounters=segment.encounters)!=null?_segment$encounters:[]).map(function(e){return e.route;}));var allDisplayed=[].concat((_segment$encounters2=segment.encounters)!=null?_segment$encounters2:[],((_props$game$deferredR=props.game.deferredRoutes)!=null?_props$game$deferredR:[]).filter(function(r){return!currentRouteNames.has(r.route);}),((_props$game$lockedRou=props.game.lockedRoutes)!=null?_props$game$lockedRou:[]).filter(function(r){return!currentRouteNames.has(r.route);}));var pending=allDisplayed.find(function(enc){return!props.game.resolvedRoutes.includes(enc.route)&&enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}),props.game.completedBattles)&&z.pokemon.some(function(e){return!ownedRoots.has(getEvoRoot(e.species));});});});var autoSelected=(_pending$route=pending==null?void 0:pending.route)!=null?_pending$route:null;var fallback=!autoSelected?(_ref8=(_find$route=(_find=((_segment$gifts=segment.gifts)!=null?_segment$gifts:[]).find(function(g){return g.choice&&!props.game.resolvedRoutes.includes(g.route);}))==null?void 0:_find.route)!=null?_find$route:(_allDisplayed$find=allDisplayed.find(function(enc){return enc.zones.some(function(z){return hasZonePrereq(z,tmMoves,items,props.game.box.map(function(p){return toID(p.species);}),props.game.completedBattles);});}))==null?void 0:_allDisplayed$find.route)!=null?_ref8:null:autoSelected;if(fallback!==currentSelected)updates.selectedRoute=fallback;}return Object.keys(updates).length>0?updates:null;};_proto2.
 
 render=function render(){var _segment$encounters3,_segment$gifts2,_game$deferredRoutes,_game$lockedRoutes,_this3=this,_game$box$find,_allGifts$find,_game$lockedRoutes2,_nicknames$mobileDisp;
 var game=this.props.game;
@@ -943,7 +943,7 @@ onSelect:function(){return _this3.selectRoute(enc.route);}}
 
 segment.items.length>0&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-route-list-divider"},"Items"),
-preact.h("div",{"class":"nz-items-list",style:"padding: 6px 8px"},
+preact.h("div",{"class":"nz-items-list nz-items-list-found",style:"padding: 6px 8px"},
 segment.items.map(function(item){return(
 preact.h("span",{key:item,"class":"nz-item-chip"},item));}
 )
@@ -1078,7 +1078,7 @@ renderZoneContent()
 
 segment.items.length>0&&preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-route-list-divider"},"Items"),
-preact.h("div",{"class":"nz-items-list",style:"padding: 6px 8px"},
+preact.h("div",{"class":"nz-items-list nz-items-list-found",style:"padding: 6px 8px"},
 segment.items.map(function(item){return preact.h("span",{key:item,"class":"nz-item-chip"},item);})
 )
 ),
@@ -1129,23 +1129,32 @@ preact.h(NzBtn,{onClick:goToNextUnresolved},"Next (",pendingRoutes.length," left
 this.state.showTutorial&&function(){
 var ENCOUNTERS_STEPS=[
 {
-title:'Welcome to the Nuzlocke Simulator!',
-body:'This is the Encounters screen. Before each trainer battle, you explore routes to catch new Pokémon. Since this is a nuzlocke, you only get one encounter per route.'
+title:'Catching Pokémon',
+body:'Before each trainer battle, you explore all available routes to catch new Pokémon. Since this is a nuzlocke, you only get one encounter per route.'
 },
 {
 selector:'.nz-route-list',
 title:'Routes',
-body:'Every route in your current segment is listed here. Click a route to see its encounter zones on the right.'
+body:'Every route currently available is listed here. Click a route to see its encounter zones.'
 },
 {
 selector:'.nz-encounter-detail',
 title:'Encounter Zones',
-body:'Each route has one or more zones with different encounter pools. Pick one to catch a Pokémon!'
+body:'Each route has one or more zones with different encounter pools. Pick one to catch a random Pokémon, but remember you only get one encounter for this route!'
 },
 {
 selector:'.nz-btn-defer',
 title:'Deferring Routes',
 body:'Some zones will be greyed out, indicating you don\'t have the requirements to catch there. Defer the route to see it again later when you do meet the requirements.'
+},
+{
+selector:'.nz-items-list-found',
+title:'Items',
+body:'You also find items you can use or give to your Pokemon.'
+},
+{
+title:'Ready to Go',
+body:'Catch a pokemon on each route to continue to teambuilding.'
 }];
 
 return preact.h(NzTutorial,{steps:ENCOUNTERS_STEPS,onDone:_this3.dismissEncountersTutorial});

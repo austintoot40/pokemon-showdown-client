@@ -52,7 +52,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 	override componentDidMount() {
 		try {
-			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const key = 'nuzlocke_tutorial';
 			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
 			if (!seen.teambuilding) this.setState({ showTutorial: true });
 		} catch {}
@@ -178,7 +178,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 	dismissTeambuildingTutorial = () => {
 		try {
-			const key = `nuzlocke_tutorial_${PS.user.userid || PS.user.name}`;
+			const key = 'nuzlocke_tutorial';
 			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
 			seen.teambuilding = true;
 			localStorage.setItem(key, JSON.stringify(seen));
@@ -917,6 +917,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 						Evolve All ({evolveAllCount})
 					</NzBtn>}
 					<NzBtn
+						class="nz-tb-battle-btn"
 						onClick={this.clickBattle}
 						disabled={partyPokemon.length === 0}
 						title={partyPokemon.length === 0 ? 'Add Pokémon to party first' : ''}
@@ -1008,24 +1009,29 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 					{
 						selector: '.nz-move-panel',
 						title: 'Assigning Moves',
-						body: 'Click a slot, then click a move to assign it — the pulsing outline shows where to click next. On desktop you can also drag: pull a move row onto a slot, drag a slot onto a row to swap, or drag one slot onto another to reorder.',
+						body: 'Freely switch out moves at any time. Pokémon automatically level up, and TMs are infinite.',
 						onActivate: () => this.setState({ activeTab: 'moves' }),
 					},
 					{
 						selector: '.nz-item-panel',
 						title: 'Held Items',
-						body: 'Click any item in the list to equip it. On desktop you can also drag an item row onto the equipped slot at the top. Each Pokémon can hold one item.',
+						body: 'Don\'t forget to give items to your team!',
 						onActivate: () => this.setState({ activeTab: 'items' }),
 					},
 					{
 						selector: '.nz-tb-party-col',
 						title: 'Your Party',
-						body: 'Drag a box Pokémon into the party to add it, drag a party slot to reorder, or drag a party Pokémon into the box to swap it out.',
+						body: 'Move Pokémon between your party and your box here.',
 					},
 					{
 						selector: '.nz-tb-opponent-col',
 						title: 'Opponent Preview',
 						body: 'Click any opponent Pokémon to see their full stats, moves, and ability in the detail panel.',
+					},
+					{
+						selector: '.nz-tb-battle-btn',
+						title: 'Time to Battle',
+						body: 'When you\'re ready, start the battle!'
 					},
 				];
 				return <NzTutorial steps={TEAMBUILDING_STEPS} onDone={this.dismissTeambuildingTutorial} />;

@@ -18,6 +18,7 @@
 
 
 
+
 Carousel=function(_preact$Component){function Carousel(){var _this;for(var _len=arguments.length,args=new Array(_len),_key=0;_key<_len;_key++){args[_key]=arguments[_key];}_this=_preact$Component.call.apply(_preact$Component,[this].concat(args))||this;_this.
 
 
@@ -116,19 +117,44 @@ label:d.nickname
 )
 )
 );
-}
+}var
 
 
 
 
 
-function SegmentScreen(_ref5){var _game$segmentSummarie,_game$scenarioPokemon,_current$name,_current$name2;var game=_ref5.game;
+
+
+SegmentScreen=function(_preact$Component2){function SegmentScreen(){var _this4;for(var _len2=arguments.length,args=new Array(_len2),_key2=0;_key2<_len2;_key2++){args[_key2]=arguments[_key2];}_this4=_preact$Component2.call.apply(_preact$Component2,[this].concat(args))||this;_this4.
+state={showTutorial:false};_this4.
+
+
+
+
+
+
+
+
+
+dismissSegmentTutorial=function(){
+try{var _localStorage$getItem;
+var key='nuzlocke_tutorial';
+var seen=JSON.parse((_localStorage$getItem=localStorage.getItem(key))!=null?_localStorage$getItem:'{}');
+seen.segment=true;
+localStorage.setItem(key,JSON.stringify(seen));
+}catch(_unused){}
+_this4.setState({showTutorial:false});
+};_this4.
+
+handleProceed=function(){
+PS.send('/nuzlocke proceed');
+};return _this4;}_inheritsLoose(SegmentScreen,_preact$Component2);var _proto2=SegmentScreen.prototype;_proto2.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key='nuzlocke_tutorial';var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.segment)this.setState({showTutorial:true});}catch(_unused2){}};_proto2.
+
+render=function render(){var _game$segmentSummarie,_game$scenarioPokemon,_current$name,_current$name2,_this5=this;
+var game=this.props.game;
 var summaries=(_game$segmentSummarie=game.segmentSummaries)!=null?_game$segmentSummarie:[];
 var current=summaries.find(function(s){return s.status==='current';});
-
-function handleProceed(){
-PS.send('/nuzlocke proceed');
-}
+var handleProceed=this.handleProceed;
 
 var colorStyle=game.scenarioColor?"--scenario-color:"+game.scenarioColor:'';
 var bgSpriteSrc=(_game$scenarioPokemon=game.scenarioPokemon)!=null?_game$scenarioPokemon:null;
@@ -171,8 +197,24 @@ preact.h("button",{"class":"nz-btn nz-btn-primary nz-seg-proceed-btn",onClick:ha
 )
 )
 
-)
+),
+
+this.state.showTutorial&&function(){
+var SEGMENT_STEPS=[
+{
+selector:'.nz-seg-timeline',
+title:'Here\'s the Run',
+body:'Beat all these fights to win!'
+},
+{
+selector:'.nz-seg-proceed-btn',
+title:'Head to Encounters',
+body:'Click here to go catch Pokémon before your first battle.'
+}];
+
+return preact.h(NzTutorial,{steps:SEGMENT_STEPS,onDone:_this5.dismissSegmentTutorial});
+}()
 )
 );
-}
+};return SegmentScreen;}(preact.Component);
 //# sourceMappingURL=segment.js.map

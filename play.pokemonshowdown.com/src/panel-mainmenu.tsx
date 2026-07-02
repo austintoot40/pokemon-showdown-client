@@ -8,6 +8,7 @@
 import preact from "../js/lib/preact";
 import { openFeedbackModal, setRunCount } from "./nuzlocke/components/nz-topbar";
 import { NzSprite } from "./nuzlocke/components/primitives";
+import { NzTutorial, TutorialStep } from "./nuzlocke/components/tutorial";
 import { PSLoginServer } from "./client-connection";
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
@@ -657,6 +658,28 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     showRandomizerModal: boolean = false;
     mobileTab: 'run' | 'challenges' | null = null;
     randomizerSettings: RandomizerSettings = getLocalRandomizerSettings();
+    showTutorial: boolean = false;
+    override componentDidMount() {
+        super.componentDidMount?.();
+        try {
+            const key = 'nuzlocke_tutorial';
+            const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+            if (!seen.mainmenu) {
+                this.showTutorial = true;
+                this.forceUpdate();
+            }
+        } catch {}
+    }
+    dismissMainMenuTutorial = () => {
+        try {
+            const key = 'nuzlocke_tutorial';
+            const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+            seen.mainmenu = true;
+            localStorage.setItem(key, JSON.stringify(seen));
+        } catch {}
+        this.showTutorial = false;
+        this.forceUpdate();
+    };
     get effectiveSelectedScenario(): string | null {
         if (this.selectedScenario) return this.selectedScenario;
         const status = this.props.room.nuzlockeMenuPayload;
@@ -837,57 +860,59 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                                                 </div>
                                                             </>
                                                         )}
-                                                        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;">
-                                                            <div>
-                                                                <div class="nz-label" style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-                                                                    AI Difficulty
-                                                                    <span class="nz-tooltip" data-tooltip="Basic is similar to the games. Smart will make better decisions.">?</span>
+                                                        <div class="nz-panel-section-options">
+                                                            <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:24px;">
+                                                                <div>
+                                                                    <div class="nz-label" style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                                                                        AI Difficulty
+                                                                        <span class="nz-tooltip" data-tooltip="Basic is similar to the games. Smart will make better decisions.">?</span>
+                                                                    </div>
+                                                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                                                        {AI_DIFFICULTIES.map(d => (
+                                                                            <button
+                                                                                key={d.id}
+                                                                                class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
+                                                                                onClick={() => this.setDifficulty(d.id)}
+                                                                            >{d.label}</button>
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
-                                                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                                                    {AI_DIFFICULTIES.map(d => (
-                                                                        <button
-                                                                            key={d.id}
-                                                                            class={`nz-difficulty-btn${currentDifficulty === d.id ? ' active' : ''}`}
-                                                                            onClick={() => this.setDifficulty(d.id)}
-                                                                        >{d.label}</button>
-                                                                    ))}
+                                                                <div>
+                                                                    <div class="nz-label" style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                                                                        Generation
+                                                                        <span class="nz-tooltip" data-tooltip="Original uses the generation the game was designed for. Modern uses Gen 9 mechanics.">?</span>
+                                                                    </div>
+                                                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                                                        {GENERATION_OPTIONS.map(g => {
+                                                                            const lockedOut = hasActivePreview && this.randomizerSettings.dexPool === 'all' && g.id === 'original';
+                                                                            return <button
+                                                                                key={g.id}
+                                                                                class={`nz-difficulty-btn${this.selectedGeneration === g.id ? ' active' : ''}`}
+                                                                                onClick={() => this.setGeneration(g.id)}
+                                                                                disabled={lockedOut}
+                                                                            >{g.label}</button>;
+                                                                        })}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <div class="nz-label" style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-                                                                    Generation
-                                                                    <span class="nz-tooltip" data-tooltip="Original uses the generation the game was designed for. Modern uses Gen 9 mechanics.">?</span>
-                                                                </div>
-                                                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                                                    {GENERATION_OPTIONS.map(g => {
-                                                                        const lockedOut = hasActivePreview && this.randomizerSettings.dexPool === 'all' && g.id === 'original';
-                                                                        return <button
-                                                                            key={g.id}
-                                                                            class={`nz-difficulty-btn${this.selectedGeneration === g.id ? ' active' : ''}`}
-                                                                            onClick={() => this.setGeneration(g.id)}
-                                                                            disabled={lockedOut}
-                                                                        >{g.label}</button>;
-                                                                    })}
-                                                                </div>
+                                                            <div class="nz-btn-group">
+                                                                <button
+                                                                    class="nz-btn nz-btn-primary"
+                                                                    onClick={this.clickStartRun}
+                                                                    disabled={!!(displayedStarters.length && this.selectedStarter === null)}
+                                                                >Start Run</button>
+                                                                {hasActivePreview ? (
+                                                                    <button
+                                                                        class="nz-btn nz-btn-secondary"
+                                                                        onClick={this.clickCancelRandomizer}
+                                                                    >Normal Run</button>
+                                                                ) : (
+                                                                    <button
+                                                                        class="nz-btn nz-btn-randomizer"
+                                                                        onClick={this.openRandomizerModal}
+                                                                    >Randomize</button>
+                                                                )}
                                                             </div>
-                                                        </div>
-                                                        <div class="nz-btn-group">
-                                                            <button
-                                                                class="nz-btn nz-btn-primary"
-                                                                onClick={this.clickStartRun}
-                                                                disabled={!!(displayedStarters.length && this.selectedStarter === null)}
-                                                            >Start Run</button>
-                                                            {hasActivePreview ? (
-                                                                <button
-                                                                    class="nz-btn nz-btn-secondary"
-                                                                    onClick={this.clickCancelRandomizer}
-                                                                >Normal Run</button>
-                                                            ) : (
-                                                                <button
-                                                                    class="nz-btn nz-btn-randomizer"
-                                                                    onClick={this.openRandomizerModal}
-                                                                >Randomize</button>
-                                                            )}
                                                         </div>
                                                     </div>
 
@@ -1022,6 +1047,30 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                     onSetDexPool={this.setRandomizerDexPool}
                 />
             )}
+            {this.showTutorial && (() => {
+                const MAINMENU_STEPS: TutorialStep[] = [
+                    {
+                        title: 'Welcome to the Nuzlocke Simulator!',
+                        body: 'Here you can play entire Nuzlockes in your browser, streamlined down to a roguelike experience.',
+                    },
+                    {
+                        selector: '.nz-scenario-grid',
+                        title: 'Pick a Run',
+                        body: 'Choose which game you want to nuzlocke here.',
+                    },
+                    {
+                        selector: '.nz-starter-picker',
+                        title: 'Pick Your Starter',
+                        body: 'Select which starter Pokémon you want to begin with.',
+                    },
+                    {
+                        selector: '.nz-panel-section-options',
+                        title: 'Adjust Your Settings',
+                        body: 'Choose your difficulty, generation mechanics, or randomizer, then start the run!',
+                    },
+                ];
+                return <NzTutorial steps={MAINMENU_STEPS} onDone={this.dismissMainMenuTutorial} />;
+            })()}
         </PSPanelWrapper>;
     }
 }

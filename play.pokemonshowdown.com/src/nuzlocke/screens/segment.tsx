@@ -9,6 +9,7 @@ import preact from "../../../js/lib/preact";
 import { PS } from "../../client-main";
 import { NzRoot, NzScreen } from "../components/layout";
 import { NzSprite } from "../components/primitives";
+import { NzTutorial, TutorialStep } from "../components/tutorial";
 import type { NuzlockePanelPayload } from "../types";
 
 
@@ -122,18 +123,43 @@ function TimelineNode({ summary, index }: {
 // Main screen
 // -----------------------------------------------------------------------
 
-export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
-	const summaries = game.segmentSummaries ?? [];
-	const current = summaries.find(s => s.status === 'current');
+interface SegmentScreenState { showTutorial: boolean; }
 
-	function handleProceed() {
-		PS.send('/nuzlocke proceed');
+export class SegmentScreen extends preact.Component<{ game: NuzlockePanelPayload }, SegmentScreenState> {
+	override state: SegmentScreenState = { showTutorial: false };
+
+	override componentDidMount() {
+		try {
+			const key = 'nuzlocke_tutorial';
+			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+			if (!seen.segment) this.setState({ showTutorial: true });
+		} catch {}
 	}
 
-	const colorStyle = game.scenarioColor ? `--scenario-color:${game.scenarioColor}` : '';
-	const bgSpriteSrc = game.scenarioPokemon ?? null;
+	dismissSegmentTutorial = () => {
+		try {
+			const key = 'nuzlocke_tutorial';
+			const seen = JSON.parse(localStorage.getItem(key) ?? '{}');
+			seen.segment = true;
+			localStorage.setItem(key, JSON.stringify(seen));
+		} catch {}
+		this.setState({ showTutorial: false });
+	};
 
-	return <NzRoot>
+	handleProceed = () => {
+		PS.send('/nuzlocke proceed');
+	};
+
+	override render() {
+		const { game } = this.props;
+		const summaries = game.segmentSummaries ?? [];
+		const current = summaries.find(s => s.status === 'current');
+		const handleProceed = this.handleProceed;
+
+		const colorStyle = game.scenarioColor ? `--scenario-color:${game.scenarioColor}` : '';
+		const bgSpriteSrc = game.scenarioPokemon ?? null;
+
+		return <NzRoot>
 		<NzScreen>
 			<div class="nz-seg-screen" style={colorStyle}>
 
@@ -172,6 +198,23 @@ export function SegmentScreen({ game }: { game: NuzlockePanelPayload }) {
 				</div>
 
 			</div>
+
+			{this.state.showTutorial && (() => {
+				const SEGMENT_STEPS: TutorialStep[] = [
+					{
+						selector: '.nz-seg-timeline',
+						title: 'Here\'s the Run',
+						body: 'Beat all these fights to win!',
+					},
+					{
+						selector: '.nz-seg-proceed-btn',
+						title: 'Head to Encounters',
+						body: 'Click here to go catch Pokémon before your first battle.',
+					},
+				];
+				return <NzTutorial steps={SEGMENT_STEPS} onDone={this.dismissSegmentTutorial} />;
+			})()}
 		</NzScreen>
 	</NzRoot>;
+	}
 }

@@ -44,6 +44,7 @@ export function NzBtn({
 	variant = 'primary',
 	size,
 	title,
+	class: className,
 }: {
 	children: preact.ComponentChildren;
 	onClick?: () => void;
@@ -51,11 +52,13 @@ export function NzBtn({
 	variant?: 'primary' | 'secondary' | 'danger' | 'evolve';
 	size?: 'sm';
 	title?: string;
+	class?: string;
 }) {
 	const cls = [
 		'nz-btn',
 		`nz-btn-${variant}`,
 		size === 'sm' ? 'nz-btn-sm' : '',
+		className || '',
 	].filter(Boolean).join(' ');
 	return <button class={cls} onClick={onClick} disabled={disabled} title={title}>{children}</button>;
 }
