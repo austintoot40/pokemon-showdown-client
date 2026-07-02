@@ -461,11 +461,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		let effectivenessClass = '';
 		if (props.effectiveness !== undefined) {
 			const e = props.effectiveness;
-			if (e === 0) { effectivenessLabel = '0\u00d7'; effectivenessClass = 'eff-immune'; }
-			else if (e === 0.25) { effectivenessLabel = '\u00bc\u00d7'; effectivenessClass = 'eff-resist'; }
-			else if (e === 0.5) { effectivenessLabel = '\u00bd\u00d7'; effectivenessClass = 'eff-resist'; }
-			else if (e === 2) { effectivenessLabel = '2\u00d7'; effectivenessClass = 'eff-super'; }
-			else if (e === 4) { effectivenessLabel = '4\u00d7'; effectivenessClass = 'eff-super'; }
+			if (e === 0) { effectivenessLabel = 'No Effect'; effectivenessClass = 'eff-immune'; }
+			else if (e === 0.25 || e === 0.5) { effectivenessLabel = 'Not Very Effective'; effectivenessClass = 'eff-resist'; }
+			else if (e === 2 || e === 4) { effectivenessLabel = 'Super Effective'; effectivenessClass = 'eff-super'; }
 		}
 		return <button
 			data-cmd={props.cmd} data-tooltip={props.tooltip}
