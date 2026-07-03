@@ -203,7 +203,7 @@ var SEGMENT_STEPS=[
 {
 selector:'.nz-seg-timeline',
 title:'Here\'s the Run',
-body:'Beat all these fights to win!'
+body:'Beat all these fights to win! If a Pokémon faints, it\'s gone for good. Lose a fight entirely, and it\'s game over.'
 },
 {
 selector:'.nz-seg-proceed-btn',

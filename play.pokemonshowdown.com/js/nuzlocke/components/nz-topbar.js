@@ -16,6 +16,25 @@ _openFeedbackCb();
 
 
 
+
+
+var _mobileBackHandler=null;
+var _onMobileBackChange=function(){};
+
+function setMobileBackHandler(cb){
+_mobileBackHandler=cb;
+_onMobileBackChange();
+}
+
+function clearMobileBackHandler(){
+_mobileBackHandler=null;
+_onMobileBackChange();
+}
+
+
+
+
+
 var _RUNCOUNT_KEY='nuzlocke_run_count';
 var _savedCount=localStorage.getItem(_RUNCOUNT_KEY);
 var _runCount=_savedCount!==null?parseInt(_savedCount,10):null;
@@ -186,6 +205,7 @@ _avatarTimeout=void 0;_this3.
 
 
 
+
 _sendAvatarWhenReady=function(){var _connection;
 var savedAvatar=localStorage.getItem(_AVATAR_KEY);
 if(!savedAvatar)return;
@@ -195,6 +215,7 @@ return;
 }
 PS.send('/avatar '+savedAvatar);
 };_this3.
+
 
 
 
@@ -212,7 +233,7 @@ ps.join('');for(var _i4=0,_Object$keys2=
 Object.keys(ps.rooms);_i4<_Object$keys2.length;_i4++){var roomId=_Object$keys2[_i4];
 if(roomId!=='')ps.removeRoom(ps.rooms[roomId]);
 }
-};return _this3;}_inheritsLoose(NzTopBar,_preact$Component2);var _proto2=NzTopBar.prototype;_proto2.componentDidMount=function componentDidMount(){var _this4=this;_openFeedbackCb=function(){_this4.setState({settingsOpen:false,feedbackOpen:true});};this._sendAvatarWhenReady();};_proto2.componentWillUnmount=function componentWillUnmount(){_openFeedbackCb=function(){};clearTimeout(this._avatarTimeout);};_proto2.
+};return _this3;}_inheritsLoose(NzTopBar,_preact$Component2);var _proto2=NzTopBar.prototype;_proto2.componentDidMount=function componentDidMount(){var _this4=this;_openFeedbackCb=function(){_this4.setState({settingsOpen:false,feedbackOpen:true});};_onMobileBackChange=function(){return _this4.forceUpdate();};this._sendAvatarWhenReady();};_proto2.componentWillUnmount=function componentWillUnmount(){_openFeedbackCb=function(){};_onMobileBackChange=function(){};clearTimeout(this._avatarTimeout);};_proto2.
 
 render=function render(){var _ref,_ps$room$id,_ps$room,_ps$curRoom;
 var _this$state2=this.state,settingsOpen=_this$state2.settingsOpen,feedbackOpen=_this$state2.feedbackOpen;
@@ -223,12 +244,21 @@ return(
 preact.h(preact.Fragment,null,
 preact.h("div",{"class":"nz-topbar"},
 preact.h("div",{"class":"nz-topbar-left"},
-inRun&&
+inRun?
 preact.h("button",{
 "class":"nz-topbar-btn nz-topbar-back-btn",
 onClick:this.goToMenu,
 title:"Back to Main Menu",
 "aria-label":"Back to Main Menu"},
+
+preact.h("i",{"class":"fa fa-arrow-left","aria-hidden":true})
+):
+_mobileBackHandler&&
+preact.h("button",{
+"class":"nz-topbar-btn nz-topbar-back-btn nz-topbar-back-btn--mobile-only",
+onClick:_mobileBackHandler,
+title:"Back to Game Selection",
+"aria-label":"Back to Game Selection"},
 
 preact.h("i",{"class":"fa fa-arrow-left","aria-hidden":true})
 )

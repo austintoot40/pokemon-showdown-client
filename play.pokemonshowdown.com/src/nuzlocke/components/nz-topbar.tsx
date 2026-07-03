@@ -13,6 +13,25 @@ export function openFeedbackModal() {
 }
 
 // ---------------------------------------------------------------------------
+// Mobile back handler — set by panel-mainmenu when the mobile starter-picking
+// view is showing, so the topbar's back arrow returns to game selection
+// instead of the main menu.
+// ---------------------------------------------------------------------------
+
+let _mobileBackHandler: (() => void) | null = null;
+let _onMobileBackChange: () => void = () => {};
+
+export function setMobileBackHandler(cb: () => void) {
+	_mobileBackHandler = cb;
+	_onMobileBackChange();
+}
+
+export function clearMobileBackHandler() {
+	_mobileBackHandler = null;
+	_onMobileBackChange();
+}
+
+// ---------------------------------------------------------------------------
 // Run count — updated by panel-mainmenu when |updatenuzlocke| arrives
 // ---------------------------------------------------------------------------
 
@@ -183,6 +202,7 @@ export class NzTopBar extends preact.Component<{}, NzTopBarState> {
 		_openFeedbackCb = () => {
 			this.setState({ settingsOpen: false, feedbackOpen: true });
 		};
+		_onMobileBackChange = () => this.forceUpdate();
 		this._sendAvatarWhenReady();
 	}
 
@@ -198,6 +218,7 @@ export class NzTopBar extends preact.Component<{}, NzTopBarState> {
 
 	override componentWillUnmount() {
 		_openFeedbackCb = () => {};
+		_onMobileBackChange = () => {};
 		clearTimeout(this._avatarTimeout);
 	}
 
@@ -223,12 +244,21 @@ export class NzTopBar extends preact.Component<{}, NzTopBarState> {
 			<>
 				<div class="nz-topbar">
 					<div class="nz-topbar-left">
-						{inRun && (
+						{inRun ? (
 							<button
 								class="nz-topbar-btn nz-topbar-back-btn"
 								onClick={this.goToMenu}
 								title="Back to Main Menu"
 								aria-label="Back to Main Menu"
+							>
+								<i class="fa fa-arrow-left" aria-hidden></i>
+							</button>
+						) : _mobileBackHandler && (
+							<button
+								class="nz-topbar-btn nz-topbar-back-btn nz-topbar-back-btn--mobile-only"
+								onClick={_mobileBackHandler}
+								title="Back to Game Selection"
+								aria-label="Back to Game Selection"
 							>
 								<i class="fa fa-arrow-left" aria-hidden></i>
 							</button>

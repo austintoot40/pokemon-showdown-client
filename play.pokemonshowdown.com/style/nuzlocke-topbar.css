@@ -40,6 +40,16 @@
   opacity: 1;
 }
 
+.nz-topbar-back-btn--mobile-only {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .nz-topbar-back-btn--mobile-only {
+    display: flex;
+  }
+}
+
 .nz-topbar-brand {
   display: flex;
   align-items: baseline;

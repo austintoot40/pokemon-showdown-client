@@ -6,7 +6,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { openFeedbackModal, setRunCount } from "./nuzlocke/components/nz-topbar";
+import { clearMobileBackHandler, openFeedbackModal, setMobileBackHandler, setRunCount } from "./nuzlocke/components/nz-topbar";
 import { NzSprite } from "./nuzlocke/components/primitives";
 import { NzTutorial, TutorialStep } from "./nuzlocke/components/tutorial";
 import { PSLoginServer } from "./client-connection";
@@ -669,7 +669,30 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                 this.forceUpdate();
             }
         } catch {}
+        this.syncMobileBackHandler();
     }
+    override componentDidUpdate() {
+        this.syncMobileBackHandler();
+    }
+    override componentWillUnmount() {
+        clearMobileBackHandler();
+    }
+    get effectiveMobileTab(): 'run' | 'challenges' {
+        const activeRun = this.props.room.nuzlockeMenuPayload?.activeRun ?? null;
+        return this.mobileTab ?? (activeRun ? 'run' : 'challenges');
+    }
+    syncMobileBackHandler() {
+        const activeRun = this.props.room.nuzlockeMenuPayload?.activeRun ?? null;
+        if (this.effectiveMobileTab === 'run' && !activeRun) {
+            setMobileBackHandler(this.goBackToChallenges);
+        } else {
+            clearMobileBackHandler();
+        }
+    }
+    goBackToChallenges = () => {
+        this.mobileTab = 'challenges';
+        this.forceUpdate();
+    };
     dismissMainMenuTutorial = () => {
         try {
             const key = 'nuzlocke_tutorial';
@@ -784,7 +807,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
     override render() {
         const status = this.props.room.nuzlockeMenuPayload;
         const activeRun = status?.activeRun ?? null;
-        const effectiveTab = this.mobileTab ?? (activeRun ? 'run' : 'challenges');
+        const effectiveTab = this.effectiveMobileTab;
         const currentDifficulty = activeRun?.ai ?? this.selectedDifficulty;
         const beatenScenarios = status?.beatenScenarios ?? [];
 
@@ -1023,17 +1046,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                             </div>
 
                         </div>
-                    </div>
-
-                    <div class="nz-mm-mobile-bar">
-                        <button
-                            class={`nz-mm-tab${effectiveTab === 'run' ? ' active' : ''}`}
-                            onClick={() => { this.mobileTab = 'run'; this.forceUpdate(); }}
-                        >Run</button>
-                        <button
-                            class={`nz-mm-tab${effectiveTab === 'challenges' ? ' active' : ''}`}
-                            onClick={() => { this.mobileTab = 'challenges'; this.forceUpdate(); }}
-                        >Challenges</button>
                     </div>
                 </div>
             </div>
