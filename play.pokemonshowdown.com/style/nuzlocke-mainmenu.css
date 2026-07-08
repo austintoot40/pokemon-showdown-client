@@ -827,16 +827,24 @@
 }
 
 .nz-modal {
-  background: var(--nz-surface);
-  border: 1px solid var(--nz-border);
+  position: relative;
   border-top: 2px solid var(--nz-warning);
-  clip-path: var(--nz-clip);
   padding: 24px 28px;
   min-width: var(--nz-modal-min-w);
   max-width: var(--nz-modal-max-w);
   width: 100%;
-  box-shadow: var(--nz-shadow);
   color: var(--nz-text);
+}
+
+.nz-modal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--nz-surface);
+  border: 1px solid var(--nz-border);
+  clip-path: var(--nz-clip);
+  box-shadow: var(--nz-shadow);
 }
 
 .nz-modal-title {

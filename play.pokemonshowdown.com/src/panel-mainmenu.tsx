@@ -1104,10 +1104,6 @@ function RandomizerModal(props: {
                 <fieldset class="nz-modal-fieldset">
                     <legend class="nz-modal-legend">
                         Pokémon Pool
-                        <span
-                            class="nz-tooltip"
-                            data-tooltip="Regional: only Pokémon introduced in this game's generation. National: all Pokémon up to this game's generation. All: every Pokémon — requires Modern mechanics."
-                        >?</span>
                     </legend>
                     <div class="nz-modal-radio-group">
                         <label class="nz-modal-radio">
@@ -1149,7 +1145,7 @@ function RandomizerModal(props: {
                         Mode
                         <span
                             class="nz-tooltip"
-                            data-tooltip="Shuffle swaps each species for a unique replacement. Fully Random picks independently per route."
+                            data-tooltip="Shuffle swaps each species for a unique replacement. Fully Random picks independently every route."
                         >?</span>
                     </legend>
                     <div class="nz-modal-radio-group">
@@ -1181,7 +1177,7 @@ function RandomizerModal(props: {
                         BST Variance
                         <span
                             class="nz-tooltip"
-                            data-tooltip="How similar the replacement's Base Stat Total must be to the original. Low = ±33%, Medium = ±66%, High = any."
+                            data-tooltip="How much variance the replacement's Base Stat Total can have from the original."
                         >?</span>
                     </legend>
                     <div class="nz-modal-radio-group">
@@ -1193,7 +1189,7 @@ function RandomizerModal(props: {
                                 checked={settings.bstVariance === 'low'}
                                 onChange={() => onSetBst('low')}
                             />
-                            Low (±33%)
+                            Low
                         </label>
                         <label class="nz-modal-radio">
                             <input
@@ -1203,7 +1199,7 @@ function RandomizerModal(props: {
                                 checked={settings.bstVariance === 'medium'}
                                 onChange={() => onSetBst('medium')}
                             />
-                            Medium (±66%)
+                            Medium
                         </label>
                         <label class="nz-modal-radio">
                             <input
@@ -1213,7 +1209,7 @@ function RandomizerModal(props: {
                                 checked={settings.bstVariance === 'high'}
                                 onChange={() => onSetBst('high')}
                             />
-                            High (any)
+                            High
                         </label>
                     </div>
                 </fieldset>
