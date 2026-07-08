@@ -1947,7 +1947,6 @@ export const PS = new class extends PSModel {
 			title: "Rooms",
 			autofocus: false,
 		});
-		this.rightPanel = this.rooms['rooms']!;
 
 		if (this.newsHTML) {
 			this.addRoom({
