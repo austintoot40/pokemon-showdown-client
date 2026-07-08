@@ -1,4 +1,3 @@
-declare const SockJS: any;
 import type { ServerInfo } from "./client-main";
 
 let socket: WebSocket | null = null;
@@ -30,16 +29,10 @@ function connectToServer() {
 	const isSecure = self.location.protocol === 'https:';
 	const protocol = isSecure ? 'https' : serverInfo.protocol;
 	const port = isSecure ? `:${serverInfo.port}` : `:${serverInfo.port}`;
-	const url = `${protocol}://${serverInfo.host}${port}${serverInfo.prefix}`;
+	const wsUrl = `${protocol}://${serverInfo.host}${port}${serverInfo.prefix}`.replace('http', 'ws') + '/websocket';
 
-	console.log(`[worker] connecting to ${url}`);
-	try {
-		socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
-	} catch {
-		const wsUrl = url.replace('http', 'ws') + '/websocket';
-		console.log(`[worker] SockJS failed, falling back to raw WebSocket: ${wsUrl}`);
-		socket = new WebSocket(wsUrl);
-	}
+	console.log(`[worker] connecting to ${wsUrl}`);
+	socket = new WebSocket(wsUrl);
 	if (socket) {
 		socket.onopen = () => {
 			postMessage({ type: 'connected' });
