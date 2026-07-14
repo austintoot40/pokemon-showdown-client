@@ -65,57 +65,102 @@ function TrainerCarousel({ sprites }: { sprites: string[] }) {
 	/>;
 }
 
-interface PokemonCarouselItem { species: string; label: string; }
+// -----------------------------------------------------------------------
+// Outcome badge — skull+count if the segment had deaths, checkmark if clean.
+// Purely presentational; the whole node handles the click/tooltip.
+// -----------------------------------------------------------------------
 
-function PokemonCarousel({ items, variant }: { items: PokemonCarouselItem[]; variant: 'catch' | 'death' }) {
-	return <Carousel
-		items={items}
-		renderItem={(item: PokemonCarouselItem, visible: boolean) => {
-			const wrapCls = `nz-pkmn-carousel nz-pkmn-carousel--${variant}${visible ? ' nz-pkmn-carousel-visible' : ''}`;
-			return <div class={wrapCls}>
-				<NzSprite species={item.species} class="nz-pkmn-carousel-sprite" />
-				<div class="nz-pkmn-carousel-label">{item.label}</div>
-			</div>;
-		}}
-	/>;
+function OutcomeBadge({ deaths }: { deaths: NuzlockePanelPayload['segmentSummaries'][number]['deaths'] }) {
+	const hasDeaths = deaths.length > 0;
+	return <div class="nz-tl-badge">
+		{hasDeaths ? '💀' : '✓'}{hasDeaths && deaths.length > 1 ? deaths.length : ''}
+	</div>;
 }
 
 // -----------------------------------------------------------------------
-// Full timeline node
+// Full timeline node — whole card is the selectable element; clicking a
+// completed node reports its position up to SegmentScreen, which renders
+// the tooltip outside the clip-path'd timeline strip (see there for why).
 // -----------------------------------------------------------------------
 
-function TimelineNode({ summary, index }: {
+// Desktop (hover-capable, wide enough) gets hover-to-show; touch/narrow
+// screens keep tap-to-toggle. Matches the mobile breakpoint used elsewhere
+// in this file (max-width: 600px).
+const isDesktop = () => window.matchMedia('(min-width: 601px) and (hover: hover)').matches;
+
+class TimelineNode extends preact.Component<{
 	summary: NuzlockePanelPayload['segmentSummaries'][number];
 	index: number;
-}) {
-	const isDone = summary.status === 'completed';
-	const isCurrent = summary.status === 'current';
+	isOpen: boolean;
+	onOpen: (index: number, anchor: HTMLDivElement) => void;
+	onClose: () => void;
+	onToggle: (index: number, anchor: HTMLDivElement) => void;
+}> {
+	private anchorRef = preact.createRef<HTMLDivElement>();
 
-	const trainerSprites = summary.battles.map(b => b.sprite).filter(Boolean) as string[];
+	handleClick = () => {
+		if (this.props.summary.status !== 'completed' || !this.anchorRef.current || isDesktop()) return;
+		this.props.onToggle(this.props.index, this.anchorRef.current);
+	};
 
-	return <div class={`nz-tl-node nz-tl-node--${summary.status}`}>
-		{/* Current node is a card, full stop — no separate pip button standing in front of it */}
-		{!isCurrent && <div class={`nz-tl-pip${isDone ? ' nz-tl-pip--done' : ''}`}>
-			{index + 1}
-		</div>}
+	handleMouseEnter = () => {
+		if (this.props.summary.status !== 'completed' || !this.anchorRef.current || !isDesktop()) return;
+		this.props.onOpen(this.props.index, this.anchorRef.current);
+	};
 
-		<div class={`nz-tl-body${isCurrent ? ' nz-tl-card' : ''}`}>
-			<div class="nz-tl-label">{summary.name}</div>
+	handleMouseLeave = () => {
+		if (!isDesktop()) return;
+		this.props.onClose();
+	};
 
-			{/* Trainer sprites — carousel cycles through chained battles */}
-			<div class="nz-tl-trainers">
-				<TrainerCarousel sprites={trainerSprites} />
+	override render() {
+		const { summary, index, isOpen } = this.props;
+		const isDone = summary.status === 'completed';
+		const isCurrent = summary.status === 'current';
+
+		const trainerSprites = summary.battles.map(b => b.sprite).filter(Boolean) as string[];
+
+		return <div
+			class={`nz-tl-node nz-tl-node--${summary.status}${isDone ? ' nz-tl-node--selectable' : ''}${isOpen ? ' nz-tl-node--open' : ''}`}
+			onClick={this.handleClick}
+			onMouseEnter={this.handleMouseEnter}
+			onMouseLeave={this.handleMouseLeave}
+			role={isDone ? 'button' : undefined}
+			tabIndex={isDone ? 0 : undefined}
+		>
+			{/* Current node is a card, full stop — no separate pip button standing in front of it */}
+			{!isCurrent && <div class={`nz-tl-pip${isDone ? ' nz-tl-pip--done' : ''}`}>
+				{index + 1}
+			</div>}
+
+			<div class={`nz-tl-body${isCurrent ? ' nz-tl-card' : ''}`}>
+				<div class="nz-tl-label">{summary.name}</div>
+
+				{/* Trainer sprites — carousel cycles through chained battles. Badge overlays the sprite's corner. */}
+				<div class="nz-tl-trainers" ref={this.anchorRef}>
+					{isDone && <OutcomeBadge deaths={summary.deaths} />}
+					<TrainerCarousel sprites={trainerSprites} />
+				</div>
 			</div>
+		</div>;
+	}
+}
 
-			{/* Deaths carousel */}
-			{isDone && summary.deaths.length > 0 && <PokemonCarousel
-				variant="death"
-				items={summary.deaths.map(d => ({
-					species: d.species,
-					label: d.nickname,
-				}))}
-			/>}
-		</div>
+function TimelineTooltip({ deaths, pos }: {
+	deaths: NuzlockePanelPayload['segmentSummaries'][number]['deaths'];
+	pos: { top: number; left: number };
+}) {
+	return <div class="nz-tl-tooltip" style={`top:${pos.top}px; left:${pos.left}px`}>
+		{deaths.length > 0 ? deaths.map(d => <div class="nz-tl-tooltip-row" key={d.uid}>
+			<NzSprite species={d.species} size={44} class="nz-tl-tooltip-sprite" />
+			<div class="nz-tl-tooltip-text">
+				<div class="nz-tl-tooltip-name">{d.nickname}</div>
+			</div>
+		</div>) : <div class="nz-tl-tooltip-row">
+			<div class="nz-tl-tooltip-text">
+				<div class="nz-tl-tooltip-name">No losses this segment</div>
+			</div>
+		</div>}
 	</div>;
 }
 
@@ -123,10 +168,31 @@ function TimelineNode({ summary, index }: {
 // Main screen
 // -----------------------------------------------------------------------
 
-interface SegmentScreenState { showTutorial: boolean; }
+interface SegmentScreenState {
+	showTutorial: boolean;
+	openIndex: number | null;
+	tooltipPos: { top: number; left: number } | null;
+}
 
 export class SegmentScreen extends preact.Component<{ game: NuzlockePanelPayload }, SegmentScreenState> {
-	override state: SegmentScreenState = { showTutorial: false };
+	override state: SegmentScreenState = { showTutorial: false, openIndex: null, tooltipPos: null };
+
+	toggleTooltip = (index: number, anchor: HTMLDivElement) => {
+		if (this.state.openIndex === index) {
+			this.setState({ openIndex: null, tooltipPos: null });
+			return;
+		}
+		this.openTooltip(index, anchor);
+	};
+
+	openTooltip = (index: number, anchor: HTMLDivElement) => {
+		const rect = anchor.getBoundingClientRect();
+		this.setState({ openIndex: index, tooltipPos: { top: rect.bottom + 6, left: rect.left + rect.width / 2 } });
+	};
+
+	closeTooltip = () => {
+		this.setState({ openIndex: null, tooltipPos: null });
+	};
 
 	override componentDidMount() {
 		try {
@@ -174,10 +240,17 @@ export class SegmentScreen extends preact.Component<{ game: NuzlockePanelPayload
 					<div class="nz-seg-timeline">
 						{summaries.map((s, i) => <preact.Fragment key={s.id}>
 							{i > 0 && <div class={`nz-tl-line${s.status !== 'upcoming' && summaries[i - 1].status !== 'upcoming' ? ' nz-tl-line--done' : ''}`} />}
-							<TimelineNode summary={s} index={i} />
+							<TimelineNode
+							summary={s} index={i} isOpen={this.state.openIndex === i}
+							onToggle={this.toggleTooltip} onOpen={this.openTooltip} onClose={this.closeTooltip}
+						/>
 						</preact.Fragment>)}
 					</div>
 				</div>
+
+				{/* Rendered outside the clip-path'd timeline strip so it isn't clipped */}
+				{this.state.openIndex !== null && this.state.tooltipPos &&
+					<TimelineTooltip deaths={summaries[this.state.openIndex].deaths} pos={this.state.tooltipPos} />}
 
 				<div class="nz-seg-footer">
 					<button class="nz-btn nz-btn-primary nz-seg-proceed-btn" onClick={handleProceed}>

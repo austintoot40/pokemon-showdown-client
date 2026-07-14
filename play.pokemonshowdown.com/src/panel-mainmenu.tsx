@@ -961,11 +961,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
                                             </div>
                                             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
                                                 <span class="nz-badge nz-badge-active">Active</span>
-                                                {activeRun.deaths > 0 && (
-                                                    <span class="nz-badge nz-badge-danger">
-                                                        {activeRun.deaths} {activeRun.deaths === 1 ? 'loss' : 'losses'}
-                                                    </span>
-                                                )}
                                             </div>
                                         </div>
 

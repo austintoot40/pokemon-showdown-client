@@ -227,12 +227,12 @@ _this.setState({showTutorial:false});
 
 select=function(uid){
 if(_this._dragJustEnded)return;
-_this.setState({selectedUid:uid,selectedOpponent:null,activeTab:'moves'});
+_this.setState({selectedUid:uid,selectedOpponent:null});
 };_this.
 
 selectMobileTeamSlot=function(uid){
 if(_this._dragJustEnded)return;
-_this.setState({selectedUid:uid,selectedOpponent:null,activeTab:'moves',mobileTab:'loadout'});
+_this.setState({selectedUid:uid,selectedOpponent:null,mobileTab:'loadout'});
 };_this.
 
 selectOpponent=function(battleIdx,slotIdx){return _this.setState({selectedOpponent:{battleIdx:battleIdx,slotIdx:slotIdx},selectedUid:null,mobileTab:'vs'});};_this.
@@ -266,6 +266,11 @@ _this.setState(function(s){var _Object$assign2;return{heldItems:Object.assign({}
 
 
 
+excludeHeldItems=function(uid){
+var heldItems=_this.state.heldItems;
+return new Set(Object.entries(heldItems).filter(function(_ref){var u=_ref[0],id=_ref[1];return u!==uid&&id;}).map(function(_ref2){var id=_ref2[1];return id;}));
+};_this.
+
 clickBattle=function(){
 var errors=_this.validate();
 if(Object.keys(errors).length>0){
@@ -295,7 +300,7 @@ var item=heldItems[uid]||'none';
 return uid+" "+m+" "+item;
 }).join(' ');
 PS.send("/nuzlocke battlewithmoves "+parts);
-};return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);var _proto=TeambuildingScreen.prototype;_proto.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key='nuzlocke_tutorial';var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.teambuilding)this.setState({showTutorial:true});}catch(_unused2){}};_proto.componentWillUnmount=function componentWillUnmount(){this.cancelDrag();};_proto._startDrag=function _startDrag(initialState){this._drag=initialState;this.setState({drag:this._drag});document.addEventListener('pointermove',this.onDragMove);document.addEventListener('pointerup',this.onDragEnd);document.addEventListener('pointercancel',this.cancelDrag);};TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref,_props$game$party$,_props$game$box$find;var defaultUid=(_ref=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
+};return _this;}_inheritsLoose(TeambuildingScreen,_preact$Component);var _proto=TeambuildingScreen.prototype;_proto.componentDidMount=function componentDidMount(){try{var _localStorage$getItem2;var key='nuzlocke_tutorial';var seen=JSON.parse((_localStorage$getItem2=localStorage.getItem(key))!=null?_localStorage$getItem2:'{}');if(!seen.teambuilding)this.setState({showTutorial:true});}catch(_unused2){}};_proto.componentWillUnmount=function componentWillUnmount(){this.cancelDrag();};_proto._startDrag=function _startDrag(initialState){this._drag=initialState;this.setState({drag:this._drag});document.addEventListener('pointermove',this.onDragMove);document.addEventListener('pointerup',this.onDragEnd);document.addEventListener('pointercancel',this.cancelDrag);};TeambuildingScreen.getDerivedStateFromProps=function getDerivedStateFromProps(props,state){var moves=Object.assign({},state.moves);var heldItems=Object.assign({},state.heldItems);var changed=false;props.game.box.filter(function(p){return p.alive;}).forEach(function(p){var uid=p.uid;var serverMoves=p.moves.map(function(m){return toID(m);});if(!(uid in moves)){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}else{var serverFilled=serverMoves.filter(Boolean).length;var localFilled=moves[uid].filter(Boolean).length;if(serverFilled>localFilled){moves[uid]=[].concat(serverMoves,['','','','']).slice(0,4);changed=true;}}if(!(uid in heldItems)){heldItems[uid]=toID(p.item);changed=true;}});var selectedUid=state.selectedUid;if(!selectedUid){var _ref3,_props$game$party$,_props$game$box$find;var defaultUid=(_ref3=(_props$game$party$=props.game.party[0])!=null?_props$game$party$:(_props$game$box$find=props.game.box.find(function(p){return p.alive&&!props.game.party.includes(p.uid);}))==null?void 0:_props$game$box$find.uid)!=null?_ref3:null;if(defaultUid){selectedUid=defaultUid;changed=true;}}return changed?{moves:moves,heldItems:heldItems,selectedUid:selectedUid}:null;};_proto.validate=function validate(){var game=this.props.game;var moves=this.state.moves;var errors={};for(var _i2=0,_game$party2=game.party;_i2<_game$party2.length;_i2++){var _moves$uid2;var uid=_game$party2[_i2];var selected=((_moves$uid2=moves[uid])!=null?_moves$uid2:[]).filter(Boolean);if(selected.length===0){errors[uid]='Must have at least 1 move.';continue;}if(new Set(selected).size!==selected.length){errors[uid]='Duplicate moves selected.';}}return errors;};_proto.
 
 
 
@@ -433,6 +438,7 @@ preact.h("div",{"class":"nz-tb-mobile-section"},"Held Item"),
 preact.h(NzItemTable,{
 value:(_heldItems$selectedPo=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo:'',
 items:game.holdableItems,
+excludeIds:this.excludeHeldItems(selectedPokemon.uid),
 onChange:function(id){return _this3.setItem(selectedPokemon.uid,id);}}
 )
 ),
@@ -781,6 +787,7 @@ newMoves.forEach(function(id,slot){return _this6.setMove(selectedPokemon.uid,slo
 this.state.activeTab==='items'&&isInParty&&preact.h(NzItemTable,{
 value:(_heldItems$selectedPo2=heldItems[selectedPokemon.uid])!=null?_heldItems$selectedPo2:'',
 items:game.holdableItems,
+excludeIds:this.excludeHeldItems(selectedPokemon.uid),
 onChange:function(id){return _this6.setItem(selectedPokemon.uid,id);}}
 ),
 

@@ -937,7 +937,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 	renderAfterBattleControls() {
 		return <div class="controls">
-			<p>
+			<p style={{ textAlign: 'center' }}>
 				<button class="nz-btn nz-btn-primary" data-cmd="/closeand /join view-nuzlocke">Continue</button>
 			</p>
 		</div>;

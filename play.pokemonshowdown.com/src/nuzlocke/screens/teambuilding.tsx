@@ -227,12 +227,12 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 
 	select = (uid: string) => {
 		if (this._dragJustEnded) return;
-		this.setState({ selectedUid: uid, selectedOpponent: null, activeTab: 'moves' });
+		this.setState({ selectedUid: uid, selectedOpponent: null });
 	};
 
 	selectMobileTeamSlot = (uid: string) => {
 		if (this._dragJustEnded) return;
-		this.setState({ selectedUid: uid, selectedOpponent: null, activeTab: 'moves', mobileTab: 'loadout' });
+		this.setState({ selectedUid: uid, selectedOpponent: null, mobileTab: 'loadout' });
 	};
 
 	selectOpponent = (battleIdx: number, slotIdx: number) => this.setState({ selectedOpponent: { battleIdx, slotIdx }, selectedUid: null, mobileTab: 'vs' });
@@ -265,6 +265,11 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 		}
 		return errors;
 	}
+
+	excludeHeldItems = (uid: string) => {
+		const { heldItems } = this.state;
+		return new Set(Object.entries(heldItems).filter(([u, id]) => u !== uid && id).map(([, id]) => id));
+	};
 
 	clickBattle = () => {
 		const errors = this.validate();
@@ -433,6 +438,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 						<NzItemTable
 							value={heldItems[selectedPokemon.uid] ?? ''}
 							items={game.holdableItems}
+							excludeIds={this.excludeHeldItems(selectedPokemon.uid)}
 							onChange={id => this.setItem(selectedPokemon.uid, id)}
 						/>
 					</>}
@@ -781,6 +787,7 @@ export class TeambuildingScreen extends preact.Component<{ game: NuzlockePanelPa
 				{this.state.activeTab === 'items' && isInParty && <NzItemTable
 					value={heldItems[selectedPokemon.uid] ?? ''}
 					items={game.holdableItems}
+					excludeIds={this.excludeHeldItems(selectedPokemon.uid)}
 					onChange={id => this.setItem(selectedPokemon.uid, id)}
 				/>}
 

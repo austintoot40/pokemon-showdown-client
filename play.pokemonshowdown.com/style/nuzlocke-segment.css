@@ -120,8 +120,9 @@
 }
 
 
-/* Trainer sprite area */
+/* Trainer sprite area — also the badge's positioning anchor */
 .nz-tl-trainers {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,6 +184,11 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  /* Without this, align-items:center on .nz-tl-node lets this item
+     shrink-to-fit its content instead of the node's fixed width — and
+     since the label is nowrap, shrink-to-fit means "as wide as the
+     unwrapped text," which is what let labels spill past their column. */
+  align-self: stretch;
 }
 
 /* Current node is a card, full stop — no separate pip button in front of it. Sized up so it reads as the focal point. */
@@ -227,44 +233,99 @@
 .nz-tl-node--current .nz-tl-label {
   color: var(--nz-text);
   font-size: 15px;
+  /* Current segment gets full wrap instead of truncation — the card's
+     height is auto, so it just grows to fit. */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
 }
 
-/* Pokemon carousel (catches / deaths) */
-.nz-pkmn-carousel {
+/* Completed nodes are selectable — click toggles the outcome tooltip.
+   padding-top/margin-top cancel out (net zero height) so the hover/open
+   background gets breathing room above the pip without shifting the
+   node's height or position in the row — alignment with sibling nodes
+   and the connector lines is unaffected. */
+.nz-tl-node--selectable {
+  cursor: pointer;
+  border-radius: 2px;
+  padding-top: 6px;
+  margin-top: -6px;
+  transition: background 0.15s ease;
+}
+
+.nz-tl-node--selectable:hover,
+.nz-tl-node--selectable:focus-visible,
+.nz-tl-node--open {
+  background: var(--nz-accent-dim);
+}
+
+/* Outcome badge — skull+count if deaths this segment, checkmark if clean.
+   Overlaid on the sprite's bottom-left corner so it never affects row
+   height and stays clear of the trainer name above. */
+.nz-tl-badge {
+  position: absolute;
+  bottom: 3px;
+  left: -4px;
+  z-index: 1;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--nz-text);
+}
+
+/* Outcome tooltip — fixed positioning, coordinates set via inline style
+   (JS reads the trainer sprite's bounding rect). Fixed rather than
+   absolute because the timeline strip is clip-path'd, which clips any
+   absolutely-positioned overflow the same as `overflow: hidden` would. */
+.nz-tl-tooltip {
+  position: fixed;
+  z-index: 100;
+  max-width: 220px;
+  background: var(--nz-elevated);
+  border: 1px solid var(--nz-border);
+  clip-path: var(--nz-clip-sm);
+  box-shadow: var(--nz-shadow);
+  padding: 8px;
+  padding-right: 16px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  cursor: default;
+  animation: nz-tl-tooltip-in 0.15s ease both;
+}
+
+/* Own keyframes (not nz-seg-node-in) — an animated `transform` fully
+   replaces the base value, so reusing a translateY-only animation here
+   would silently wipe out the translateX(-50%) centering below. */
+@keyframes nz-tl-tooltip-in {
+  from { opacity: 0; transform: translate(-50%, 6px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.nz-tl-tooltip-row {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  justify-content: center;
+  gap: 6px;
 }
 
-.nz-pkmn-carousel-visible {
-  opacity: 1;
-}
-
-.nz-pkmn-carousel-sprite {
-  display: block;
-}
-
-.nz-pkmn-carousel--death .nz-pkmn-carousel-sprite {
+.nz-tl-tooltip-sprite {
   filter: grayscale(1) brightness(0.5);
+  flex-shrink: 0;
+  margin-left: -8px
 }
 
-.nz-pkmn-carousel-label {
+.nz-tl-tooltip-text {
+  min-width: 0;
+}
+
+.nz-tl-tooltip-name {
   font-family: var(--nz-font-ui);
   font-size: 12px;
   font-weight: 700;
-  color: var(--nz-text-muted);
-  text-align: center;
+  color: var(--nz-danger);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 96px;
-}
-
-.nz-pkmn-carousel--death .nz-pkmn-carousel-label {
-  color: var(--nz-danger);
 }
 
 /* Connector line between nodes */
@@ -448,12 +509,6 @@
     font-size: 13px;
   }
 
-  .nz-tl-node:not(.nz-tl-node--current) .nz-pkmn-carousel {
-    grid-column: 3;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 8px;
-  }
 
   /* Current segment: unchanged from the original centered card — sprite
      above, name below — full width, border-bottom removed since it isn't
@@ -464,11 +519,6 @@
     align-items: center;
     width: 100%;
     padding: 12px 4px;
-  }
-
-  .nz-pkmn-carousel-sprite {
-    width: 44px;
-    height: 44px;
   }
 
   .nz-tl-trainer-sprite,
