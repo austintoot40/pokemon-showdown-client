@@ -71,9 +71,8 @@ preact.h("img",{"class":"nz-tl-trainer-sprite",src:url,alt:sprite,width:80,heigh
 
 
 function OutcomeBadge(_ref3){var deaths=_ref3.deaths;
-var hasDeaths=deaths.length>0;
-return preact.h("div",{"class":"nz-tl-badge"},
-hasDeaths?'💀':'✓',hasDeaths&&deaths.length>1?deaths.length:''
+return preact.h("div",{"class":"nz-tl-badge"},"\uD83D\uDC80",
+deaths.length>1?deaths.length:''
 );
 }
 
@@ -99,12 +98,12 @@ TimelineNode=function(_preact$Component2){function TimelineNode(){var _this4;for
 anchorRef=preact.createRef();_this4.
 
 handleClick=function(){
-if(_this4.props.summary.status!=='completed'||!_this4.anchorRef.current||isDesktop())return;
+if(_this4.props.summary.status!=='completed'||_this4.props.summary.deaths.length===0||!_this4.anchorRef.current||isDesktop())return;
 _this4.props.onToggle(_this4.props.index,_this4.anchorRef.current);
 };_this4.
 
 handleMouseEnter=function(){
-if(_this4.props.summary.status!=='completed'||!_this4.anchorRef.current||!isDesktop())return;
+if(_this4.props.summary.status!=='completed'||_this4.props.summary.deaths.length===0||!_this4.anchorRef.current||!isDesktop())return;
 _this4.props.onOpen(_this4.props.index,_this4.anchorRef.current);
 };_this4.
 
@@ -116,17 +115,18 @@ _this4.props.onClose();
 render=function render(){
 var _this$props2=this.props,summary=_this$props2.summary,index=_this$props2.index,isOpen=_this$props2.isOpen;
 var isDone=summary.status==='completed';
+var hasTooltip=isDone&&summary.deaths.length>0;
 var isCurrent=summary.status==='current';
 
 var trainerSprites=summary.battles.map(function(b){return b.sprite;}).filter(Boolean);
 
 return preact.h("div",{
-"class":"nz-tl-node nz-tl-node--"+summary.status+(isDone?' nz-tl-node--selectable':'')+(isOpen?' nz-tl-node--open':''),
+"class":"nz-tl-node nz-tl-node--"+summary.status+(hasTooltip?' nz-tl-node--selectable':'')+(isOpen?' nz-tl-node--open':''),
 onClick:this.handleClick,
 onMouseEnter:this.handleMouseEnter,
 onMouseLeave:this.handleMouseLeave,
-role:isDone?'button':undefined,
-tabIndex:isDone?0:undefined},
+role:hasTooltip?'button':undefined,
+tabIndex:hasTooltip?0:undefined},
 
 
 !isCurrent&&preact.h("div",{"class":"nz-tl-pip"+(isDone?' nz-tl-pip--done':'')},
@@ -138,7 +138,7 @@ preact.h("div",{"class":"nz-tl-label"},summary.name),
 
 
 preact.h("div",{"class":"nz-tl-trainers",ref:this.anchorRef},
-isDone&&preact.h(OutcomeBadge,{deaths:summary.deaths}),
+hasTooltip&&preact.h(OutcomeBadge,{deaths:summary.deaths}),
 preact.h(TrainerCarousel,{sprites:trainerSprites})
 )
 )
@@ -151,16 +151,12 @@ function TimelineTooltip(_ref4)
 
 {var deaths=_ref4.deaths,pos=_ref4.pos;
 return preact.h("div",{"class":"nz-tl-tooltip",style:"top:"+pos.top+"px; left:"+pos.left+"px"},
-deaths.length>0?deaths.map(function(d){return preact.h("div",{"class":"nz-tl-tooltip-row",key:d.uid},
+deaths.map(function(d){return preact.h("div",{"class":"nz-tl-tooltip-row",key:d.uid},
 preact.h(NzSprite,{species:d.species,size:44,"class":"nz-tl-tooltip-sprite"}),
 preact.h("div",{"class":"nz-tl-tooltip-text"},
 preact.h("div",{"class":"nz-tl-tooltip-name"},d.nickname)
 )
-);}):preact.h("div",{"class":"nz-tl-tooltip-row"},
-preact.h("div",{"class":"nz-tl-tooltip-text"},
-preact.h("div",{"class":"nz-tl-tooltip-name"},"No losses this segment")
-)
-)
+);})
 );
 }var
 

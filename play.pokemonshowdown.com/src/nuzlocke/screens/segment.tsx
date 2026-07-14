@@ -71,9 +71,8 @@ function TrainerCarousel({ sprites }: { sprites: string[] }) {
 // -----------------------------------------------------------------------
 
 function OutcomeBadge({ deaths }: { deaths: NuzlockePanelPayload['segmentSummaries'][number]['deaths'] }) {
-	const hasDeaths = deaths.length > 0;
 	return <div class="nz-tl-badge">
-		{hasDeaths ? '💀' : '✓'}{hasDeaths && deaths.length > 1 ? deaths.length : ''}
+		💀{deaths.length > 1 ? deaths.length : ''}
 	</div>;
 }
 
@@ -99,12 +98,12 @@ class TimelineNode extends preact.Component<{
 	private anchorRef = preact.createRef<HTMLDivElement>();
 
 	handleClick = () => {
-		if (this.props.summary.status !== 'completed' || !this.anchorRef.current || isDesktop()) return;
+		if (this.props.summary.status !== 'completed' || this.props.summary.deaths.length === 0 || !this.anchorRef.current || isDesktop()) return;
 		this.props.onToggle(this.props.index, this.anchorRef.current);
 	};
 
 	handleMouseEnter = () => {
-		if (this.props.summary.status !== 'completed' || !this.anchorRef.current || !isDesktop()) return;
+		if (this.props.summary.status !== 'completed' || this.props.summary.deaths.length === 0 || !this.anchorRef.current || !isDesktop()) return;
 		this.props.onOpen(this.props.index, this.anchorRef.current);
 	};
 
@@ -116,17 +115,18 @@ class TimelineNode extends preact.Component<{
 	override render() {
 		const { summary, index, isOpen } = this.props;
 		const isDone = summary.status === 'completed';
+		const hasTooltip = isDone && summary.deaths.length > 0;
 		const isCurrent = summary.status === 'current';
 
 		const trainerSprites = summary.battles.map(b => b.sprite).filter(Boolean) as string[];
 
 		return <div
-			class={`nz-tl-node nz-tl-node--${summary.status}${isDone ? ' nz-tl-node--selectable' : ''}${isOpen ? ' nz-tl-node--open' : ''}`}
+			class={`nz-tl-node nz-tl-node--${summary.status}${hasTooltip ? ' nz-tl-node--selectable' : ''}${isOpen ? ' nz-tl-node--open' : ''}`}
 			onClick={this.handleClick}
 			onMouseEnter={this.handleMouseEnter}
 			onMouseLeave={this.handleMouseLeave}
-			role={isDone ? 'button' : undefined}
-			tabIndex={isDone ? 0 : undefined}
+			role={hasTooltip ? 'button' : undefined}
+			tabIndex={hasTooltip ? 0 : undefined}
 		>
 			{/* Current node is a card, full stop — no separate pip button standing in front of it */}
 			{!isCurrent && <div class={`nz-tl-pip${isDone ? ' nz-tl-pip--done' : ''}`}>
@@ -138,7 +138,7 @@ class TimelineNode extends preact.Component<{
 
 				{/* Trainer sprites — carousel cycles through chained battles. Badge overlays the sprite's corner. */}
 				<div class="nz-tl-trainers" ref={this.anchorRef}>
-					{isDone && <OutcomeBadge deaths={summary.deaths} />}
+					{hasTooltip && <OutcomeBadge deaths={summary.deaths} />}
 					<TrainerCarousel sprites={trainerSprites} />
 				</div>
 			</div>
@@ -151,16 +151,12 @@ function TimelineTooltip({ deaths, pos }: {
 	pos: { top: number; left: number };
 }) {
 	return <div class="nz-tl-tooltip" style={`top:${pos.top}px; left:${pos.left}px`}>
-		{deaths.length > 0 ? deaths.map(d => <div class="nz-tl-tooltip-row" key={d.uid}>
+		{deaths.map(d => <div class="nz-tl-tooltip-row" key={d.uid}>
 			<NzSprite species={d.species} size={44} class="nz-tl-tooltip-sprite" />
 			<div class="nz-tl-tooltip-text">
 				<div class="nz-tl-tooltip-name">{d.nickname}</div>
 			</div>
-		</div>) : <div class="nz-tl-tooltip-row">
-			<div class="nz-tl-tooltip-text">
-				<div class="nz-tl-tooltip-name">No losses this segment</div>
-			</div>
-		</div>}
+		</div>)}
 	</div>;
 }
 
